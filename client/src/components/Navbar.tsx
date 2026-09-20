@@ -43,8 +43,8 @@ export function Navbar({ onOpenIdentify }: NavbarProps) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex min-h-16 items-center justify-between gap-3 py-2">
           <Link href="/" aria-label="SIPATMA Cummins — página inicial" className="flex min-w-0 items-center gap-3 rounded-md focus-visible:ring-2 focus-visible:ring-amber-300">
-            <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-white font-industrial text-2xl font-black italic text-[#da291c] shadow-md ring-1 ring-red-400/40">
-              C
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-white p-1.5 shadow-md ring-1 ring-red-400/40">
+              <img src="/manus-storage/cummins-logo_33ff0756.svg" alt="Logo oficial da Cummins" className="h-full w-full object-contain" />
             </span>
             <span className="min-w-0">
               <span className="block truncate font-industrial text-base font-extrabold tracking-wider text-white sm:text-lg">CUMMINS <span className="text-[#ff5548]">SIPATMA</span></span>

@@ -67,3 +67,14 @@ Atendendo à solicitação, foram pesquisadas e selecionadas imagens editoriais 
 3. **Eixo MS-18X HD** (`/manus-storage/eixo-ms18x-cummins_1bf791f6.jpg`), divulgado pela *Revista M&T* em notícia sobre a produção local na planta de Osasco.
 
 As imagens foram incorporadas por meio do componente `RealFactoryPhoto`, que inclui texto alternativo detalhado, legenda contextual, link para a publicação de referência e conformidade com alto contraste e navegação por teclado. As fotos foram distribuídas nas páginas **Início**, **Sobre** e **Projeto 3D**, substituindo ilustrações genéricas nos pontos de maior destaque institucional e técnico.
+
+
+## Atualizações de identidade e comunidade
+
+Em atendimento às solicitações mais recentes:
+1. **Red Flag:** o texto da seção na página inicial foi atualizado para:
+   > **RED FLAG | ATENÇÃO MÁXIMA À SEGURANÇA**  
+   > Na Cummins, a segurança das pessoas vem em primeiro lugar.  
+   > O Red Flag reforça a necessidade de atenção máxima em nossas atividades, com foco na identificação de riscos, prevenção de incidentes e cuidado com todos ao nosso redor.
+2. **Logo oficial da Cummins:** o símbolo anterior foi substituído pela marca oficial vetorial com a letra `C` e o wordmark `Cummins`, aplicada tanto no cabeçalho global quanto no destaque do painel Red Flag.
+3. **Foto da equipe em "Nosso projeto":** a fotografia real enviada dos integrantes do projeto foi inserida na seção "Quem criou esta ideia", acompanhada de legenda descritiva e texto alternativo acessível.

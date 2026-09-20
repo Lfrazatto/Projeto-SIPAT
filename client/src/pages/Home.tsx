@@ -6,7 +6,6 @@ import { useParticipant } from "@/contexts/ParticipantContext";
 import { trpc } from "@/lib/trpc";
 import { 
   ShieldAlert, 
-  Flame, 
   Leaf, 
   HeartPulse, 
   Sparkles, 
@@ -299,12 +298,13 @@ export default function Home() {
                   </div>
 
                   <h2 className="text-3xl sm:text-4xl font-extrabold font-industrial text-white tracking-wide uppercase">
-                    RED FLAG – <span className="text-[#da291c]">CUMMINS OSASCO</span>
+                    RED FLAG <span className="text-[#da291c]">| ATENÇÃO MÁXIMA À SEGURANÇA</span>
                   </h2>
 
-                  <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-                    A <strong className="text-white">Red Flag</strong> representa uma situação de risco iminente ou condição insegura que deve ser imediatamente identificada, comunicada e tratada antes que possa causar qualquer acidente.
-                  </p>
+                  <div className="space-y-3 text-base leading-relaxed text-slate-300 sm:text-lg">
+                    <p>Na Cummins, a segurança das pessoas vem em primeiro lugar.</p>
+                    <p>O Red Flag reforça a necessidade de atenção máxima em nossas atividades, com foco na identificação de riscos, prevenção de incidentes e cuidado com todos ao nosso redor.</p>
+                  </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                     <div className="p-4 rounded-lg bg-black/40 border border-white/10 flex flex-col items-center text-center">
@@ -341,8 +341,8 @@ export default function Home() {
 
                 {/* Right visual industrial plate */}
                 <div className="lg:col-span-4 flex flex-col items-center justify-center p-6 bg-black/50 rounded-xl border border-white/10 text-center">
-                  <div className="w-24 h-24 rounded-2xl bg-[#da291c] flex items-center justify-center shadow-xl shadow-red-900/60 mb-4 border-2 border-red-300">
-                    <Flame className="w-14 h-14 text-white" />
+                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-[#da291c] p-3 shadow-xl shadow-red-900/60 mb-4 border-2 border-red-300">
+                    <img src="/manus-storage/cummins-logo_33ff0756.svg" alt="Logo oficial da Cummins" className="h-full w-full object-contain" />
                   </div>
                   <h3 className="font-industrial font-extrabold text-xl text-white tracking-wider">
                     BANDEIRA VERMELHA
