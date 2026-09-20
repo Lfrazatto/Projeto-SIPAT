@@ -31,3 +31,10 @@
 
 - [x] Inserir fotos reais da unidade Cummins/Meritor em Osasco com legendas, créditos e alt text nas páginas Início, Sobre e Projeto 3D.
 - [x] Revalidar build, 42 testes e capturas responsivas em desktop e mobile após a inclusão das fotos.
+
+- [x] Corrigir o carregamento das imagens do jogo Ache o Erro com novos pares seguro/inseguro funcionais
+- [x] Inspecionar visualmente as cinco cenas em quadrantes e recalibrar os 35 hotspots sobre os atos inseguros reais
+- [x] Sincronizar os 35 hotspots recalibrados no banco gerenciado
+- [x] Ordenar o seletor das fases de Fase 1 a Fase 5
+- [x] Validar no navegador duas imagens carregadas e um clique real reconhecido no portão da Montagem
+- [ ] Rodar validação final, salvar checkpoint e atualizar pacote ZIP

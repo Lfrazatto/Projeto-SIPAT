@@ -41,7 +41,7 @@ describe("Cummins SIPATMA Challenge Backend Logic", () => {
     const caller = appRouter.createCaller(createMockContext());
     const scenarios = await caller.games.getScenarioCatalog();
     expect(scenarios).toHaveLength(5);
-    expect(scenarios.map((scenario) => scenario.key)).toEqual(expect.arrayContaining(["cdbs-v4-montagem-2026", "cdbs-v4-logistica-2026", "cdbs-v4-manutencao-2026", "cdbs-v4-almoxarifado-2026", "cdbs-v4-producao-2026"]));
+    expect(scenarios.map((scenario) => scenario.key)).toEqual(expect.arrayContaining(["cdbs-v4-montagem-2026", "cdbs-v4-logistica-2026", "cdbs-v4-manutencao-2026", "cdbs-v4-usinagem-2026", "cdbs-v4-producao-2026"]));
     const hotspots = await caller.games.getSpotErrorHotspots({ scenarioKey: "cdbs-v4-montagem-2026" });
     expect(hotspots.length).toBeGreaterThan(0);
     expect(hotspots.every((hotspot) => hotspot.scenarioKey === "cdbs-v4-montagem-2026")).toBe(true);

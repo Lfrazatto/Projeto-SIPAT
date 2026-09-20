@@ -160,7 +160,9 @@ export const appRouter = router({
 
     getScenarioCatalog: publicProcedure.query(async () => {
       const stored = await db.listScenarioImages(true);
-      return stored.length ? stored.map((scenario) => ({ key: scenario.scenarioKey, label: scenario.label, image: scenario.imageUrl, safeImage: scenario.safeImageUrl || scenario.imageUrl, difficulty: scenario.difficulty, timeSeconds: scenario.timeSeconds, hintCount: scenario.hintCount, hintCost: scenario.hintCost, wrongClickPenalty: scenario.wrongClickPenalty, phaseMode: scenario.phaseMode })) : CDBS_SPOT_ERROR_SCENARIOS.map((scenario) => ({ ...scenario, safeImage: scenario.image, difficulty: "facil" as const, timeSeconds: 180, hintCount: 2, hintCost: 5, wrongClickPenalty: 0, phaseMode: "livres" as const }));
+      const phaseNumber = (label: string) => Number(label.match(/Fase\s+(\d+)/i)?.[1] ?? 999);
+      const ordered = [...stored].sort((a, b) => phaseNumber(a.label) - phaseNumber(b.label) || a.label.localeCompare(b.label, "pt-BR"));
+      return ordered.length ? ordered.map((scenario) => ({ key: scenario.scenarioKey, label: scenario.label, image: scenario.imageUrl, safeImage: scenario.safeImageUrl || scenario.imageUrl, difficulty: scenario.difficulty, timeSeconds: scenario.timeSeconds, hintCount: scenario.hintCount, hintCost: scenario.hintCost, wrongClickPenalty: scenario.wrongClickPenalty, phaseMode: scenario.phaseMode })) : CDBS_SPOT_ERROR_SCENARIOS.map((scenario) => ({ ...scenario, safeImage: scenario.image, difficulty: "facil" as const, timeSeconds: 180, hintCount: 2, hintCost: 5, wrongClickPenalty: 0, phaseMode: "livres" as const }));
     }),
 
       getSpotErrorHotspots: publicProcedure
