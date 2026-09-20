@@ -3,6 +3,8 @@ import { ArrowRight, BookOpen, Boxes, Gauge, HardHat, Info, MapPin, Rotate3D, Sh
 import { Link } from "wouter";
 import { Navbar } from "@/components/Navbar";
 import { AxleAssemblyViewer } from "@/components/AxleAssemblyViewer";
+import { RealFactoryPhoto } from "@/components/RealFactoryPhoto";
+import { REAL_PHOTOS } from "@/data/realPhotos";
 
 const highlights = [
   { icon: Boxes, title: "Redução simples", text: "Arquitetura de eixo traseiro simples para aplicações de transporte e entrega." },
@@ -28,6 +30,25 @@ export default function Projeto3D() {
     <section className="border-b border-white/10 bg-[#12151d] px-4 py-14 sm:px-6 lg:px-8"><div className="mx-auto max-w-7xl"><div className="flex items-center gap-3"><BookOpen className="h-6 w-6 text-amber-400" /><div><div className="v2-kicker">Consulta técnica</div><h2 className="font-industrial text-3xl uppercase text-white">Ficha do produto</h2></div></div><div className="mt-7 overflow-hidden rounded-xl border border-white/10"><div className="overflow-x-auto"><table className="w-full min-w-[620px] border-collapse text-left text-sm"><thead className="bg-[#1a202b] text-xs uppercase tracking-wider text-slate-300"><tr><th className="px-5 py-4">Campo</th><th className="px-5 py-4">Informação</th></tr></thead><tbody>{specs.map(([field, value], index) => <tr key={field} className={index % 2 ? "bg-[#141822]" : "bg-[#10141b]"}><th scope="row" className="w-1/3 px-5 py-3 font-semibold text-slate-300">{field}</th><td className="px-5 py-3 leading-relaxed text-slate-400">{value}</td></tr>)}</tbody></table></div></div></div></section>
 
     <section className="border-b border-white/10 bg-gradient-to-r from-red-950/30 via-[#151922] to-black px-4 py-12 sm:px-6 lg:px-8"><div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2"><div className="rounded-xl border border-red-400/25 bg-red-950/20 p-6"><div className="flex items-center gap-2 text-red-200"><MapPin className="h-5 w-5" /><h2 className="font-industrial text-2xl uppercase">Contexto brasileiro</h2></div><p className="mt-4 text-sm leading-relaxed text-slate-300">A carcaça do eixo MS-120 passou a ser fabricada pela unidade da Cummins em Osasco, São Paulo. Essa informação se refere à nacionalização da carcaça e à produção local do componente; não é uma especificação dimensional adicional do eixo.</p><p className="mt-4 text-xs leading-relaxed text-slate-400">A carcaça também foi associada a uma versão ECO — Electric Compatible — desenvolvida pela engenharia brasileira para veículos elétricos.</p></div><div className="rounded-xl border border-amber-400/20 bg-amber-950/10 p-6"><div className="flex items-center gap-2 text-amber-200"><Info className="h-5 w-5" /><h2 className="font-industrial text-2xl uppercase">Origem do modelo</h2></div><p className="mt-4 text-sm leading-relaxed text-slate-300">A geometria é reconstruída proceduralmente a partir das especificações públicas do MS-120 e de referências visuais de eixos Cummins/Meritor 17XS, sem usar fotografias como textura. Para fabricação, continuam sendo necessários desenhos, tolerâncias e especificações oficiais do fabricante.</p></div></div></section>
+
+    <section className="border-b border-white/10 bg-[#10131a] px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[1.1fr_.9fr]">
+        <div>
+          <div className="v2-kicker">Produto real / referência industrial</div>
+          <h2 className="mt-2 font-industrial text-3xl uppercase text-white">Da peça física ao modelo digital</h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300">A imagem abaixo apresenta um eixo Cummins relacionado à produção local anunciada para Osasco. Ela complementa o modelo 3D didático, que foi reconstruído para permitir a exploração das peças e não usa fotografia como textura.</p>
+          <p className="mt-4 text-xs leading-relaxed text-slate-400">A fotografia é uma referência editorial do produto; dimensões, tolerâncias e especificações de fabricação devem sempre ser consultadas nos documentos oficiais do fabricante.</p>
+        </div>
+        <RealFactoryPhoto
+          src={REAL_PHOTOS.axle.src}
+          alt="Eixo Cummins MS-18X HD apresentado como referência de produto relacionado à produção local em Osasco"
+          caption="Eixo MS-18X HD — referência de produto ligada à produção local em Osasco."
+          credit={REAL_PHOTOS.axle.credit}
+          sourceUrl={REAL_PHOTOS.axle.sourceUrl}
+          className="group"
+        />
+      </div>
+    </section>
 
     <section className="px-4 py-12 sm:px-6 lg:px-8"><div className="mx-auto max-w-7xl"><div className="v2-kicker">Fontes técnicas</div><h2 className="mt-2 font-industrial text-3xl uppercase text-white">Consulte as referências</h2><div className="mt-6 grid gap-3 md:grid-cols-3"><a href="https://www.cummins.com/pt-br/components/products/drivetrain-systems/axles/single-rear-drive/ms-120" target="_blank" rel="noreferrer" className="rounded-lg border border-white/10 bg-[#141822] p-4 text-sm text-slate-300 hover:border-red-400/60 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400">Cummins — página oficial do MS-120 <ArrowRight className="ml-1 inline h-4 w-4" /></a><a href="https://www.meritorbrasil.com.br/eixos-ms.php" target="_blank" rel="noreferrer" className="rounded-lg border border-white/10 bg-[#141822] p-4 text-sm text-slate-300 hover:border-red-400/60 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400">Ficha brasileira de eixos <ArrowRight className="ml-1 inline h-4 w-4" /></a><a href="https://www.autodata.com.br/noticias/2024/04/03/cummins-meritor-nacionaliza-a-carcaca-do-eixo-ms-120/70197/" target="_blank" rel="noreferrer" className="rounded-lg border border-white/10 bg-[#141822] p-4 text-sm text-slate-300 hover:border-red-400/60 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400">AutoData — nacionalização da carcaça <ArrowRight className="ml-1 inline h-4 w-4" /></a></div><div className="mt-8"><Link href="/jogos" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-red-300 hover:text-white">Voltar aos desafios <ArrowRight className="h-4 w-4" /></Link></div></div></section>
   </main></div>;

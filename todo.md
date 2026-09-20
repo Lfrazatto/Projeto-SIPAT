@@ -28,3 +28,6 @@
 - [x] Executar auditoria funcional e de acessibilidade, corrigindo as falhas encontradas.
 - [x] Remover do banco o participante fictício usado na auditoria.
 - [x] Preparar relatório, checkpoint final e pacote ZIP consolidado.
+
+- [x] Inserir fotos reais da unidade Cummins/Meritor em Osasco com legendas, créditos e alt text nas páginas Início, Sobre e Projeto 3D.
+- [x] Revalidar build, 42 testes e capturas responsivas em desktop e mobile após a inclusão das fotos.

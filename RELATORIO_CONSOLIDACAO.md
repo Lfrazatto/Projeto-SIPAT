@@ -56,3 +56,14 @@ O build emite somente um aviso não bloqueante sobre o tamanho do bundle JavaScr
 A versão final combina o melhor dos dois projetos sem manter duplicações de interface ou inconsistências de dados. O preview gerenciado está disponível em:
 
 <https://3000-ine5x8lszvhu4xyfuk0x1-50afdd21.us1.manus.computer>
+
+
+## Integração de fotos reais de Osasco
+
+Atendendo à solicitação, foram pesquisadas e selecionadas imagens editoriais públicas reais ligadas diretamente à unidade Cummins/Meritor em Osasco:
+
+1. **Linha automatizada de produção em Osasco** (`/manus-storage/cummins-osasco-linha-producao_72e7e8d9.jpg`), originada de cobertura jornalística da *Transporte Moderno* sobre a modernização e nova geração de eixos.
+2. **Operação e montagem na planta de Osasco** (`/manus-storage/cummins-meritor-osasco-montagem_642e64a0.jpg`), divulgada por veículos do setor (*Portal da Autopeça*) sobre a modernização industrial da unidade.
+3. **Eixo MS-18X HD** (`/manus-storage/eixo-ms18x-cummins_1bf791f6.jpg`), divulgado pela *Revista M&T* em notícia sobre a produção local na planta de Osasco.
+
+As imagens foram incorporadas por meio do componente `RealFactoryPhoto`, que inclui texto alternativo detalhado, legenda contextual, link para a publicação de referência e conformidade com alto contraste e navegação por teclado. As fotos foram distribuídas nas páginas **Início**, **Sobre** e **Projeto 3D**, substituindo ilustrações genéricas nos pontos de maior destaque institucional e técnico.

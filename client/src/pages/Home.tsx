@@ -25,7 +25,8 @@ import {
   SlidersHorizontal
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { IndustrialScene } from "@/components/IndustrialScene";
+import { RealFactoryPhoto } from "@/components/RealFactoryPhoto";
+import { REAL_PHOTOS } from "@/data/realPhotos";
 
 export default function Home() {
   const [, navigate] = useLocation();
@@ -262,16 +263,22 @@ export default function Home() {
 
       <section className="py-12 px-4 sm:px-6 lg:px-8 border-b border-white/10 bg-[#0f1218]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
-          <div className="lg:col-span-3 relative overflow-hidden rounded-2xl border border-white/10 min-h-[260px] group">
-            <IndustrialScene variant="assembly" label="Ilustração da linha industrial e de montagem da unidade CDBS" className="absolute inset-0 h-full w-full" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-5"><span className="text-[10px] font-mono uppercase tracking-widest text-red-300">UNIDADE CUMMINS OSASCO</span><h2 className="text-2xl font-black font-industrial uppercase text-white mt-1">Tecnologia aplicada à segurança</h2><p className="text-xs text-slate-300 mt-1 max-w-xl">Conheça o ambiente industrial que inspira os desafios do SIPATMA Challenge.</p></div>
-          </div>
-          <div className="lg:col-span-2 relative overflow-hidden rounded-2xl border border-white/10 min-h-[260px] group">
-            <IndustrialScene variant="safety" label="Ilustração de uma operação industrial com foco em cuidado ativo" className="absolute inset-0 h-full w-full" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0d0f13] via-black/10 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-5"><span className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#da291c] text-white text-[10px] font-mono font-bold uppercase">Operação Brasil</span><p className="text-sm text-white font-bold mt-2">Cuidado ativo em cada etapa da produção.</p></div>
-          </div>
+          <RealFactoryPhoto
+            src={REAL_PHOTOS.productionLine.src}
+            alt="Linha automatizada de produção na fábrica da Cummins em Osasco, com equipamentos industriais e área de montagem"
+            caption="Linha de produção e automação na unidade Cummins de Osasco."
+            credit={REAL_PHOTOS.productionLine.credit}
+            sourceUrl={REAL_PHOTOS.productionLine.sourceUrl}
+            className="group lg:col-span-3"
+          />
+          <RealFactoryPhoto
+            src={REAL_PHOTOS.assembly.src}
+            alt="Colaborador trabalhando na montagem de componentes em uma linha industrial da Cummins Meritor em Osasco"
+            caption="Manufatura e cuidado ativo no trabalho diário da planta."
+            credit={REAL_PHOTOS.assembly.credit}
+            sourceUrl={REAL_PHOTOS.assembly.sourceUrl}
+            className="group lg:col-span-2"
+          />
         </div>
       </section>
 
