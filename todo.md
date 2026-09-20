@@ -1,0 +1,30 @@
+# Checklist de consolidação — SIPATMA MS-120
+
+## Concluído
+
+- [x] Comparar os dois projetos por experiência, conteúdo, jogos, administração, banco de dados, segurança e testes.
+- [x] Adotar como base a experiência visual e os quatro desafios do projeto mais completo.
+- [x] Incorporar o backend mais seguro, a edição de cenários, o upload validado e os testes adicionais da outra versão.
+- [x] Padronizar a identidade para **Cummins SIPATMA — Desafio MS-120 2026**.
+- [x] Preservar as páginas Início, Sobre, Nosso projeto, Projeto 3D, Jogos, Ranking, Meu progresso e Admin.
+- [x] Preservar os quatro desafios: Quiz de Segurança, Quiz de Ergonomia, Ache o Erro e Organize a Fábrica.
+- [x] Adicionar painel global de acessibilidade com alto contraste, texto ampliado, movimento reduzido e tempo 2×.
+- [x] Adicionar atalho “Pular para o conteúdo”, foco visível, títulos por rota e navegação móvel sem becos sem saída.
+- [x] Tornar identificação, filtros, feedbacks e estados de carregamento compreensíveis por leitores de tela.
+- [x] Tornar o jogo de organização operável por clique, toque, teclado e arrastar/soltar.
+- [x] Adicionar pausa e recuperação de falha de rede aos jogos cronometrados.
+- [x] Criar modo textual equivalente para o jogo “Ache o Erro”.
+- [x] Respeitar `prefers-reduced-motion` e permitir zoom do navegador.
+- [x] Manter identificação somente na sessão do navegador e mascarar chapa/WWID no ranking público.
+- [x] Remover credencial administrativa fixa de ambientes de produção.
+- [x] Evitar envio duplicado de resultados nos jogos.
+- [x] Corrigir o rodapé duplicado da página inicial.
+- [x] Instalar e declarar a dependência Three.js usada pelos visualizadores 3D.
+- [x] Remover imagens externas quebradas e criar alternativas locais acessíveis.
+- [x] Corrigir controles interativos aninhados e foco do diálogo de pausa.
+- [x] Gerar e aplicar a migração inicial no banco gerenciado.
+- [x] Executar verificação TypeScript, 42 testes e build de produção.
+- [x] Verificar as oito rotas principais em desktop e celular.
+- [x] Executar auditoria funcional e de acessibilidade, corrigindo as falhas encontradas.
+- [x] Remover do banco o participante fictício usado na auditoria.
+- [x] Preparar relatório, checkpoint final e pacote ZIP consolidado.
