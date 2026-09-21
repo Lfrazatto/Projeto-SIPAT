@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, Code2, ExternalLink, Gamepad2, GraduationCap, Linkedin, Mail, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Code2, Gamepad2, GraduationCap, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { Link } from "wouter";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,9 @@ const pillars = [
 ];
 
 const creators = [
-  { name: "Ryan Neiva", email: "ryanneiva80@gmail.com", linkedin: "https://www.linkedin.com/in/ryan-neiva" },
-  { name: "Leonardo Frazatto", email: "lmpfrazatto@gmail.com", linkedin: "https://www.linkedin.com/in/leonardo-machado-pereira-fraza" },
-  { name: "Matheus Felipe", email: "matheusfelipedasferreira@gmail.com" },
+  { name: "Ryan Neiva", role: "Idealização e desenvolvimento" },
+  { name: "Leonardo Frazatto", role: "Idealização e desenvolvimento" },
+  { name: "Matheus Felipe", role: "Idealização e desenvolvimento" },
 ];
 
 export default function NossoProjeto() {
@@ -64,13 +64,12 @@ export default function NossoProjeto() {
             </figure>
           </div>
 
-          <div className="mt-14"><div className="v2-kicker">Principais criadores</div><p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">Leonardo Frazatto, Matheus Felipe e Ryan Neiva foram os principais criadores do projeto, responsáveis pela idealização, organização e desenvolvimento da proposta.</p><div className="mt-7 grid gap-4 md:grid-cols-3">{creators.map((creator, index) => <article key={creator.name} className="relative overflow-hidden rounded-xl border border-white/10 bg-[#171b24] p-6 transition hover:-translate-y-1 hover:border-red-500/50"><span className="absolute right-4 top-4 font-mono text-xs text-red-400/70">0{index + 1}</span><div className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-950/50 text-[#da291c]"><Users className="h-5 w-5" /></div><h3 className="mt-8 font-industrial text-2xl uppercase text-white">{creator.name}</h3><p className="mt-2 text-xs uppercase tracking-widest text-slate-500">Criador do projeto</p><div className="mt-6 flex flex-wrap gap-2"><a href={`mailto:${creator.email}`} className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-xs text-slate-300 transition hover:border-red-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400"><Mail className="h-3.5 w-3.5 text-red-400" /> E-mail</a>{creator.linkedin && <a href={creator.linkedin} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-xs text-slate-300 transition hover:border-[#0a66c2] hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"><Linkedin className="h-3.5 w-3.5 text-[#6fa8dc]" /> LinkedIn <ExternalLink className="h-3 w-3" /></a>}</div></article>)}</div></div>
+          <div className="mt-14"><div className="v2-kicker">Principais criadores</div><p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">Leonardo Frazatto, Matheus Felipe e Ryan Neiva foram os principais criadores do projeto, responsáveis pela idealização, organização e desenvolvimento da proposta.</p><div className="mt-7 grid gap-4 md:grid-cols-3">{creators.map((creator, index) => <article key={creator.name} className="relative overflow-hidden rounded-xl border border-white/10 bg-[#171b24] p-6 transition hover:-translate-y-1 hover:border-red-500/50"><span className="absolute right-4 top-4 font-mono text-xs text-red-400/70">0{index + 1}</span><div className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-950/50 text-[#da291c]"><Users className="h-5 w-5" /></div><h3 className="mt-8 font-industrial text-2xl uppercase text-white">{creator.name}</h3><p className="mt-2 text-xs uppercase tracking-widest text-slate-500">Criador do projeto</p><p className="mt-4 text-xs leading-relaxed text-slate-400">{creator.role}</p></article>)}</div></div>
 
           <div className="mt-12 grid gap-6 lg:grid-cols-[.8fr_1.2fr] lg:items-center"><div><div className="v2-kicker">Colaboradores e apoiadores</div><h3 className="mt-2 font-industrial text-3xl uppercase text-white">Uma construção coletiva</h3></div><div className="rounded-xl border border-amber-500/20 bg-amber-950/10 p-6"><p className="text-base leading-relaxed text-slate-300">Os demais integrantes da turma contribuíram como colaboradores e apoiadores, trazendo ideias, sugestões e melhorias que ajudaram a fortalecer o projeto.</p></div></div>
 
           <div className="mt-10 rounded-2xl border border-[#da291c]/40 bg-gradient-to-br from-red-950/40 to-[#171b24] p-8 text-center sm:p-10"><ShieldCheck className="mx-auto h-7 w-7 text-red-300" /><h3 className="mt-4 font-industrial text-3xl uppercase text-white">Agradecimento final</h3><p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-300">Cada contribuição foi importante para transformar esta ideia em uma experiência de aprendizado, segurança e trabalho em equipe.</p></div>
 
-          <div className="mt-14"><div className="v2-kicker">Contato dos criadores</div><h3 className="mt-2 font-industrial text-3xl uppercase text-white">Conecte-se com a equipe</h3><div className="mt-7 grid gap-4 md:grid-cols-3">{creators.map((creator) => <article key={`${creator.name}-contact`} className="rounded-xl border border-white/10 bg-[#171b24] p-5"><h4 className="font-industrial text-xl uppercase text-white">{creator.name}</h4><div className="mt-5 flex flex-wrap gap-2"><a href={`mailto:${creator.email}`} className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-xs text-slate-300 hover:border-red-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400"><Mail className="h-3.5 w-3.5 text-red-400" /> E-mail</a>{creator.linkedin && <a href={creator.linkedin} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-xs text-slate-300 hover:border-blue-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"><Linkedin className="h-3.5 w-3.5 text-blue-300" /> LinkedIn <ExternalLink className="h-3 w-3" /></a>}</div></article>)}</div></div>
         </div>
       </section>
 
