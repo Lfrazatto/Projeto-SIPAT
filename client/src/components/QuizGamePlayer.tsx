@@ -238,7 +238,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
     return (
       <div className="py-24 text-center space-y-4">
         <div className="w-12 h-12 border-4 border-[#da291c] border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-slate-300 font-mono text-sm">Carregando perguntas de ergonomia SIPATMA CDBS...</p>
+        <p className="text-slate-300 font-mono text-sm">Carregando perguntas de ergonomia SIPAT CDBS...</p>
       </div>
     );
   }
@@ -275,7 +275,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
           </div>
           <div>
             <span className="text-[10px] font-mono font-bold tracking-widest text-[#da291c] uppercase">
-              DESAFIO OFICIAL SIPATMA
+              DESAFIO OFICIAL SIPAT
             </span>
             <h2 className="text-lg sm:text-xl font-bold font-industrial uppercase text-white">
               {gameType === "quiz_seguranca" ? "Quiz de Segurança" : "Quiz de Ergonomia"}

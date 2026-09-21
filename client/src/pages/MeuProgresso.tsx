@@ -143,10 +143,10 @@ export default function MeuProgresso() {
                     🏆 PARABÉNS!
                   </h2>
                   <h3 className="text-lg font-bold font-industrial text-amber-300 uppercase mt-1">
-                    Você completou o CUMMINS SIPATMA CHALLENGE!
+                    Você completou o CUMMINS SIPAT CHALLENGE!
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-xl mx-auto">
-                    “Parabéns! Você completou todos os desafios da SIPATMA.”
+                    “Parabéns! Você completou todos os desafios da SIPAT.”
                   </p>
                 </div>
 

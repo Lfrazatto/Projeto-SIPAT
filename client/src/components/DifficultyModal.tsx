@@ -108,7 +108,7 @@ export const DifficultyModal: React.FC<DifficultyModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Pontuação máxima! Para quem quer liderar o Ranking SIPATMA da Cummins.
+                Pontuação máxima! Para quem quer liderar o Ranking SIPAT da Cummins.
               </p>
             </div>
             <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-red-400 group-hover:translate-x-1 transition-all" />

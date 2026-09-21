@@ -14,7 +14,8 @@ type AccessibilityContextValue = {
   resetPreferences: () => void;
 };
 
-const STORAGE_KEY = "sipatma_accessibility_preferences";
+const STORAGE_KEY = "sipat_accessibility_preferences";
+const LEGACY_STORAGE_KEY = "sipatma_accessibility_preferences";
 
 const AccessibilityContext = createContext<AccessibilityContextValue | null>(null);
 
@@ -24,7 +25,7 @@ function initialPreferences(): Pick<AccessibilityContextValue, "highContrast" | 
   }
 
   try {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
+    const saved = window.localStorage.getItem(STORAGE_KEY) ?? window.localStorage.getItem(LEGACY_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved) as Partial<{
         highContrast: boolean;

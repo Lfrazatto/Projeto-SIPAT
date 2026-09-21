@@ -44,7 +44,7 @@ async function assertGameOpen(gameKey: string) {
   const now = Date.now();
   const isOpen = setting.active && (!setting.accessStartAt || now >= setting.accessStartAt.getTime()) && (!setting.accessEndAt || now <= setting.accessEndAt.getTime());
   if (!isOpen) {
-    throw new TRPCError({ code: "FORBIDDEN", message: "A SIPATMA está fora da janela de acesso configurada para o evento." });
+    throw new TRPCError({ code: "FORBIDDEN", message: "A SIPAT está fora da janela de acesso configurada para o evento." });
   }
 }
 

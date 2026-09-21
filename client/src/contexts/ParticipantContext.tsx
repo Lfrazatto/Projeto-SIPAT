@@ -28,13 +28,14 @@ interface ParticipantContextType {
 }
 
 const ParticipantContext = createContext<ParticipantContextType | null>(null);
-const SESSION_KEY = "cummins_sipatma_participant_session";
+const SESSION_KEY = "cummins_sipat_participant_session";
+const LEGACY_SESSION_KEY = "cummins_sipatma_participant_session";
 const LEGACY_KEYS = ["cummins_sipatma_player", "cummins_sipat_participant_session"];
 
 function readParticipant(): ParticipantData | null {
   if (typeof window === "undefined") return null;
   try {
-    const stored = window.sessionStorage.getItem(SESSION_KEY);
+    const stored = window.sessionStorage.getItem(SESSION_KEY) ?? window.sessionStorage.getItem(LEGACY_SESSION_KEY);
     if (!stored) return null;
     const parsed = JSON.parse(stored) as ParticipantData;
     if (!parsed?.name || !parsed?.chapa || !parsed?.wwid) return null;

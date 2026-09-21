@@ -150,25 +150,25 @@ export const INITIAL_ERGONOMICS_QUESTIONS = Array.from({ length: 12 }, () => ({ 
 export const INITIAL_GAME_SETTINGS = [
   {
     gameKey: "quiz_seguranca",
-    title: "SIPATMA CDBS • Segurança",
+    title: "SIPAT CDBS • Segurança",
     description: "Perguntas sobre segurança, prevenção de acidentes e rotina operacional da unidade Cummins Osasco.",
     active: true,
   },
   {
     gameKey: "quiz_ergonomia",
-    title: "SIPATMA CDBS • Ergonomia",
+    title: "SIPAT CDBS • Ergonomia",
     description: "Desafios sobre postura, movimentação, pausas e saúde ocupacional na rotina CDBS.",
     active: true,
   },
   {
     gameKey: "ache_o_erro",
-    title: "SIPATMA CDBS • Ache o Erro",
+    title: "SIPAT CDBS • Ache o Erro",
     description: "Inspecione cenários de oficina, montagem, fábrica e apoio administrativo para encontrar atos inseguros.",
     active: true,
   },
   {
     gameKey: "organize_a_fabrica",
-    title: "SIPATMA CDBS • Organize a Fábrica",
+    title: "SIPAT CDBS • Organize a Fábrica",
     description: "Aplique 5S e organização visual para deixar o ambiente Cummins Osasco mais seguro e eficiente.",
     active: true,
   },

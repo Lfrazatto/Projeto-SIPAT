@@ -6,7 +6,7 @@ function createMockContext() {
   return { user: null, req: { protocol: "https", headers: {} } as any, res: { clearCookie: () => {} } as any };
 }
 
-describe("Cummins SIPATMA Challenge Backend Logic", () => {
+describe("Cummins SIPAT Backend Logic", () => {
   beforeAll(async () => {
     await ensureInitialSeeds();
   });
@@ -55,7 +55,7 @@ describe("Cummins SIPATMA Challenge Backend Logic", () => {
     const settings = await caller.games.getSettings();
     expect(settings).toHaveLength(4);
     expect(settings.every((setting) => typeof setting.isOpen === "boolean")).toBe(true);
-    expect(settings.every((setting) => setting.title.includes("SIPATMA CDBS"))).toBe(true);
+    expect(settings.every((setting) => setting.title.includes("SIPAT CDBS"))).toBe(true);
   });
 
   it("serves ergonomics questions instead of environmental content", async () => {
@@ -89,7 +89,7 @@ describe("Cummins SIPATMA Challenge Backend Logic", () => {
 
   it("registers a visitor using only the informed name", async () => {
     const caller = appRouter.createCaller(createMockContext());
-    const visitorName = `Visitante SIPATMA ${Date.now().toString().slice(-5)}`;
+    const visitorName = `Visitante SIPAT ${Date.now().toString().slice(-5)}`;
     const identified = await caller.participant.identify({ name: visitorName, participantType: "visitante" });
     expect(identified.participant.participantType).toBe("visitante");
     expect(identified.participant.chapa).toMatch(/^VISITANTE-/);

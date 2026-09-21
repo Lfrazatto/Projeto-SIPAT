@@ -42,12 +42,12 @@ export function Navbar({ onOpenIdentify }: NavbarProps) {
       <div className="h-1 w-full bg-gradient-to-r from-[#8b1710] via-[#da291c] to-[#ffc72c]" aria-hidden="true" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex min-h-16 items-center justify-between gap-3 py-2">
-          <Link href="/" aria-label="SIPATMA Cummins — página inicial" className="flex min-w-0 items-center gap-3 rounded-md focus-visible:ring-2 focus-visible:ring-amber-300">
+          <Link href="/" aria-label="SIPAT Cummins — página inicial" className="flex min-w-0 items-center gap-3 rounded-md focus-visible:ring-2 focus-visible:ring-amber-300">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-white p-1.5 shadow-md ring-1 ring-red-400/40">
               <img src="/manus-storage/cummins-logo_33ff0756.svg" alt="Logo oficial da Cummins" className="h-full w-full object-contain" />
             </span>
             <span className="min-w-0">
-              <span className="block truncate font-industrial text-base font-extrabold tracking-wider text-white sm:text-lg">CUMMINS <span className="text-[#ff5548]">SIPATMA</span></span>
+              <span className="block truncate font-industrial text-base font-extrabold tracking-wider text-white sm:text-lg">CUMMINS <span className="text-[#ff5548]">SIPAT</span></span>
               <span className="block truncate font-mono text-[10px] uppercase tracking-widest text-slate-300">Desafio MS-120 • 2026</span>
             </span>
           </Link>

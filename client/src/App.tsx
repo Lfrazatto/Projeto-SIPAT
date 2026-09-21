@@ -35,7 +35,7 @@ function RouteEffects() {
   const pageTitle = pageTitles[location] ?? "Página não encontrada";
 
   useEffect(() => {
-    document.title = `${pageTitle} | SIPATMA Cummins`;
+    document.title = `${pageTitle} | SIPAT Cummins`;
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [location, pageTitle]);
 

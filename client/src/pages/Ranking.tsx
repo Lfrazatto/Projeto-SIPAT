@@ -69,7 +69,7 @@ export default function Ranking() {
           <div className="text-center mb-6">
             <h2 className="text-xl sm:text-2xl font-black font-industrial uppercase text-white flex items-center justify-center gap-2">
               <Trophy className="w-6 h-6 text-amber-400" />
-              TOP 3 SIPATMA
+              TOP 3 SIPAT
             </h2>
             <p className="text-xs text-slate-400">Líderes de Segurança e Prevenção</p>
           </div>

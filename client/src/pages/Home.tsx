@@ -88,7 +88,7 @@ export default function Home() {
 
               <div className="space-y-2">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black font-industrial tracking-tight text-white uppercase leading-none">
-                  CUMMINS <span className="text-[#da291c] inline-block">SIPATMA</span><br className="hidden sm:inline" />
+                  CUMMINS <span className="text-[#da291c] inline-block">SIPAT</span><br className="hidden sm:inline" />
                   <span className="text-slate-300">DESAFIO 2026</span>
                 </h1>
                 <p className="text-xl sm:text-2xl font-bold text-slate-200 tracking-wide font-industrial text-red-400">
@@ -136,7 +136,7 @@ export default function Home() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400">Configurações do Evento • America/Sao_Paulo</div>
-                    <div className="mt-1 font-industrial text-sm font-bold uppercase text-white">{eventWindow.status === "active" ? "SIPATMA liberada" : eventWindow.status === "closed" ? "A SIPATMA foi encerrada" : "A SIPATMA ainda não começou"}</div>
+                    <div className="mt-1 font-industrial text-sm font-bold uppercase text-white">{eventWindow.status === "active" ? "SIPAT liberada" : eventWindow.status === "closed" ? "A SIPAT foi encerrada" : "A SIPAT ainda não começou"}</div>
                     <p className="mt-1 text-xs text-slate-400">{eventWindow.status === "active" ? `Período configurado: ${formatEventDate(eventWindow.startAt)} até ${formatEventDate(eventWindow.endAt)}` : eventWindow.status === "closed" ? "O período de participação deste evento terminou." : `Este evento estará disponível a partir de ${formatEventDate(eventWindow.startAt)}.`}</p>
                   </div>
                   {eventWindow.status !== "active" && <div className="grid grid-cols-4 gap-2 text-center font-mono"><div><div className="text-lg font-black text-white">{String(eventWindow.days).padStart(2, "0")}</div><div className="text-[9px] text-slate-500">dias</div></div><div><div className="text-lg font-black text-white">{String(eventWindow.hours).padStart(2, "0")}</div><div className="text-[9px] text-slate-500">horas</div></div><div><div className="text-lg font-black text-white">{String(eventWindow.minutes).padStart(2, "0")}</div><div className="text-[9px] text-slate-500">min</div></div><div><div className="text-lg font-black text-white">{String(eventWindow.seconds).padStart(2, "0")}</div><div className="text-[9px] text-slate-500">seg</div></div></div>}
@@ -366,7 +366,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 5:SIPATMA & PILARES */}
+      {/* SECTION 5:SIPAT & PILARES */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 border-b border-white/10 bg-[#0d0f13]">
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="text-center max-w-3xl mx-auto space-y-4">
@@ -375,10 +375,10 @@ export default function Home() {
               SEMANA INTERNA DE PREVENÇÃO DE ACIDENTES DO TRABALHO
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold font-industrial text-white tracking-wide uppercase">
-              O QUE É <span className="text-[#da291c]">SIPATMA</span>?
+              O QUE É <span className="text-[#da291c]">SIPAT</span>?
             </h2>
             <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              “A SIPATMA é uma iniciativa voltada à conscientização sobre Segurança, Saúde, Ergonomia e prevenção de acidentes no ambiente de trabalho.”
+              “A SIPAT é uma iniciativa voltada à conscientização sobre Segurança, Saúde, Ergonomia e prevenção de acidentes no ambiente de trabalho.”
             </p>
           </div>
 

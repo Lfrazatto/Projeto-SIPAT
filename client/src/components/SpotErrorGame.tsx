@@ -1,6 +1,6 @@
 /* ==========================================================================
  * SpotErrorGame.tsx — "Ache o Erro"
- * Cummins SIPATMA Challenge · Unidade CDBS Osasco
+ * Cummins SIPAT Challenge · Unidade CDBS Osasco
  * --------------------------------------------------------------------------
  * Jogo de comparação visual: duas fotos da mesma cena (uma segura, outra com
  * condições inseguras). O jogador clica nos riscos da cena com erros.

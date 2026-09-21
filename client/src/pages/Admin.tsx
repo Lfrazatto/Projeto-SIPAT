@@ -641,7 +641,7 @@ export default function Admin() {
                 PAINEL ADMINISTRATIVO
               </h1>
               <p className="text-xs text-slate-400">
-                Esta área é restrita a gestores autorizados da SIPATMA. Usuários comuns não possuem permissão de acesso.
+                Esta área é restrita a gestores autorizados da SIPAT. Usuários comuns não possuem permissão de acesso.
               </p>
             </div>
 
@@ -694,7 +694,7 @@ export default function Admin() {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black font-industrial uppercase text-white mt-1">
-              PAINEL DE CONTROLE SIPATMA
+              PAINEL DE CONTROLE SIPAT
             </h1>
           </div>
 
@@ -807,7 +807,7 @@ export default function Admin() {
                   {dStats?.totalCompletedAll || 0}
                 </div>
                 <div className="text-xs text-slate-400">
-                  Colaboradores que finalizaram todos os 4 desafios SIPATMA.
+                  Colaboradores que finalizaram todos os 4 desafios SIPAT.
                 </div>
               </div>
             </div>
@@ -1117,7 +1117,7 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="acesso" className="space-y-5">
             <div className="p-4 rounded-xl bg-cyan-950/30 border border-cyan-500/30 text-sm text-cyan-100">
-              <strong className="block uppercase font-industrial mb-1">Janela de acesso da SIPATMA CDBS</strong>
+              <strong className="block uppercase font-industrial mb-1">Janela de acesso da SIPAT CDBS</strong>
               Defina quando cada desafio fica disponível. O bloqueio é aplicado no servidor: antes do início ou depois do encerramento, o participante não consegue iniciar uma partida válida.
             </div>
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -1239,7 +1239,7 @@ export default function Admin() {
         <DialogContent className="sm:max-w-xl bg-[#161a24] border border-white/15 text-slate-100 shadow-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold font-industrial uppercase text-white">
-              {editingQuestionId ? "Editar Pergunta SIPATMA" : "Nova Pergunta Técnica"}
+              {editingQuestionId ? "Editar Pergunta SIPAT" : "Nova Pergunta Técnica"}
             </DialogTitle>
           </DialogHeader>
 

@@ -1,11 +1,11 @@
-# Checklist de consolidação — SIPATMA MS-120
+# Checklist de consolidação — SIPAT MS-120
 
 ## Concluído
 
 - [x] Comparar os dois projetos por experiência, conteúdo, jogos, administração, banco de dados, segurança e testes.
 - [x] Adotar como base a experiência visual e os quatro desafios do projeto mais completo.
 - [x] Incorporar o backend mais seguro, a edição de cenários, o upload validado e os testes adicionais da outra versão.
-- [x] Padronizar a identidade para **Cummins SIPATMA — Desafio MS-120 2026**.
+- [x] Padronizar a identidade para **Cummins SIPAT — Desafio MS-120 2026**.
 - [x] Preservar as páginas Início, Sobre, Nosso projeto, Projeto 3D, Jogos, Ranking, Meu progresso e Admin.
 - [x] Preservar os quatro desafios: Quiz de Segurança, Quiz de Ergonomia, Ache o Erro e Organize a Fábrica.
 - [x] Adicionar painel global de acessibilidade com alto contraste, texto ampliado, movimento reduzido e tempo 2×.

@@ -16,7 +16,7 @@ export default function NotFound() {
           </div>
           <div className="mt-5 font-mono text-xs font-bold uppercase tracking-[.22em] text-[#ff675c]">Código 404 • rota não localizada</div>
           <h1 id="not-found-title" className="mt-3 font-industrial text-4xl font-black uppercase text-white sm:text-5xl">Esta área não existe.</h1>
-          <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-slate-300 sm:text-base">O endereço pode ter mudado ou sido digitado incorretamente. Você pode voltar ao início ou seguir diretamente para os desafios da SIPATMA.</p>
+          <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-slate-300 sm:text-base">O endereço pode ter mudado ou sido digitado incorretamente. Você pode voltar ao início ou seguir diretamente para os desafios da SIPAT.</p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild className="min-h-12 w-full bg-[#da291c] px-6 font-bold text-white sm:w-auto"><Link href="/"><Home className="mr-2 h-4 w-4" aria-hidden="true" /> Voltar ao início</Link></Button>
             <Button asChild variant="outline" className="min-h-12 w-full border-white/20 px-6 font-bold text-white sm:w-auto"><Link href="/jogos">Ver desafios <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Link></Button>

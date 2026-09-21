@@ -1,10 +1,10 @@
-# Relatório de consolidação — Cummins SIPATMA 2026
+# Relatório de consolidação — Cummins SIPAT 2026
 
 ## Resumo executivo
 
-Os projetos `sipat-ms120-explorer` e `cummins-sipatma-challenge` foram comparados em experiência, conteúdo, jogos, acessibilidade, administração, segurança, banco de dados e testes. A versão final usa como base a experiência mais completa do **Cummins SIPATMA Challenge**, preservando seus quatro desafios, identidade industrial e painel administrativo, e incorpora os pontos tecnicamente superiores do **MS-120 Explorer**, incluindo regras de backend mais seguras, edição administrativa de cenários, testes adicionais e catálogo 3D ampliado.
+Os projetos `sipat-ms120-explorer` e `cummins-sipat-challenge` foram comparados em experiência, conteúdo, jogos, acessibilidade, administração, segurança, banco de dados e testes. A versão final usa como base a experiência mais completa do **Cummins SIPAT Challenge**, preservando seus quatro desafios, identidade industrial e painel administrativo, e incorpora os pontos tecnicamente superiores do **MS-120 Explorer**, incluindo regras de backend mais seguras, edição administrativa de cenários, testes adicionais e catálogo 3D ampliado.
 
-O resultado é uma única aplicação full-stack denominada **Cummins SIPATMA — Desafio MS-120 2026**, com navegação pública consistente, banco de dados funcional, jogos integrados, ranking, consulta individual de progresso, administração e uma camada abrangente de inclusão.
+O resultado é uma única aplicação full-stack denominada **Cummins SIPAT — Desafio MS-120 2026**, com navegação pública consistente, banco de dados funcional, jogos integrados, ranking, consulta individual de progresso, administração e uma camada abrangente de inclusão.
 
 ## Decisões de consolidação
 
@@ -15,7 +15,7 @@ O resultado é uma única aplicação full-stack denominada **Cummins SIPATMA �
 | Backend | Regras mais seguras e testes complementares do Explorer | Melhor proteção administrativa, validação e manutenção |
 | Projeto 3D | Catálogo e visualizador detalhado do Explorer | Maior riqueza técnica e melhor exploração dos componentes MS-120 |
 | Administração | Painel completo do Challenge com melhorias do Explorer | Preserva gestão de perguntas, cenários e configurações sem perder segurança |
-| Conteúdo | Padronização para Cummins SIPATMA 2026 | Remove inconsistências de nomenclatura entre as duas fontes |
+| Conteúdo | Padronização para Cummins SIPAT 2026 | Remove inconsistências de nomenclatura entre as duas fontes |
 
 ## Melhorias inclusivas
 

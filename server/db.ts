@@ -153,7 +153,7 @@ export async function ensureInitialSeeds(): Promise<void> {
   const existingImages = await db.select({ scenarioKey: scenarioImages.scenarioKey }).from(scenarioImages);
   const existingImageKeys = new Set(existingImages.map((row) => row.scenarioKey));
   for (const scenario of CDBS_SPOT_ERROR_SCENARIOS) {
-    const imageData = { label: scenario.label, imageUrl: scenario.image, safeImageUrl: scenario.safeImage, description: "Par correspondente da mesma cena: imagem segura e imagem com condições inseguras. Ilustração criada com IA para treinamento SIPATMA CDBS; não é fotografia real da fábrica.", updatedAt: new Date() };
+    const imageData = { label: scenario.label, imageUrl: scenario.image, safeImageUrl: scenario.safeImage, description: "Par correspondente da mesma cena: imagem segura e imagem com condições inseguras. Ilustração criada com IA para treinamento SIPAT CDBS; não é fotografia real da fábrica.", updatedAt: new Date() };
     if (existingImageKeys.has(scenario.key)) await db.update(scenarioImages).set(imageData).where(eq(scenarioImages.scenarioKey, scenario.key));
     else await db.insert(scenarioImages).values({ scenarioKey: scenario.key, ...imageData });
   }
