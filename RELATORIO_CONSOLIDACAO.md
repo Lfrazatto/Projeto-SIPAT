@@ -135,3 +135,10 @@ A validação final desta rodada foi concluída com **TypeScript sem erros**, **
 A mecânica do quarto desafio foi redesenhada para corresponder ao objetivo de organização física e melhoria contínua. O fluxo deixou de ser um classificador de categorias e passou a ter duas etapas: primeiro, o participante encaixa itens em locais padronizados do posto de trabalho; depois, organiza a sequência 5S/Lean em cinco posições de fluxo. O jogo mantém arrastar e soltar, toque, seleção por teclado, feedback educativo, slots travados após acerto, cronômetro, pausa, pontuação e envio do resultado ao ranking.
 
 A validação funcional foi feita no navegador com um encaixe individual, os cinco encaixes restantes, a transição para a etapa Lean e a sequência correta de cinco etapas. O modal de resultado também foi ajustado para exibir “tarefas” e a quantidade real do desafio, sem a indicação genérica de “12 perguntas”.
+
+
+## Melhoria de jogabilidade e mobile — 21/09/2026
+
+O Organize a Fábrica recebeu uma camada adicional de clareza e ritmo. O cabeçalho agora exibe a porcentagem concluída com barra de progresso, identifica visualmente a etapa atual e mantém o contador de tarefas. Quando um item é selecionado por toque, uma orientação persistente informa qual ação deve ser feita em seguida, enquanto cada cartão mostra a estação de destino sem entregar o encaixe exato. Na etapa Lean, o próximo foco do ciclo 5S fica destacado para reduzir dúvidas sem eliminar a necessidade de ordenar o processo.
+
+Em telas pequenas, foram ajustados espaçamentos, alturas mínimas, áreas de toque, densidade de cartões, cabeçalho com timer e grade da sequência Lean. A validação no navegador confirmou seleção, orientação contextual e encaixe correto; `pnpm check`, `pnpm test` com 42 testes e `pnpm build` foram aprovados.

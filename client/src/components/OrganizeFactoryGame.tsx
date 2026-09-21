@@ -160,6 +160,8 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
   const physicalCompleted = Object.keys(placedSlots).length;
   const sequenceCompleted = sequencePlaced.filter(Boolean).length;
   const completedTasks = physicalCompleted + sequenceCompleted;
+  const progressPercent = Math.round((completedTasks / totalTaskCount) * 100);
+  const nextLeanStep = LEAN_STEPS[sequenceCompleted];
 
   useEffect(() => {
     if (isFinished || isPaused) return;
@@ -362,6 +364,15 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
             <div className="font-industrial text-2xl font-black text-cyan-400">{completedTasks} / {totalTaskCount}</div>
           </div>
         </div>
+        <div className="col-span-full mt-1 w-full sm:basis-full" aria-label={`Progresso do desafio: ${progressPercent}%`}>
+          <div className="mb-1 flex items-center justify-between gap-2 font-mono text-[9px] uppercase tracking-wide text-slate-500">
+            <span>{stage === "physical" ? "Organização do posto" : "Sequência 5S / Lean"}</span>
+            <span className="text-cyan-300">{progressPercent}% concluído</span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progressPercent}>
+            <div className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-emerald-400 to-amber-300 transition-[width] duration-500" style={{ width: `${progressPercent}%` }} />
+          </div>
+        </div>
       </div>
 
       <div className="mb-4 grid gap-2 sm:grid-cols-2">
@@ -388,6 +399,17 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
           </div>
         )}
       </div>
+
+      {stage === "physical" && selectedPhysicalItem && !draggedItem && (
+        <div className="sticky top-2 z-10 mb-4 flex items-center gap-3 rounded-xl border border-cyan-300/50 bg-cyan-950/95 p-3 shadow-lg shadow-cyan-950/30 backdrop-blur" role="status" aria-live="polite">
+          <div className="rounded-lg bg-cyan-400/15 p-2 text-cyan-200"><IconForItem icon={selectedPhysicalItem.iconName} /></div>
+          <div className="min-w-0 flex-1">
+            <span className="block font-mono text-[9px] font-black uppercase tracking-widest text-cyan-300">Item selecionado</span>
+            <strong className="block truncate text-xs text-white">{selectedPhysicalItem.name}</strong>
+          </div>
+          <span className="shrink-0 text-right text-[10px] font-bold uppercase leading-tight text-cyan-100">Agora toque<br />no encaixe</span>
+        </div>
+      )}
 
       {stage === "physical" ? (
         <div className="space-y-6">
@@ -420,7 +442,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
                         <span className="min-w-0 flex-1 text-xs font-bold leading-tight text-white">{item.name}</span>
                         <GripVertical className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
                       </div>
-                      <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2 font-mono text-[10px] uppercase text-slate-500"><span>{selected ? "Selecionado" : "Arraste ou toque"}</span><span className="text-cyan-400">5S</span></div>
+                      <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-2 font-mono text-[9px] uppercase text-slate-500"><span>{selected ? "Selecionado" : "Arraste ou toque"}</span><span className="truncate text-right text-cyan-400">Destino: {item.station}</span></div>
                     </button>
                   );
                 })}
@@ -473,7 +495,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
         <section className="space-y-6" aria-labelledby="lean-heading">
           <div className="rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-950/40 via-[#161a24] to-[#141822] p-4 shadow-xl sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-4">
-              <div><div className="flex items-center gap-2 text-amber-300"><Layers className="h-5 w-5" aria-hidden="true" /><span className="font-mono text-[10px] font-black uppercase tracking-widest">Etapa 2 • Fluxo Lean</span></div><h3 id="lean-heading" className="mt-2 font-industrial text-xl font-black uppercase leading-tight text-white sm:text-2xl">Libere o posto seguindo o ciclo 5S</h3><p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">Agora organize as ações na ordem correta. Selecione uma etapa e depois escolha a posição vazia na linha de fluxo.</p></div>
+              <div><div className="flex items-center gap-2 text-amber-300"><Layers className="h-5 w-5" aria-hidden="true" /><span className="font-mono text-[10px] font-black uppercase tracking-widest">Etapa 2 • Fluxo Lean</span></div><h3 id="lean-heading" className="mt-2 font-industrial text-xl font-black uppercase leading-tight text-white sm:text-2xl">Libere o posto seguindo o ciclo 5S</h3><p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">Agora organize as ações na ordem correta. Selecione uma etapa e depois escolha a posição vazia na linha de fluxo.</p>{nextLeanStep && <p className="mt-3 inline-flex max-w-full items-center rounded-full border border-amber-300/30 bg-amber-300/10 px-3 py-1.5 text-[10px] font-black uppercase leading-tight text-amber-200">Próximo foco: {nextLeanStep.title}</p>}</div>
               <div className="rounded-xl border border-amber-400/30 bg-black/30 px-4 py-3 text-right"><span className="block font-mono text-[10px] uppercase text-slate-400">Sequência</span><strong className="font-industrial text-2xl text-amber-300">{sequenceCompleted} / {sequenceSteps.length}</strong></div>
             </div>
           </div>

@@ -23,3 +23,15 @@
 - [x] Validar no navegador: encaixe real, transição para Lean e sequência correta
 - [x] Passar typecheck, 42 testes automatizados e build de produção
 - [x] Salvar checkpoint e atualizar pacote ZIP
+
+
+## Melhoria de jogabilidade e mobile — 21/09/2026
+
+- [x] Adicionar barra de progresso percentual do desafio
+- [x] Mostrar etapa atual e próximo foco da sequência 5S
+- [x] Exibir orientação persistente quando um item estiver selecionado no toque
+- [x] Mostrar a estação de destino de cada item sem revelar o encaixe exato
+- [x] Melhorar alvos de toque e densidade dos cartões em telas pequenas
+- [x] Validar seleção e encaixe correto no navegador
+- [x] Passar typecheck, 42 testes e build
+- [ ] Salvar checkpoint e atualizar pacote ZIP
