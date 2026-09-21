@@ -119,7 +119,7 @@ export default function Jogos() {
       <Navbar />
 
       {/* Header section */}
-      <section className="relative overflow-hidden border-b border-white/10 bg-gradient-to-b from-[#161a24] to-[#0f1218] py-12 px-4 sm:px-6 lg:px-8">
+      <section className="game-center-hero relative overflow-hidden border-b border-white/10 bg-gradient-to-b from-[#161a24] to-[#0f1218] py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -128,10 +128,10 @@ export default function Jogos() {
                 <span>V4.0 • CENTRAL DE DESAFIOS • 4 EXPERIÊNCIAS</span>
               </div>
               <h1 className="text-3xl sm:text-5xl font-black font-industrial uppercase tracking-tight text-white mt-2">
-                ÁREA DE <span className="text-[#da291c]">JOGOS</span>
+                ESCOLHA SEU <span className="text-[#da291c]">DESAFIO</span>
               </h1>
               <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mt-1">
-                Escolha uma missão, jogue no seu ritmo e acompanhe seus recordes. Cada desafio foi desenhado para transformar conhecimento em comportamento seguro.
+                Seu próximo desafio está esperando. Jogue no seu ritmo, acompanhe seus recordes e leve o aprendizado para a rotina.
               </p>
             </div>
 
@@ -168,7 +168,7 @@ export default function Jogos() {
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* JOGO 1: QUIZ DE SEGURANÇA */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-[#141822] border border-white/10 hover:border-[#da291c]/70 transition-all duration-200 flex flex-col justify-between shadow-xl relative overflow-hidden group">
+          <div className="game-card p-6 sm:p-8 rounded-2xl bg-[#141822] border border-white/10 hover:border-[#da291c]/70 transition-all duration-200 flex flex-col justify-between shadow-xl relative overflow-hidden group">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="p-3 rounded-xl bg-red-950/80 border border-red-500/40 text-[#da291c] group-hover:scale-110 transition-transform">
@@ -207,13 +207,13 @@ export default function Jogos() {
                 className="w-full bg-[#da291c] hover:bg-[#b01e12] text-white font-extrabold uppercase tracking-wider text-sm py-6 rounded-xl shadow-lg shadow-red-950/60 flex items-center justify-center gap-2"
               >
                 <Play className="w-4 h-4 fill-current" />
-                <span>JOGAR</span>
+                <span>JOGAR AGORA</span>
               </Button>
             </div>
           </div>
 
           {/* JOGO 2: QUIZ DE ERGONOMIA */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-[#141822] border border-white/10 hover:border-cyan-500/70 transition-all duration-200 flex flex-col justify-between shadow-xl relative overflow-hidden group">
+          <div className="game-card p-6 sm:p-8 rounded-2xl bg-[#141822] border border-white/10 hover:border-cyan-500/70 transition-all duration-200 flex flex-col justify-between shadow-xl relative overflow-hidden group">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                   <div className="p-3 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-cyan-400 group-hover:scale-110 transition-transform">
@@ -252,13 +252,13 @@ export default function Jogos() {
                 className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold uppercase tracking-wider text-sm py-6 rounded-xl shadow-lg shadow-cyan-950/60 flex items-center justify-center gap-2"
               >
                 <Play className="w-4 h-4 fill-current" />
-                <span>JOGAR</span>
+                <span>JOGAR AGORA</span>
               </Button>
             </div>
           </div>
 
           {/* JOGO 3: ACHE O ERRO */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-[#141822] border border-white/10 hover:border-amber-500/70 transition-all duration-200 flex flex-col justify-between shadow-xl relative overflow-hidden group">
+          <div className="game-card p-6 sm:p-8 rounded-2xl bg-[#141822] border border-white/10 hover:border-amber-500/70 transition-all duration-200 flex flex-col justify-between shadow-xl relative overflow-hidden group">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="p-3 rounded-xl bg-amber-950/80 border border-amber-500/40 text-amber-400 group-hover:scale-110 transition-transform">
@@ -297,13 +297,13 @@ export default function Jogos() {
                 className="w-full bg-amber-600 hover:bg-amber-700 text-white font-extrabold uppercase tracking-wider text-sm py-6 rounded-xl shadow-lg shadow-amber-950/60 flex items-center justify-center gap-2"
               >
                 <Play className="w-4 h-4 fill-current" />
-                <span>JOGAR</span>
+                <span>JOGAR AGORA</span>
               </Button>
             </div>
           </div>
 
           {/* JOGO 4: ORGANIZE A FÁBRICA */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-[#141822] border border-white/10 hover:border-cyan-500/70 transition-all duration-200 flex flex-col justify-between shadow-xl relative overflow-hidden group">
+          <div className="game-card p-6 sm:p-8 rounded-2xl bg-[#141822] border border-white/10 hover:border-cyan-500/70 transition-all duration-200 flex flex-col justify-between shadow-xl relative overflow-hidden group">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="p-3 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-cyan-400 group-hover:scale-110 transition-transform">
@@ -342,7 +342,7 @@ export default function Jogos() {
                 className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold uppercase tracking-wider text-sm py-6 rounded-xl shadow-lg shadow-cyan-950/60 flex items-center justify-center gap-2"
               >
                 <Play className="w-4 h-4 fill-current" />
-                <span>JOGAR</span>
+                <span>JOGAR AGORA</span>
               </Button>
             </div>
           </div>

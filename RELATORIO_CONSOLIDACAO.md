@@ -100,3 +100,20 @@ Em atendimento ao novo briefing institucional:
 3. **História da Cummins com fontes verificáveis (`/historia-cummins`):** linha do tempo cronológica com marcos de 1919 (fundação por Clessie Cummins e William G. Irwin), expansão de motores, fábrica na Escócia em 1956, constituição no Brasil em 1971, aquisição da Meritor em 2022 e a presença em Osasco (CDBS Fábrica 1 e 2).
 4. **Galeria institucional acessível (`/galeria`):** reúne as fotos reais com filtros por categoria, visualização ampliada em modal com navegação por teclado (`Escape`, setas esquerda/direita), alt text descritivo e indicação clara de crédito e autorização.
 5. **Navegação atualizada:** o menu superior e o rodapé agora incluem acessos diretos a Formare, História e Galeria, sem esconder nenhum conteúdo essencial e sem criar missões ou notificações recorrentes.
+
+
+## Redesign Completo e Interatividade (Prompt Mestre)
+
+Em atendimento ao prompt mestre de reorganização e redesenho interativo:
+
+| Área | Alterações Realizadas |
+|---|---|
+| **Barra de Navegação** | Criada estrutura com dois níveis: links principais (`Início`, `Jogos`, `Ranking`, `Meu progresso`, `Nosso projeto`) e menu institucional (`Formare`, `História da Cummins`, `Galeria de fotos`, `Sobre a SIPAT`, `Projeto 3D`). Adicionados botão destacado `Participar agora`, indicador de página ativa, indicador compacto de pontuação para participantes identificados e barra sutil de progresso de leitura ao rolar. No mobile, implementado painel acessível com fechamento por Escape, foco restrito e clique externo. |
+| **Primeira Dobra da Home** | Criada hero com atmosfera industrial moderna: foto real da produção de Osasco em baixa opacidade, grid técnico, gradiente dinâmico com brilho controlado e painel de comando lateral com os quatro desafios. Títulos: `CUMMINS SIPAT — DESAFIO 2026` e `Segurança começa com uma escolha`. |
+| **Missão e Progresso** | Adicionada seção `Sua missão começa agora` com as três etapas (`Identifique-se`, `Desafie seus conhecimentos`, `Suba no ranking`). Se o usuário estiver identificado, a chamada é atualizada para `Continue sua missão`, exibindo o total de desafios já concluídos e a pontuação somada. |
+| **Central de Jogos** | A Home agora apresenta cards com personalidade visual própria: Quiz de Segurança (vermelho de atenção), Quiz de Ergonomia (ciano/verde de saúde), Ache o Erro (âmbar de inspeção) e Organize a Fábrica (azul de fluxo 5S). Cada card exibe tempo, mecânica de interação, melhor pontuação do participante e botão de ação imediata. Na página `/jogos`, os botões foram padronizados para `JOGAR AGORA`. |
+| **Ranking Competitivo** | O pódio do Top 3 recebeu animação de entrada e hierarquia marcante para o líder. Participantes identificados visualizam uma faixa personalizada informando sua colocação e quantos pontos faltam para alcançar o próximo colocado. |
+| **Red Flag** | A seção foi organizada nas três etapas fundamentais (`PARE`, `COMUNIQUE`, `AJA COM SEGURANÇA`), acompanhada da frase institucional `Atenção identifica. Atitude protege.` e do botão direto para praticar nos jogos. |
+| **Rodapé Útil** | Reestruturado com logotipo oficial da Cummins, atalhos de navegação, status do evento, versão, chamada final e indicação clara de que a identificação permanece apenas durante a sessão do navegador. |
+| **Movimento e Acessibilidade** | Transições de página rápidas (.18s), revelação de elementos ao rolar sem atraso perceptível e respeito estrito a `prefers-reduced-motion`, no qual as animações são substituídas por exibições imediatas. |
+| **Validação Responsiva** | Verificação visual realizada em 320px, 375px, 414px, 768px, 1024px, 1280px, 1440px e 1920px, sem detecção de overflow horizontal ou elementos cortados. |

@@ -208,3 +208,59 @@ button, a, input, select, textarea { touch-action: manipulation; }
     100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   }
 }
+
+
+/* Interactive control-room layer: motion is subtle and disabled for reduced-motion users. */
+.hero-control { background: #090c12; }
+.hero-control-bg { background-position: center; background-size: cover; filter: saturate(.9) contrast(1.05); opacity: .25; transform: scale(1.02); }
+.hero-control-grid { background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 48px 48px; mask-image: linear-gradient(90deg, black, transparent 90%); opacity: .35; }
+.hero-control-glow { background: radial-gradient(circle at 70% 25%, rgba(218,41,28,.34), transparent 32%), linear-gradient(90deg, rgba(9,12,18,.96) 0%, rgba(9,12,18,.72) 44%, rgba(9,12,18,.28) 100%); }
+.control-panel { box-shadow: 0 24px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08); }
+.status-dot { width: .5rem; height: .5rem; border-radius: 999px; background: #da291c; box-shadow: 0 0 0 0 rgba(218,41,28,.55); }
+.nav-link { position: relative; }
+.nav-link-active::after { content: ""; position: absolute; bottom: .2rem; left: .7rem; right: .7rem; height: 2px; border-radius: 999px; background: #ffc72c; }
+.nav-is-compact { background-color: rgba(8, 11, 17, .97); }
+.nav-cta { position: relative; overflow: hidden; }
+.nav-cta::after { content: ""; position: absolute; inset: 0; transform: translateX(-120%); background: linear-gradient(100deg, transparent 15%, rgba(255,255,255,.25) 50%, transparent 85%); transition: transform .55s cubic-bezier(.23,1,.32,1); }
+.nav-cta:hover::after, .nav-cta:focus-visible::after { transform: translateX(120%); }
+.mission-step { transition: transform .25s cubic-bezier(.23,1,.32,1), border-color .25s ease, background-color .25s ease; }
+.mission-step:hover, .mission-step:focus-within { transform: translateY(-4px); border-color: rgba(255,199,44,.45); }
+.mission-step-done { border-color: rgba(52,211,153,.35); }
+.game-card { box-shadow: 0 16px 45px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.04); }
+.reveal-hidden { opacity: 0; transform: translateY(18px); }
+.reveal-visible { opacity: 1; transform: translateY(0); transition: opacity .45s cubic-bezier(.23,1,.32,1) var(--reveal-delay, 0ms), transform .45s cubic-bezier(.23,1,.32,1) var(--reveal-delay, 0ms); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .status-dot { animation: status-pulse 2s infinite; }
+  .hero-control-bg { animation: hero-drift 16s ease-in-out infinite alternate; }
+  @keyframes status-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(218,41,28,.45); } 50% { box-shadow: 0 0 0 7px rgba(218,41,28,0); } }
+  @keyframes hero-drift { from { transform: scale(1.02) translate3d(0,0,0); } to { transform: scale(1.06) translate3d(-1%, -1%, 0); } }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-hidden { opacity: 1; transform: none; }
+  .hero-control-bg { transform: none; }
+}
+
+
+.ranking-podium { will-change: transform, opacity; }
+@media (prefers-reduced-motion: no-preference) {
+  .ranking-podium-second { animation: podium-in .45s .08s cubic-bezier(.23,1,.32,1) both; }
+  .ranking-podium-first { animation: podium-in .45s cubic-bezier(.23,1,.32,1) both; }
+  .ranking-podium-third { animation: podium-in .45s .16s cubic-bezier(.23,1,.32,1) both; }
+  @keyframes podium-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+}
+
+
+.game-center-hero { background-image: radial-gradient(circle at 85% 20%, rgba(218,41,28,.18), transparent 22rem), linear-gradient(135deg, #161a24, #0d1016 70%); }
+.game-center-hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .25; background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px); background-size: 40px 40px; mask-image: linear-gradient(90deg, transparent, black 40%, transparent); }
+.game-card { position: relative; isolation: isolate; }
+.game-card::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(circle at 100% 0%, rgba(255,255,255,.12), transparent 35%); transition: opacity .25s ease; z-index: -1; }
+.game-card:hover::before, .game-card:focus-within::before { opacity: 1; }
+
+
+.page-transition { min-height: 100%; }
+@media (prefers-reduced-motion: no-preference) {
+  .page-transition { animation: page-enter .18s ease-out both; }
+  @keyframes page-enter { from { opacity: .86; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+}

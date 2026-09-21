@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Navbar } from "@/components/Navbar";
+import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { 
   Trophy, 
@@ -18,8 +19,10 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useParticipant } from "@/contexts/ParticipantContext";
 
 export default function Ranking() {
+  const { participant } = useParticipant();
   const [searchTerm, setSearchTerm] = useState("");
   const [gameFilter, setGameFilter] = useState<"geral" | "quiz_seguranca" | "quiz_ergonomia" | "ache_o_erro" | "organize_a_fabrica">("geral");
   const [sortBy, setSortBy] = useState<"highest" | "lowest" | "recent">("highest");
@@ -30,6 +33,11 @@ export default function Ranking() {
     sortBy,
     participantType,
   });
+
+  const participantProgressQuery = trpc.participant.getProgress.useQuery(
+    { wwid: participant?.wwid || "" },
+    { enabled: Boolean(participant?.wwid), refetchInterval: 30_000 }
+  );
 
   const searchQuery = trpc.ranking.search.useQuery(
     { term: searchTerm },
@@ -42,6 +50,10 @@ export default function Ranking() {
   const top3 = list[2];
 
   const searchResult = searchQuery.data;
+  const participantProgress = participantProgressQuery.data;
+  const participantRank = participantProgress?.rank || 0;
+  const nextRow = participantRank > 1 ? list.find((row) => row.rank === participantRank - 1) : undefined;
+  const pointsToNext = nextRow && participantProgress?.participant ? Math.max(0, nextRow.totalScore - (participantProgress.participant.totalScore || 0)) : null;
 
   return (
     <div className="min-h-screen bg-[#0d0f13] text-slate-100 flex flex-col selection:bg-[#da291c] selection:text-white">
@@ -65,6 +77,12 @@ export default function Ranking() {
             <span className="text-slate-500">•</span>
             <span>Ranking geral = melhor resultado de cada desafio, sem somar tentativas repetidas.</span>
           </div>
+          {participant ? (
+            <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-amber-400/35 bg-amber-950/25 p-4 sm:flex-row sm:items-center sm:justify-between" role="status" aria-live="polite">
+              <div className="flex items-center gap-3"><Medal className="h-6 w-6 text-amber-300" aria-hidden="true" /><div><strong className="block text-sm text-white">{participantRank ? `Você está em ${participantRank}º lugar.` : "Participe dos desafios para aparecer no ranking."}</strong><span className="text-xs text-slate-300">{participantRank === 1 ? "Você está na liderança. Continue cuidando da sua pontuação." : pointsToNext !== null ? `Faltam ${pointsToNext} pontos para alcançar a próxima posição.` : "Complete os desafios para acompanhar sua evolução."}</span></div></div>
+              <Link href="/meu-progresso" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-amber-400 px-4 text-xs font-black uppercase text-slate-950 hover:bg-amber-300">Ver meu progresso <ArrowUpDown className="h-4 w-4 rotate-90" aria-hidden="true" /></Link>
+            </div>
+          ) : <div className="mt-4 rounded-xl border border-white/10 bg-black/25 p-4 text-sm text-slate-300"><strong className="text-white">Participe dos desafios para aparecer no ranking.</strong> Identifique-se e conclua os jogos para acompanhar sua posição.</div>}
         </div>
       </section>
 
@@ -81,7 +99,7 @@ export default function Ranking() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end pt-4">
             {/* 2º LUGAR */}
-            <div className="p-5 rounded-2xl bg-[#151822] border border-slate-400/30 flex flex-col items-center text-center order-2 md:order-1 relative overflow-hidden shadow-xl md:h-64 justify-between">
+            <div className="ranking-podium ranking-podium-second p-5 rounded-2xl bg-[#151822] border border-slate-400/30 flex flex-col items-center text-center order-2 md:order-1 relative overflow-hidden shadow-xl md:h-64 justify-between">
               <div className="w-12 h-12 rounded-full bg-slate-800 border-2 border-slate-300 flex items-center justify-center text-slate-200 text-xl font-black font-industrial">
                 <Medal className="h-6 w-6 text-slate-200" />
               </div>
@@ -100,7 +118,7 @@ export default function Ranking() {
             </div>
 
             {/* 1º LUGAR (CENTRAL, HIGHER) */}
-            <div className="p-6 rounded-2xl bg-gradient-to-b from-amber-500/20 via-[#161a26] to-[#11131a] border-2 border-amber-400/80 flex flex-col items-center text-center order-1 md:order-2 relative overflow-hidden shadow-2xl md:h-76 justify-between scale-105 z-10">
+            <div className="ranking-podium ranking-podium-first p-6 rounded-2xl bg-gradient-to-b from-amber-500/20 via-[#161a26] to-[#11131a] border-2 border-amber-400/80 flex flex-col items-center text-center order-1 md:order-2 relative overflow-hidden shadow-2xl md:h-76 justify-between scale-105 z-10">
               <div className="absolute top-0 inset-x-0 h-1 bg-amber-400" />
               <div className="w-16 h-16 rounded-full bg-amber-500/30 border-2 border-amber-300 flex items-center justify-center text-amber-300 text-3xl font-black font-industrial shadow-lg">
                 <Medal className="h-8 w-8 text-amber-300" />
@@ -122,7 +140,7 @@ export default function Ranking() {
             </div>
 
             {/* 3º LUGAR */}
-            <div className="p-5 rounded-2xl bg-[#151822] border border-amber-800/30 flex flex-col items-center text-center order-3 md:order-3 relative overflow-hidden shadow-xl md:h-60 justify-between">
+            <div className="ranking-podium ranking-podium-third p-5 rounded-2xl bg-[#151822] border border-amber-800/30 flex flex-col items-center text-center order-3 md:order-3 relative overflow-hidden shadow-xl md:h-60 justify-between">
               <div className="w-12 h-12 rounded-full bg-amber-950/60 border-2 border-amber-700 flex items-center justify-center text-amber-600 text-xl font-black font-industrial">
                 <Medal className="h-6 w-6 text-amber-600" />
               </div>

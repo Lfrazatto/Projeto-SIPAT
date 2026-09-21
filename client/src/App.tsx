@@ -49,7 +49,9 @@ function RouteEffects() {
 }
 
 function Router() {
+  const [location] = useLocation();
   return (
+    <div key={location} className="page-transition">
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/sobre" component={Sobre} />
@@ -66,6 +68,7 @@ function Router() {
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
+    </div>
   );
 }
 
