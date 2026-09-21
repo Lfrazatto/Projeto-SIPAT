@@ -34,3 +34,17 @@
 - [x] Ordenar o seletor das fases de Fase 1 a Fase 5.
 - [x] Validar no navegador duas imagens carregadas e cliques reais reconhecidos.
 - [x] Rodar validação final (tsc + 42 vitest + build vite/esbuild), salvar checkpoint e atualizar pacote ZIP.
+
+
+## Rodada de redesign interativo — concluída
+
+- [x] Adicionar parallax suave, cursor glow, linhas de energia e entrada sequencial na hero.
+- [x] Tornar a missão clicável com estado ativo e próxima ação contextual.
+- [x] Criar sequência Red Flag PARE → COMUNIQUE → AJA COM SEGURANÇA.
+- [x] Adicionar contadores animados sem alterar valores do ranking.
+- [x] Criar timeline interativa da história da Cummins.
+- [x] Criar timeline interativa do processo do projeto Formare.
+- [x] Garantir foco visível, teclado, toque e prefers-reduced-motion.
+- [x] Validar TypeScript, 42 testes e build de produção.
+- [x] Validar Home, História e Nosso projeto em desktop e mobile.
+- [ ] Salvar checkpoint final e atualizar pacote ZIP.

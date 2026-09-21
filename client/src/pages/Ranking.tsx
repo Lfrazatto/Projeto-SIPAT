@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useParticipant } from "@/contexts/ParticipantContext";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 
 export default function Ranking() {
   const { participant } = useParticipant();
@@ -113,7 +114,7 @@ export default function Ranking() {
                 </div>
               </div>
               <div className="w-full py-2 rounded bg-black/40 border border-white/10 font-black font-industrial text-xl text-slate-200">
-                {top2 ? `${top2.totalScore} pts` : "0 pts"}
+                <AnimatedNumber value={top2?.totalScore || 0} suffix=" pts" />
               </div>
             </div>
 
@@ -135,7 +136,7 @@ export default function Ranking() {
                 </div>
               </div>
               <div className="w-full py-3 rounded-xl bg-amber-950/60 border border-amber-500/50 font-black font-industrial text-2xl text-amber-300 shadow">
-                {top1 ? `${top1.totalScore} pts` : "0 pts"}
+                <AnimatedNumber value={top1?.totalScore || 0} suffix=" pts" />
               </div>
             </div>
 
@@ -154,7 +155,7 @@ export default function Ranking() {
                 </div>
               </div>
               <div className="w-full py-2 rounded bg-black/40 border border-white/10 font-black font-industrial text-xl text-amber-600">
-                {top3 ? `${top3.totalScore} pts` : "0 pts"}
+                <AnimatedNumber value={top3?.totalScore || 0} suffix=" pts" />
               </div>
             </div>
           </div>

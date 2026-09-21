@@ -117,3 +117,14 @@ Em atendimento ao prompt mestre de reorganização e redesenho interativo:
 | **Rodapé Útil** | Reestruturado com logotipo oficial da Cummins, atalhos de navegação, status do evento, versão, chamada final e indicação clara de que a identificação permanece apenas durante a sessão do navegador. |
 | **Movimento e Acessibilidade** | Transições de página rápidas (.18s), revelação de elementos ao rolar sem atraso perceptível e respeito estrito a `prefers-reduced-motion`, no qual as animações são substituídas por exibições imediatas. |
 | **Validação Responsiva** | Verificação visual realizada em 320px, 375px, 414px, 768px, 1024px, 1280px, 1440px e 1920px, sem detecção de overflow horizontal ou elementos cortados. |
+
+
+## Atualização — Interatividade, feedback e conteúdo institucional
+
+Nesta rodada, a experiência foi refinada para funcionar como uma central de missão contínua, não apenas como uma sequência de páginas. A Home recebeu parallax suave controlado pelo ponteiro, brilho de cursor, linhas de energia, entrada sequencial do conteúdo e cards de missão clicáveis. A preferência de movimento reduzido continua desligando as animações não essenciais.
+
+O bloco Red Flag passou a ter uma sequência interativa em três etapas — **PARE**, **COMUNIQUE** e **AJA COM SEGURANÇA** — com estado ativo, avanço progressivo, feedback final e CTA para praticar nos jogos. O Ranking recebeu contadores animados para as pontuações do pódio, sem modificar os valores reais calculados pelo servidor.
+
+A página História da Cummins agora usa uma timeline expansível com marcos selecionáveis, fonte oficial e painel de conteúdo contextual. A página Nosso projeto recebeu uma timeline do processo do Formare, de “Aprendemos” a “Entregamos”, também operável por teclado e toque. Os componentes novos foram implementados com estados persistentes enquanto o usuário navega na seção, foco visível e suporte a telas estreitas.
+
+A validação final desta rodada foi concluída com **TypeScript sem erros**, **42 testes passando em 9 arquivos** e **build de produção concluído**. A auditoria visual confirmou Home, História da Cummins e Nosso projeto em desktop e mobile; o console do navegador não apresentou erros durante a navegação.

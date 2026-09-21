@@ -33,3 +33,13 @@ Executar novamente `pnpm check`, `pnpm test`, `pnpm build`, capturas nos viewpor
 - **1280px**: barra de navegação desktop ativa e legível; hero em duas colunas.
 - **1440px**: layout contido no limite máximo com alinhamento visual equilibrado.
 - **1920px**: espaçamento amplo preservado sem distorcer o painel de missão.
+
+
+## Rodada interativa — 21/09/2026
+
+- Home revisada em desktop e 375px: hero com camadas industriais, CTA, central de missão, cards dos quatro desafios, Red Flag interativo, chamada final e rodapé sem overflow horizontal.
+- Red Flag validado no navegador: três botões de etapa e avanço por “Próxima etapa” aparecem com labels acessíveis e feedback contextual.
+- História da Cummins revisada em desktop e mobile: timeline com seis marcos, painel expansível, fonte oficial e cards institucionais.
+- Nosso projeto revisado em desktop e mobile: foto da equipe, processo do Formare, timeline “Da ideia à entrega”, galeria e cartões de criadores.
+- Console do navegador sem mensagens de erro durante a navegação da Home.
+- `pnpm check`, `pnpm test` e `pnpm build` concluídos com sucesso; 42 testes passaram.
