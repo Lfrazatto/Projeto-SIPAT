@@ -13,6 +13,9 @@ export function SiteFooter() {
         <nav aria-label="Links do rodapé" className="flex flex-wrap items-center gap-x-5 gap-y-3 text-xs font-semibold">
           <Link href="/sobre" className="min-h-11 content-center hover:text-white">Sobre</Link>
           <Link href="/nosso-projeto" className="min-h-11 content-center hover:text-white">Nosso projeto</Link>
+          <Link href="/formare" className="min-h-11 content-center hover:text-white">Formare</Link>
+          <Link href="/historia-cummins" className="min-h-11 content-center hover:text-white">História</Link>
+          <Link href="/galeria" className="min-h-11 content-center hover:text-white">Galeria</Link>
           <Link href="/projeto-3d" className="min-h-11 content-center hover:text-white">Projeto 3D</Link>
           <Link href="/jogos" className="min-h-11 content-center hover:text-white">Desafios</Link>
           <Link href="/ranking" className="min-h-11 content-center hover:text-white">Ranking</Link>

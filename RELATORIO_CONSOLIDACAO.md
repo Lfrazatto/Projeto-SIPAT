@@ -89,3 +89,14 @@ Em conformidade com todas as diretrizes do prompt mestre de excelência (18 seç
 4. **Projeto 3D Otimizado**: assembly enriquecida com elementos mecânicos volumétricos; animação coordenada de componentes internos; modos normal e curva; foto real da fábrica ao fundo; carregamento sob demanda (lazy loading) via Suspense.
 5. **Segurança e Higienização**: todos os participantes de teste foram removidos do banco de produção; testes automatizados agora possuem limpeza automática; credencial administrativa isolada via secret de ambiente com tempo constante de validação; rate limiting ativo em endpoints críticos.
 6. **Acessibilidade Completa**: toolbar flutuante com alto contraste, redução de movimento, tempo estendido e escala de fontes; foco visível e navegação por teclado em 100% dos fluxos.
+
+
+## Conteúdo Educativo Permanente, Formare e História da Cummins
+
+Em atendimento ao novo briefing institucional:
+
+1. **Posicionamento do Formare antes da equipe:** a página `/nosso-projeto` abre com a declaração destacada *"Somos alunos do Formare e desenvolvemos este projeto para a SIPAT Cummins Osasco."*, explica o programa, a transformação que ele promove e só depois apresenta a foto oficial da turma com legenda e créditos.
+2. **Página dedicada do Formare (`/formare`):** criada para explicar a combinação de aprendizagem técnica, desenvolvimento pessoal e responsabilidade social, distinguindo a Fundação Iochpe da filantropia independente da Cummins Foundation e alertando sobre dados que dependem de validação oficial.
+3. **História da Cummins com fontes verificáveis (`/historia-cummins`):** linha do tempo cronológica com marcos de 1919 (fundação por Clessie Cummins e William G. Irwin), expansão de motores, fábrica na Escócia em 1956, constituição no Brasil em 1971, aquisição da Meritor em 2022 e a presença em Osasco (CDBS Fábrica 1 e 2).
+4. **Galeria institucional acessível (`/galeria`):** reúne as fotos reais com filtros por categoria, visualização ampliada em modal com navegação por teclado (`Escape`, setas esquerda/direita), alt text descritivo e indicação clara de crédito e autorização.
+5. **Navegação atualizada:** o menu superior e o rodapé agora incluem acessos diretos a Formare, História e Galeria, sem esconder nenhum conteúdo essencial e sem criar missões ou notificações recorrentes.

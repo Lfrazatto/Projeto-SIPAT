@@ -11,6 +11,9 @@ import { ParticipantProvider } from "./contexts/ParticipantContext";
 import Home from "./pages/Home";
 import Sobre from "./pages/Sobre";
 import NossoProjeto from "./pages/NossoProjeto";
+import Formare from "./pages/Formare";
+import HistoriaCummins from "./pages/HistoriaCummins";
+import Galeria from "./pages/Galeria";
 import Jogos from "./pages/Jogos";
 import Ranking from "./pages/Ranking";
 import MeuProgresso from "./pages/MeuProgresso";
@@ -23,6 +26,9 @@ const pageTitles: Record<string, string> = {
   "/sobre": "Sobre a Cummins",
   "/nosso-projeto": "Nosso projeto",
   "/projeto": "Nosso projeto",
+  "/formare": "Formare",
+  "/historia-cummins": "História da Cummins",
+  "/galeria": "Galeria de fotos",
   "/projeto-3d": "Projeto 3D MS-120",
   "/jogos": "Jogos",
   "/ranking": "Ranking",
@@ -49,6 +55,9 @@ function Router() {
       <Route path="/sobre" component={Sobre} />
       <Route path="/nosso-projeto" component={NossoProjeto} />
       <Route path="/projeto" component={NossoProjeto} />
+      <Route path="/formare" component={Formare} />
+      <Route path="/historia-cummins" component={HistoriaCummins} />
+      <Route path="/galeria" component={Galeria} />
       <Route path="/projeto-3d" component={Projeto3D} />
       <Route path="/jogos" component={Jogos} />
       <Route path="/ranking" component={Ranking} />

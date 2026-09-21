@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { BarChart3, Box, Gamepad2, Info, LogOut, Menu, Sparkles, Trophy, User, X } from "lucide-react";
+import { BarChart3, BookOpen, Box, Camera, Gamepad2, Info, LogOut, Menu, ScrollText, Sparkles, Trophy, User, X } from "lucide-react";
 import { useParticipant } from "@/contexts/ParticipantContext";
 import { Button } from "@/components/ui/button";
 
@@ -16,6 +16,9 @@ const navLinks = [
   { label: "Sobre", path: "/sobre", icon: Info },
   { label: "Projeto 3D", path: "/projeto-3d", icon: Box },
   { label: "Nosso projeto", path: "/nosso-projeto", icon: Sparkles },
+  { label: "Formare", path: "/formare", icon: BookOpen },
+  { label: "História", path: "/historia-cummins", icon: ScrollText },
+  { label: "Galeria", path: "/galeria", icon: Camera },
 ];
 
 export function Navbar({ onOpenIdentify }: NavbarProps) {
