@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MS120_CATALOG, ComponentDefinition, getComponentById } from "@/data/ms120Catalog";
 
-type Mode = "assembled" | "exploded" | "running";
+type Mode = "assembled" | "exploded" | "running" | "curve";
 type ViewMode = "solid" | "wireframe" | "xray" | "section";
 type CameraPreset = "iso" | "front" | "top" | "side" | "diff";
 
@@ -1280,18 +1280,43 @@ export function AxleAssemblyViewer() {
       });
 
       // Running mode animation
-      if (modeRef.current === "running") {
+      if (modeRef.current === "running" || modeRef.current === "curve") {
+        const isCurve = modeRef.current === "curve";
         rotationAngleRef.current += 0.04;
         const ang = rotationAngleRef.current;
 
+        // Pinhão e flange giram em torno do eixo de entrada Z com relação de redução (approx 3.91:1)
         if (compMap["drive_pinion"]) compMap["drive_pinion"].rotation.z = ang * 3.5;
         if (compMap["input_flange"]) compMap["input_flange"].rotation.z = ang * 3.5;
+        if (compMap["front_pinion_bearing"]) compMap["front_pinion_bearing"].rotation.z = ang * 3.5;
+        if (compMap["rear_pinion_bearing"]) compMap["rear_pinion_bearing"].rotation.z = ang * 3.5;
+
+        // Coroa e caixa do diferencial giram no eixo transversal perpendicular X
         if (compMap["ring_gear"]) compMap["ring_gear"].rotation.x = ang;
         if (compMap["differential_carrier"]) compMap["differential_carrier"].rotation.x = ang;
-        if (compMap["left_axle_shaft"]) compMap["left_axle_shaft"].rotation.x = ang;
-        if (compMap["right_axle_shaft"]) compMap["right_axle_shaft"].rotation.x = ang;
-        if (compMap["left_wheel_hub"]) compMap["left_wheel_hub"].rotation.x = ang;
-        if (compMap["right_wheel_hub"]) compMap["right_wheel_hub"].rotation.x = ang;
+        if (compMap["spider_cross"]) compMap["spider_cross"].rotation.x = ang;
+        if (compMap["spider_pins"]) compMap["spider_pins"].rotation.x = ang;
+        if (compMap["left_differential_bearing"]) compMap["left_differential_bearing"].rotation.x = ang;
+        if (compMap["right_differential_bearing"]) compMap["right_differential_bearing"].rotation.x = ang;
+
+        // No modo curva, semieixo externo gira mais rápido e satélites giram em torno de seus próprios eixos
+        const leftSpeed = isCurve ? 0.65 : 1.0;
+        const rightSpeed = isCurve ? 1.35 : 1.0;
+        const relativeDiff = rightSpeed - leftSpeed;
+
+        if (compMap["spider_gears"]) {
+          compMap["spider_gears"].rotation.x = ang;
+          compMap["spider_gears"].rotation.y = isCurve ? ang * relativeDiff * 2.2 : 0;
+        }
+        if (compMap["left_side_gear"]) compMap["left_side_gear"].rotation.x = ang * leftSpeed;
+        if (compMap["right_side_gear"]) compMap["right_side_gear"].rotation.x = ang * rightSpeed;
+
+        if (compMap["left_axle_shaft"]) compMap["left_axle_shaft"].rotation.x = ang * leftSpeed;
+        if (compMap["right_axle_shaft"]) compMap["right_axle_shaft"].rotation.x = ang * rightSpeed;
+        if (compMap["left_wheel_hub"]) compMap["left_wheel_hub"].rotation.x = ang * leftSpeed;
+        if (compMap["right_wheel_hub"]) compMap["right_wheel_hub"].rotation.x = ang * rightSpeed;
+        if (compMap["left_hub_outer_bearing"]) compMap["left_hub_outer_bearing"].rotation.x = ang * leftSpeed;
+        if (compMap["right_hub_outer_bearing"]) compMap["right_hub_outer_bearing"].rotation.x = ang * rightSpeed;
       }
 
       renderer.render(scene, camera);
@@ -1486,7 +1511,20 @@ export function AxleAssemblyViewer() {
             className={mode === "running" ? "bg-amber-600 hover:bg-amber-700 text-white" : "border-white/15 text-slate-300"}
           >
             <Activity className="w-4 h-4 mr-1.5" />
-            Funcionamento & Torque
+            Torque em Reta
+          </Button>
+
+          <Button
+            size="sm"
+            variant={mode === "curve" ? "default" : "outline"}
+            onClick={() => {
+              setMode("curve");
+              setExplodeDepth(0);
+            }}
+            className={mode === "curve" ? "bg-cyan-600 hover:bg-cyan-700 text-white" : "border-white/15 text-slate-300"}
+          >
+            <Activity className="w-4 h-4 mr-1.5" />
+            Dinâmica de Curva
           </Button>
 
           <div className="h-6 w-px bg-white/10 mx-1 hidden sm:block" />
@@ -1652,6 +1690,18 @@ export function AxleAssemblyViewer() {
                 </div>
                 <p className="mt-1 text-[11px] leading-relaxed text-slate-300">
                   Cardã → Flange → Pinhão Cônico → Coroa Hipoide → Caixa do Diferencial → Satélites & Planetárias → Semieixos → Cubos de Roda.
+                </p>
+              </div>
+            )}
+
+            {mode === "curve" && (
+              <div className="absolute top-4 right-4 p-3 rounded-xl bg-gradient-to-r from-cyan-950/90 to-black/80 border border-cyan-500/40 backdrop-blur-md max-w-xs text-xs text-slate-200">
+                <div className="font-bold text-cyan-400 uppercase tracking-wide flex items-center gap-1.5">
+                  <Activity className="w-4 h-4 animate-spin text-cyan-400" />
+                  Dinâmica em Curva (Didático)
+                </div>
+                <p className="mt-1 text-[11px] leading-relaxed text-slate-300">
+                  As engrenagens satélites giram sobre o eixo cruzeta. O semieixo externo (direito) gira mais rápido do que o interno (esquerdo) para compensar o raio da curva sem arrasto de pneu.
                 </p>
               </div>
             )}

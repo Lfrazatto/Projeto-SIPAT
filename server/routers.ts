@@ -181,7 +181,9 @@ export const appRouter = router({
       .query(async ({ input }) => {
         await assertGameOpen(input.gameType);
         const questions = await db.getQuizQuestions(input.gameType);
-        return questions.map((q) => ({
+        // Embaralha o catálogo completo e seleciona até 12 perguntas por partida.
+        const shuffled = [...questions].sort(() => Math.random() - 0.5).slice(0, 12);
+        return shuffled.map((q) => ({
           id: q.id,
           gameType: q.gameType,
           question: q.question,
@@ -192,6 +194,25 @@ export const appRouter = router({
           theme: q.theme,
           difficulty: q.difficulty,
         }));
+      }),
+
+    getDailyAttempts: publicProcedure
+      .input(
+        z.object({
+          participantWwid: z.string().trim().min(1),
+          gameType: z.enum(["quiz_seguranca", "quiz_ergonomia", "ache_o_erro", "organize_a_fabrica"]),
+        })
+      )
+      .query(async ({ input }) => {
+        const participant = await db.getParticipantByWwid(input.participantWwid) || await db.getParticipantByChapa(input.participantWwid);
+        if (!participant) return { attemptsToday: 0, maxDailyAttempts: 5, remainingToday: 5 };
+        const count = await db.getDailyAttemptsCount(participant.id, input.gameType);
+        const maxDaily = 5;
+        return {
+          attemptsToday: count,
+          maxDailyAttempts: maxDaily,
+          remainingToday: Math.max(0, maxDaily - count),
+        };
       }),
 
     verifyAnswer: publicProcedure
@@ -260,6 +281,16 @@ export const appRouter = router({
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "Este desafio está fora da janela de acesso configurada para o evento.",
+          });
+        }
+
+        const participant = await db.findOrCreateParticipant(input.participantName, input.participantChapa, input.participantWwid);
+        const attemptsToday = await db.getDailyAttemptsCount(participant.id, input.gameType);
+        const maxAttempts = 5;
+        if (attemptsToday >= maxAttempts) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `Você atingiu o limite de ${maxAttempts} tentativas diárias para este desafio. Volte amanhã para pontuar novamente!`,
           });
         }
 

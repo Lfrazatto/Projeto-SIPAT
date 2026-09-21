@@ -68,6 +68,10 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
 
   const verifyMutation = trpc.games.verifyAnswer.useMutation();
   const submitResultMutation = trpc.games.submitResult.useMutation();
+  const dailyAttemptsQuery = trpc.games.getDailyAttempts.useQuery(
+    { participantWwid: participant?.wwid || "", gameType },
+    { enabled: Boolean(participant?.wwid), refetchOnWindowFocus: false }
+  );
 
   const questions = questionsQuery.data || [];
   const currentQuestion = questions[currentIndex];
@@ -279,6 +283,11 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
             <h2 className="text-lg sm:text-xl font-bold font-industrial uppercase text-white">
               {gameType === "quiz_seguranca" ? "Quiz de Segurança" : "Quiz de Ergonomia"}
             </h2>
+            {participant && dailyAttemptsQuery.data && (
+              <span className="text-[11px] font-mono text-slate-400">
+                Tentativas hoje: <strong className="text-white">{dailyAttemptsQuery.data.attemptsToday}</strong> / {dailyAttemptsQuery.data.maxDailyAttempts}
+              </span>
+            )}
           </div>
         </div>
 

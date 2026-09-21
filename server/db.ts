@@ -304,6 +304,24 @@ export async function getParticipantByChapa(chapa: string): Promise<Participant 
   return rows[0];
 }
 
+export async function getDailyAttemptsCount(participantId: number, gameType: string): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const rows = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(gameResults)
+    .where(
+      and(
+        eq(gameResults.participantId, participantId),
+        eq(gameResults.gameType, gameType as any),
+        sql`${gameResults.createdAt} >= ${startOfDay}`
+      )
+    );
+  return Number(rows[0]?.count ?? 0);
+}
+
 export async function calculateParticipantStats(participantId: number): Promise<void> {
   const db = await getDb();
   if (!db) return;
