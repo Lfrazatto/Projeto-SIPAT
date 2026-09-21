@@ -14,4 +14,8 @@ export const REAL_PHOTOS = {
     sourceUrl: "https://revistamt.com.br/Noticias/Exibir/cummins-brasil-anuncia-producao-local-do-eixo-ms-18x-hd",
     credit: "Revista M&T",
   },
+  team: {
+    src: "/manus-storage/equipe-cummins-sipat-osasco_2647a14f.jpg",
+    credit: "Turma do Projeto SIPAT / Formare Cummins",
+  },
 } as const;

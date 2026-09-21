@@ -3,6 +3,7 @@ import { ArrowRight, Code2, ExternalLink, Gamepad2, GraduationCap, Linkedin, Mai
 import { Link } from "wouter";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import { REAL_PHOTOS } from "@/data/realPhotos";
 
 const pillars = [
   { icon: Gamepad2, title: "Jogos e desafios", text: "Desafios transformam conceitos de segurança, ergonomia e prevenção em decisões práticas e interativas." },
@@ -44,7 +45,23 @@ export default function NossoProjeto() {
         <div className="mx-auto max-w-7xl">
           <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_.95fr]">
             <div><div className="v2-kicker flex items-center gap-2"><Users className="h-3.5 w-3.5" /> Turma do projeto / comunidade</div><h2 className="mt-3 font-industrial text-5xl uppercase leading-[.95] text-white sm:text-7xl">Quem criou<br /><span className="text-[#da291c]">esta ideia.</span></h2><p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300">Este projeto foi criado com o objetivo de tornar a SIPAT da Cummins Osasco mais interativa, educativa e conectada à realidade dos colaboradores.</p></div>
-            <figure className="overflow-hidden rounded-2xl border border-white/15 bg-black/30 shadow-2xl shadow-black/40"><img src="/manus-storage/equipe-projeto-sipat_40beafdf.jpg" alt="Equipe do projeto SIPAT reunida em uma sala, com os integrantes do grupo lado a lado diante da lousa" className="aspect-video w-full object-cover object-center" loading="lazy" /><figcaption className="border-t border-white/10 bg-[#141822] px-4 py-3 text-xs leading-relaxed text-slate-400">Equipe do projeto reunida: uma construção coletiva de aprendizado, tecnologia e segurança.</figcaption></figure>
+            <figure className="group overflow-hidden rounded-2xl border border-white/15 bg-[#12151d] shadow-2xl shadow-black/50">
+              <div className="relative aspect-video w-full overflow-hidden bg-black/40">
+                <img
+                  src={REAL_PHOTOS.team.src}
+                  alt="Equipe e turma do projeto SIPAT reunida em frente à lousa na sala do Formare Cummins, com os integrantes sorrindo e celebrando a conclusão do projeto"
+                  className="h-full w-full object-cover object-[center_35%] transition duration-300 group-hover:scale-[1.02]"
+                  loading="eager"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+                <div className="absolute bottom-3 left-3 rounded-md border border-white/10 bg-black/70 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-md">
+                  Turma Formare • Cummins CDBS Osasco
+                </div>
+              </div>
+              <figcaption className="border-t border-white/10 bg-[#141822] px-4 py-3 text-xs leading-relaxed text-slate-300">
+                <span className="font-semibold text-white">Equipe do projeto reunida:</span> idealização, desenvolvimento colaborativo e união de toda a turma para criar a experiência digital da SIPAT.
+              </figcaption>
+            </figure>
           </div>
 
           <div className="mt-14"><div className="v2-kicker">Principais criadores</div><p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">Leonardo Frazatto, Matheus Felipe e Ryan Neiva foram os principais criadores do projeto, responsáveis pela idealização, organização e desenvolvimento da proposta.</p><div className="mt-7 grid gap-4 md:grid-cols-3">{creators.map((creator, index) => <article key={creator.name} className="relative overflow-hidden rounded-xl border border-white/10 bg-[#171b24] p-6 transition hover:-translate-y-1 hover:border-red-500/50"><span className="absolute right-4 top-4 font-mono text-xs text-red-400/70">0{index + 1}</span><div className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-950/50 text-[#da291c]"><Users className="h-5 w-5" /></div><h3 className="mt-8 font-industrial text-2xl uppercase text-white">{creator.name}</h3><p className="mt-2 text-xs uppercase tracking-widest text-slate-500">Criador do projeto</p><div className="mt-6 flex flex-wrap gap-2"><a href={`mailto:${creator.email}`} className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-xs text-slate-300 transition hover:border-red-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400"><Mail className="h-3.5 w-3.5 text-red-400" /> E-mail</a>{creator.linkedin && <a href={creator.linkedin} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-xs text-slate-300 transition hover:border-[#0a66c2] hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"><Linkedin className="h-3.5 w-3.5 text-[#6fa8dc]" /> LinkedIn <ExternalLink className="h-3 w-3" /></a>}</div></article>)}</div></div>
