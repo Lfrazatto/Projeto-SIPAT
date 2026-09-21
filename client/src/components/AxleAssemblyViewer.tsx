@@ -16,12 +16,46 @@ import {
   ExternalLink,
   Sparkles,
   Focus,
-  Tags
+  Tags,
+  Pause,
+  Play
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MS120_CATALOG, ComponentDefinition, getComponentById } from "@/data/ms120Catalog";
 import { REAL_PHOTOS } from "@/data/realPhotos";
+
+const ROTATING_COMPONENTS = new Set([
+  "input_flange",
+  "front_pinion_bearing",
+  "rear_pinion_bearing",
+  "drive_pinion",
+  "ring_gear",
+  "differential_carrier",
+  "spider_cross",
+  "spider_pins",
+  "spider_gears",
+  "side_gears",
+  "left_axle_shaft",
+  "right_axle_shaft",
+  "left_axle_splines",
+  "right_axle_splines",
+  "left_wheel_hub",
+  "right_wheel_hub",
+  "left_hub_bearings",
+  "right_hub_bearings",
+  "left_hub_seal",
+  "right_hub_seal",
+  "left_brake_assembly",
+  "right_brake_assembly",
+  "wheel_studs",
+]);
+
+const AXIS_LABELS: Record<string, string> = {
+  x: "transversal do veículo",
+  y: "vertical de serviço",
+  z: "longitudinal de entrada",
+};
 
 type Mode = "assembled" | "exploded" | "running" | "curve";
 type ViewMode = "solid" | "wireframe" | "xray" | "section";
@@ -47,6 +81,8 @@ export function AxleAssemblyViewer() {
   const [measuredDistance, setMeasuredDistance] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState<boolean>(true);
   const [isolatedId, setIsolatedId] = useState<string | null>(null);
+  const [motionPaused, setMotionPaused] = useState(false);
+  const [animationSpeed, setAnimationSpeed] = useState(1);
 
   // Three references
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -59,6 +95,11 @@ export function AxleAssemblyViewer() {
   const interiorLightRef = useRef<THREE.PointLight | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
   const rotationAngleRef = useRef<number>(0);
+  const motionPausedRef = useRef(false);
+  const animationSpeedRef = useRef(1);
+  const gridRef = useRef<THREE.GridHelper | null>(null);
+  const initialCameraTargetRef = useRef(new THREE.Vector3(0, 0, 0));
+  const initialCameraDistanceRef = useRef(14);
 
   // Pointer interactions
   const isDraggingRef = useRef<boolean>(false);
@@ -87,20 +128,21 @@ export function AxleAssemblyViewer() {
   }, [filterCategory, showOptionalComponents]);
 
   const labelIds = useMemo(() => {
-    const candidates = MS120_CATALOG.filter((comp) => {
-      if (comp.id === selectedId) return true;
-      return showLabels && explodeDepth > 0.05 && comp.visibleInExploded && comp.explodeStage > 0;
-    }).sort((a, b) => {
-      if (a.id === selectedId) return -1;
-      if (b.id === selectedId) return 1;
-      return a.explodeStage - b.explodeStage;
-    });
-    return candidates.slice(0, showLabels ? 7 : 1).map((comp) => comp.id);
+    if (!showLabels) return [];
+    return selectedId ? [selectedId] : [];
   }, [selectedId, showLabels, explodeDepth]);
 
   useEffect(() => {
     modeRef.current = mode;
   }, [mode]);
+
+  useEffect(() => {
+    motionPausedRef.current = motionPaused;
+  }, [motionPaused]);
+
+  useEffect(() => {
+    animationSpeedRef.current = animationSpeed;
+  }, [animationSpeed]);
 
   useEffect(() => {
     labelIdsRef.current = labelIds;
@@ -111,24 +153,24 @@ export function AxleAssemblyViewer() {
     if (!cameraPolarRef.current) return;
     if (preset === "iso") {
       cameraPolarRef.current = { theta: Math.PI / 4, phi: Math.PI / 3.2 };
-      cameraDistanceRef.current = 14;
-      cameraTargetRef.current.set(0, 0, 0);
+      cameraDistanceRef.current = initialCameraDistanceRef.current;
+      cameraTargetRef.current.copy(initialCameraTargetRef.current);
     } else if (preset === "front") {
       cameraPolarRef.current = { theta: 0, phi: Math.PI / 2 };
       cameraDistanceRef.current = 13;
-      cameraTargetRef.current.set(0, 0, 0);
+      cameraTargetRef.current.copy(initialCameraTargetRef.current);
     } else if (preset === "top") {
       cameraPolarRef.current = { theta: 0, phi: 0.05 };
       cameraDistanceRef.current = 15;
-      cameraTargetRef.current.set(0, 0, 0);
+      cameraTargetRef.current.copy(initialCameraTargetRef.current);
     } else if (preset === "side") {
       cameraPolarRef.current = { theta: Math.PI / 2, phi: Math.PI / 2 };
       cameraDistanceRef.current = 13;
-      cameraTargetRef.current.set(0, 0, 0);
+      cameraTargetRef.current.copy(initialCameraTargetRef.current);
     } else if (preset === "diff") {
       cameraPolarRef.current = { theta: 0.2, phi: Math.PI / 2.8 };
       cameraDistanceRef.current = 7.5;
-      cameraTargetRef.current.set(0, 0, 0);
+      cameraTargetRef.current.copy(initialCameraTargetRef.current);
     }
   }, []);
 
@@ -222,10 +264,13 @@ export function AxleAssemblyViewer() {
     clippingPlaneRef.current = clipPlane;
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.55);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.0);
+    const hemiLight = new THREE.HemisphereLight(0xdcecff, 0x20262c, 1.1);
+    scene.add(hemiLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.4);
     dirLight1.position.set(10, 15, 12);
     dirLight1.castShadow = true;
     dirLight1.shadow.mapSize.width = 1024;
@@ -236,7 +281,7 @@ export function AxleAssemblyViewer() {
     dirLight2.position.set(-12, 4, -10);
     scene.add(dirLight2);
 
-    const fillLight = new THREE.DirectionalLight(0x7799bb, 0.9);
+    const fillLight = new THREE.DirectionalLight(0x9bb9d4, 1.2);
     fillLight.position.set(0, -10, 8);
     scene.add(fillLight);
 
@@ -249,9 +294,27 @@ export function AxleAssemblyViewer() {
     scene.add(interiorLight);
     interiorLightRef.current = interiorLight;
 
-    // Floor grid
-    const grid = new THREE.GridHelper(20, 20, 0xda291c, 0x222733);
-    grid.position.y = -2.8;
+    // Piso industrial discreto: a grade fica desligada por padrão e só aparece quando necessária para medição/wireframe.
+    const factoryFloor = new THREE.Mesh(
+      new THREE.PlaneGeometry(28, 18),
+      new THREE.MeshStandardMaterial({
+        color: 0x69737a,
+        roughness: 0.92,
+        metalness: 0.04,
+        transparent: true,
+        opacity: 0.34,
+        side: THREE.DoubleSide,
+      })
+    );
+    factoryFloor.rotation.x = -Math.PI / 2;
+    factoryFloor.position.y = -2.8;
+    factoryFloor.receiveShadow = true;
+    scene.add(factoryFloor);
+
+    const grid = new THREE.GridHelper(20, 20, 0xda291c, 0x34404a);
+    grid.position.y = -2.76;
+    grid.visible = false;
+    gridRef.current = grid;
     scene.add(grid);
 
     // Root Assembly
@@ -281,17 +344,43 @@ export function AxleAssemblyViewer() {
       return m;
     };
 
-    const castIronMat = createMat(0x657481, 0.68, 0.36);
-    const innerIronMat = createMat(0x8796a3, 0.72, 0.28);
-    const machinedSteelMat = createMat(0xd8e0e6, 0.94, 0.13);
-    const darkSteelMat = createMat(0x77838f, 0.88, 0.22);
-    const gearBronzeMat = createMat(0xc99c4d, 0.9, 0.2);
-    const gearHighlightMat = createMat(0xf0cf70, 0.94, 0.13);
-    const fastenerMat = createMat(0xd5dee5, 0.92, 0.14);
-    const brakeMat = createMat(0x778693, 0.68, 0.34);
-    const brakeLiningMat = createMat(0xb6754e, 0.44, 0.56);
+    const castIronMat = createMat(0x657481, 0.68, 0.42);
+    const innerIronMat = createMat(0x8796a3, 0.72, 0.32);
+    const machinedSteelMat = createMat(0xd8e0e6, 0.94, 0.16);
+    const darkSteelMat = createMat(0x77838f, 0.88, 0.28);
+    // Aço tratado, não dourado: dentes e engrenagens permanecem industriais e legíveis.
+    const gearBronzeMat = createMat(0x76828a, 0.91, 0.22);
+    const gearHighlightMat = createMat(0xb8c4cb, 0.94, 0.17);
+    const fastenerMat = createMat(0xd5dee5, 0.92, 0.17);
+    const brakeMat = createMat(0x778693, 0.68, 0.38);
+    const brakeLiningMat = createMat(0xb6754e, 0.44, 0.62);
     const rubberMat = createMat(0x22272b, 0.08, 0.88);
     materialsRef.current = materials;
+
+    const beveledBox = (width: number, height: number, depth: number, bevel = 0.05) => {
+      const shape = new THREE.Shape();
+      const hw = width / 2;
+      const hh = height / 2;
+      shape.moveTo(-hw + bevel, -hh);
+      shape.lineTo(hw - bevel, -hh);
+      shape.lineTo(hw, -hh + bevel);
+      shape.lineTo(hw, hh - bevel);
+      shape.lineTo(hw - bevel, hh);
+      shape.lineTo(-hw + bevel, hh);
+      shape.lineTo(-hw, hh - bevel);
+      shape.lineTo(-hw, -hh + bevel);
+      shape.closePath();
+      const geometry = new THREE.ExtrudeGeometry(shape, {
+        depth,
+        bevelEnabled: true,
+        bevelSegments: 2,
+        bevelSize: bevel,
+        bevelThickness: bevel,
+        steps: 1,
+      });
+      geometry.translate(0, 0, -depth / 2);
+      return geometry;
+    };
 
     const compMap: ComponentMeshMap = {};
 
@@ -352,6 +441,27 @@ export function AxleAssemblyViewer() {
         boss.position.set(x, 0.8, -0.2);
         grpMainHousing.add(boss);
       });
+
+      // Alojamentos robustos dos mancais e planos usinados de apoio.
+      [-1, 1].forEach((side) => {
+        const bearingSeat = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.02, 0.22, 32), innerIronMat);
+        bearingSeat.rotation.z = Math.PI / 2;
+        bearingSeat.position.x = side * 1.28;
+        grpMainHousing.add(bearingSeat);
+
+        const machinedPad = new THREE.Mesh(beveledBox(0.78, 0.18, 0.56, 0.06), machinedSteelMat);
+        machinedPad.position.set(side * 1.05, 0.98, -0.05);
+        machinedPad.rotation.z = side * 0.05;
+        grpMainHousing.add(machinedPad);
+      });
+
+      // Ressaltos de fundição que fazem a transição entre o corpo central e os tubos.
+      [-1, 1].forEach((side) => {
+        const transition = new THREE.Mesh(new THREE.CylinderGeometry(0.88, 0.62, 0.34, 32), castIronMat);
+        transition.rotation.z = Math.PI / 2;
+        transition.position.x = side * 1.68;
+        grpMainHousing.add(transition);
+      });
     }
 
     // 2. NARIZ DO PINHÃO (Pinion Nose Housing)
@@ -392,6 +502,10 @@ export function AxleAssemblyViewer() {
         brace.rotation.z = angle;
         grpHousingCover.add(brace);
       }
+
+      const coverMachinedFace = new THREE.Mesh(new THREE.TorusGeometry(1.47, 0.055, 10, 40), machinedSteelMat);
+      coverMachinedFace.position.z = -0.26;
+      grpHousingCover.add(coverMachinedFace);
     }
 
     // 4. JUNTA DA TAMPA (Cover Gasket)
@@ -462,9 +576,16 @@ export function AxleAssemblyViewer() {
       collar.rotation.y = Math.PI / 2;
       collar.position.x = -1.38;
       grpLeftTube.add(collar);
-      const mountPad = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.18, 0.62), castIronMat);
+      const weldBead = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.045, 8, 32), darkSteelMat);
+      weldBead.rotation.y = Math.PI / 2;
+      weldBead.position.x = -1.62;
+      grpLeftTube.add(weldBead);
+      const mountPad = new THREE.Mesh(beveledBox(0.8, 0.18, 0.62, 0.05), castIronMat);
       mountPad.position.set(0.1, 0.72, 0);
       grpLeftTube.add(mountPad);
+      const lowerPad = new THREE.Mesh(beveledBox(0.64, 0.14, 0.5, 0.04), castIronMat);
+      lowerPad.position.set(0.1, -0.72, 0);
+      grpLeftTube.add(lowerPad);
     }
 
     // 10. TUBO DIREITO (Right Axle Tube)
@@ -484,9 +605,16 @@ export function AxleAssemblyViewer() {
       collar.rotation.y = Math.PI / 2;
       collar.position.x = 1.38;
       grpRightTube.add(collar);
-      const mountPad = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.18, 0.62), castIronMat);
+      const weldBead = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.045, 8, 32), darkSteelMat);
+      weldBead.rotation.y = Math.PI / 2;
+      weldBead.position.x = 1.62;
+      grpRightTube.add(weldBead);
+      const mountPad = new THREE.Mesh(beveledBox(0.8, 0.18, 0.62, 0.05), castIronMat);
       mountPad.position.set(-0.1, 0.72, 0);
       grpRightTube.add(mountPad);
+      const lowerPad = new THREE.Mesh(beveledBox(0.64, 0.14, 0.5, 0.04), castIronMat);
+      lowerPad.position.set(-0.1, -0.72, 0);
+      grpRightTube.add(lowerPad);
     }
 
     // 11. SUPORTES DE SUSPENSÃO (Suspension Brackets)
@@ -884,6 +1012,14 @@ export function AxleAssemblyViewer() {
       hubCap.rotation.z = Math.PI / 2;
       hubCap.position.x = -0.58;
       grpLeftHub.add(hubCap);
+      const outerStep = new THREE.Mesh(new THREE.TorusGeometry(1.42, 0.09, 12, 36), machinedSteelMat);
+      outerStep.rotation.y = Math.PI / 2;
+      outerStep.position.x = -0.16;
+      grpLeftHub.add(outerStep);
+      const innerStep = new THREE.Mesh(new THREE.TorusGeometry(0.78, 0.065, 10, 32), fastenerMat);
+      innerStep.rotation.y = Math.PI / 2;
+      innerStep.position.x = -0.48;
+      grpLeftHub.add(innerStep);
     }
 
     // 29. CUBO DE RODA DIREITO (Right Wheel Hub)
@@ -903,6 +1039,14 @@ export function AxleAssemblyViewer() {
       hubCap.rotation.z = Math.PI / 2;
       hubCap.position.x = 0.58;
       grpRightHub.add(hubCap);
+      const outerStep = new THREE.Mesh(new THREE.TorusGeometry(1.42, 0.09, 12, 36), machinedSteelMat);
+      outerStep.rotation.y = Math.PI / 2;
+      outerStep.position.x = 0.16;
+      grpRightHub.add(outerStep);
+      const innerStep = new THREE.Mesh(new THREE.TorusGeometry(0.78, 0.065, 10, 32), fastenerMat);
+      innerStep.rotation.y = Math.PI / 2;
+      innerStep.position.x = 0.48;
+      grpRightHub.add(innerStep);
     }
 
     const grpLeftHubBearings = registerComp("left_hub_bearings", new THREE.Vector3(-5.35, 0, 0));
@@ -961,6 +1105,22 @@ export function AxleAssemblyViewer() {
           nut.rotation.z = Math.PI / 2;
           nut.position.set(xCenter + (xCenter < 0 ? -0.38 : 0.38), y, z);
           grpWheelStuds.add(nut);
+
+          for (let thread = 0; thread < 3; thread++) {
+            const threadRing = new THREE.Mesh(new THREE.TorusGeometry(0.073, 0.018, 6, 14), darkSteelMat);
+            threadRing.rotation.y = Math.PI / 2;
+            threadRing.position.set(
+              xCenter + (xCenter < 0 ? -0.22 : 0.22) + (xCenter < 0 ? -0.065 : 0.065) * thread,
+              y,
+              z
+            );
+            grpWheelStuds.add(threadRing);
+          }
+
+          const washer = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.025, 8, 18), gearHighlightMat);
+          washer.rotation.y = Math.PI / 2;
+          washer.position.set(xCenter + (xCenter < 0 ? -0.3 : 0.3), y, z);
+          grpWheelStuds.add(washer);
         }
       });
     }
@@ -1171,6 +1331,19 @@ export function AxleAssemblyViewer() {
 
     groupMapRef.current = compMap;
 
+    const assemblyBounds = new THREE.Box3().setFromObject(rootAssembly);
+    const assemblyCenter = assemblyBounds.getCenter(new THREE.Vector3());
+    const assemblySize = assemblyBounds.getSize(new THREE.Vector3());
+    const verticalFov = THREE.MathUtils.degToRad(camera.fov);
+    const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
+    const fitVertical = assemblySize.y / (2 * Math.tan(verticalFov / 2));
+    const fitHorizontal = assemblySize.x / (2 * Math.tan(horizontalFov / 2));
+    const fitDistance = Math.max(fitVertical, fitHorizontal, assemblySize.z * 1.7) * 1.24;
+    initialCameraTargetRef.current.copy(assemblyCenter);
+    initialCameraDistanceRef.current = Math.min(22, Math.max(11.5, fitDistance));
+    cameraTargetRef.current.copy(assemblyCenter);
+    cameraDistanceRef.current = initialCameraDistanceRef.current;
+
     // Attach raycasting click handler
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
@@ -1327,9 +1500,9 @@ export function AxleAssemblyViewer() {
       });
 
       // Running mode animation
-      if (modeRef.current === "running" || modeRef.current === "curve") {
+      if ((modeRef.current === "running" || modeRef.current === "curve") && !motionPausedRef.current) {
         const isCurve = modeRef.current === "curve";
-        rotationAngleRef.current += 0.04;
+        rotationAngleRef.current += 0.04 * animationSpeedRef.current;
         const ang = rotationAngleRef.current;
 
         // Pinhão e flange giram em torno do eixo de entrada Z com relação de redução (approx 3.91:1)
@@ -1478,6 +1651,12 @@ export function AxleAssemblyViewer() {
     }
   }, [viewMode, sectionPlanePos]);
 
+  useEffect(() => {
+    if (gridRef.current) {
+      gridRef.current.visible = measureModeActive || viewMode === "wireframe";
+    }
+  }, [measureModeActive, viewMode]);
+
   // Highlight Selected Component
   useEffect(() => {
     const map = groupMapRef.current;
@@ -1513,6 +1692,8 @@ export function AxleAssemblyViewer() {
 
   const handleReset = () => {
     setMode("assembled");
+    setMotionPaused(false);
+    setAnimationSpeed(1);
     setExplodeDepth(0);
     setViewMode("solid");
     setSectionPlanePos(0);
@@ -1520,6 +1701,7 @@ export function AxleAssemblyViewer() {
     setMeasuredDistance(null);
     setSelectedId("main_axle_housing");
     setCameraView("iso");
+    if (gridRef.current) gridRef.current.visible = false;
     applyExplodeTransformations(0);
   };
 
@@ -1559,6 +1741,7 @@ export function AxleAssemblyViewer() {
             variant={mode === "running" ? "default" : "outline"}
             onClick={() => {
               setMode("running");
+              setMotionPaused(false);
               setExplodeDepth(0);
             }}
             className={mode === "running" ? "bg-amber-600 hover:bg-amber-700 text-white" : "border-white/15 text-slate-300"}
@@ -1572,6 +1755,7 @@ export function AxleAssemblyViewer() {
             variant={mode === "curve" ? "default" : "outline"}
             onClick={() => {
               setMode("curve");
+              setMotionPaused(false);
               setExplodeDepth(0);
             }}
             className={mode === "curve" ? "bg-cyan-600 hover:bg-cyan-700 text-white" : "border-white/15 text-slate-300"}
@@ -1579,6 +1763,35 @@ export function AxleAssemblyViewer() {
             <Activity className="w-4 h-4 mr-1.5" />
             Dinâmica de Curva
           </Button>
+
+          {(mode === "running" || mode === "curve") && (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setMotionPaused((value) => !value)}
+                className="border-white/15 text-slate-200"
+                aria-pressed={motionPaused}
+              >
+                {motionPaused ? <Play className="w-4 h-4 mr-1.5" /> : <Pause className="w-4 h-4 mr-1.5" />}
+                {motionPaused ? "Retomar" : "Pausar"}
+              </Button>
+              <label className="flex items-center gap-2 rounded-md border border-white/10 bg-black/20 px-2 py-1 text-[10px] text-slate-300">
+                Velocidade
+                <input
+                  aria-label="Velocidade da animação"
+                  type="range"
+                  min="0.25"
+                  max="2"
+                  step="0.25"
+                  value={animationSpeed}
+                  onChange={(event) => setAnimationSpeed(Number(event.target.value))}
+                  className="w-20 accent-[#da291c]"
+                />
+                <span className="w-7 font-mono text-right">{animationSpeed.toFixed(2)}x</span>
+              </label>
+            </>
+          )}
 
           <div className="h-6 w-px bg-white/10 mx-1 hidden sm:block" />
 
@@ -1660,7 +1873,9 @@ export function AxleAssemblyViewer() {
             ref={containerRef}
             className="relative isolate w-full h-[540px] sm:h-[620px] rounded-2xl overflow-hidden border border-white/10 bg-[#0a0d12] shadow-2xl"
             style={{
-              backgroundImage: `linear-gradient(90deg, rgba(5, 8, 12, .58) 0%, rgba(8, 12, 18, .34) 48%, rgba(5, 8, 12, .62) 100%), linear-gradient(180deg, rgba(10, 14, 20, .08), rgba(5, 7, 10, .54)), url(${REAL_PHOTOS.productionLine.src})`,
+              backgroundImage: explodeDepth > 0.05
+                ? `linear-gradient(90deg, rgba(5, 8, 12, .68) 0%, rgba(8, 12, 18, .46) 48%, rgba(5, 8, 12, .7) 100%), linear-gradient(180deg, rgba(10, 14, 20, .1), rgba(5, 7, 10, .62)), url(${REAL_PHOTOS.productionLine.src})`
+                : `linear-gradient(90deg, rgba(5, 8, 12, .58) 0%, rgba(8, 12, 18, .34) 48%, rgba(5, 8, 12, .62) 100%), linear-gradient(180deg, rgba(10, 14, 20, .08), rgba(5, 7, 10, .54)), url(${REAL_PHOTOS.productionLine.src})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
@@ -1691,6 +1906,17 @@ export function AxleAssemblyViewer() {
             <div className="pointer-events-none absolute bottom-4 right-4 z-20 max-w-[14rem] rounded-lg border border-white/10 bg-black/65 px-3 py-2 text-[10px] leading-relaxed text-slate-300 backdrop-blur-md">
               Fundo industrial: linha de produção Cummins/Meritor em Osasco · Crédito: Transporte Moderno
             </div>
+
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={handleReset}
+              className="absolute bottom-16 right-4 z-30 bg-[#da291c] text-white shadow-lg shadow-black/40 hover:bg-red-700"
+              aria-label="Resetar visualizador 3D para a montagem inicial"
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+              RESET
+            </Button>
 
             {/* Overlaid Camera Preset Bar */}
             <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-1.5 p-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10">
@@ -1906,6 +2132,24 @@ export function AxleAssemblyViewer() {
                 <span className="inline-block px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300 capitalize">
                   {selectedComponent.material.replace("-", " ")}
                 </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-md border border-white/10 bg-white/5 p-2">
+                  <span className="block text-[10px] uppercase tracking-wide text-slate-500">Movimento</span>
+                  <span className={ROTATING_COMPONENTS.has(selectedComponent.id) ? "text-emerald-300" : "text-slate-300"}>
+                    {ROTATING_COMPONENTS.has(selectedComponent.id) ? "Girante" : "Fixa"}
+                  </span>
+                </div>
+                <div className="rounded-md border border-white/10 bg-white/5 p-2">
+                  <span className="block text-[10px] uppercase tracking-wide text-slate-500">Eixo</span>
+                  <span className="text-slate-300">{AXIS_LABELS[selectedComponent.removalAxis] || "conforme montagem"}</span>
+                </div>
+              </div>
+
+              <div>
+                <span className="font-semibold text-slate-300 block mb-0.5">Conjunto:</span>
+                <p className="text-slate-400 leading-relaxed">{selectedComponent.groupId.replaceAll("_", " ")}</p>
               </div>
 
               <div className="p-3 rounded-lg bg-red-950/20 border border-red-500/20 text-red-200/90 text-[11px] leading-relaxed">
