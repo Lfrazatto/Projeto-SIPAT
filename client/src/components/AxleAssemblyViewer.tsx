@@ -281,15 +281,15 @@ export function AxleAssemblyViewer() {
       return m;
     };
 
-    const castIronMat = createMat(0x4b5560, 0.62, 0.48);
-    const innerIronMat = createMat(0x687582, 0.68, 0.34);
-    const machinedSteelMat = createMat(0xc8d0d6, 0.94, 0.16);
-    const darkSteelMat = createMat(0x5e6872, 0.88, 0.25);
-    const gearBronzeMat = createMat(0xb99b5a, 0.9, 0.24);
-    const gearHighlightMat = createMat(0xe0c681, 0.92, 0.18);
-    const fastenerMat = createMat(0xb7c0c7, 0.92, 0.18);
-    const brakeMat = createMat(0x65717c, 0.62, 0.42);
-    const brakeLiningMat = createMat(0x9d7350, 0.4, 0.62);
+    const castIronMat = createMat(0x657481, 0.68, 0.36);
+    const innerIronMat = createMat(0x8796a3, 0.72, 0.28);
+    const machinedSteelMat = createMat(0xd8e0e6, 0.94, 0.13);
+    const darkSteelMat = createMat(0x77838f, 0.88, 0.22);
+    const gearBronzeMat = createMat(0xc99c4d, 0.9, 0.2);
+    const gearHighlightMat = createMat(0xf0cf70, 0.94, 0.13);
+    const fastenerMat = createMat(0xd5dee5, 0.92, 0.14);
+    const brakeMat = createMat(0x778693, 0.68, 0.34);
+    const brakeLiningMat = createMat(0xb6754e, 0.44, 0.56);
     const rubberMat = createMat(0x22272b, 0.08, 0.88);
     materialsRef.current = materials;
 
@@ -546,6 +546,17 @@ export function AxleAssemblyViewer() {
         b.position.set(Math.cos(ang) * 0.72, Math.sin(ang) * 0.72, 0.24);
         grpInputFlange.add(b);
       }
+
+      // Garfo/yoke do cardã: duas orelhas e pinos de articulação visíveis.
+      [-0.66, 0.66].forEach((y) => {
+        const ear = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.62), darkSteelMat);
+        ear.position.set(0, y, 0.46);
+        grpInputFlange.add(ear);
+        const pivot = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.34, 12), fastenerMat);
+        pivot.rotation.y = Math.PI / 2;
+        pivot.position.set(0, y, 0.7);
+        grpInputFlange.add(pivot);
+      });
     }
 
     // 14. RETENTOR DO PINHÃO (Pinion Seal)
@@ -563,6 +574,16 @@ export function AxleAssemblyViewer() {
       const cone = new THREE.Mesh(coneGeom, machinedSteelMat);
       cone.rotation.x = Math.PI / 2;
       grpFrontBearing.add(cone);
+      const outerRace = new THREE.Mesh(new THREE.TorusGeometry(0.58, 0.055, 10, 28), fastenerMat);
+      outerRace.rotation.x = Math.PI / 2;
+      grpFrontBearing.add(outerRace);
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * Math.PI * 2;
+        const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.16, 10), gearHighlightMat);
+        roller.rotation.x = Math.PI / 2;
+        roller.position.set(Math.cos(a) * 0.5, Math.sin(a) * 0.5, 0);
+        grpFrontBearing.add(roller);
+      }
     }
 
     // 16. ESPAÇADOR / LUVA DE ESMAGAMENTO (Pinion Spacer)
@@ -581,6 +602,16 @@ export function AxleAssemblyViewer() {
       const cone = new THREE.Mesh(coneGeom, machinedSteelMat);
       cone.rotation.x = Math.PI / 2;
       grpRearBearing.add(cone);
+      const outerRace = new THREE.Mesh(new THREE.TorusGeometry(0.68, 0.06, 10, 28), fastenerMat);
+      outerRace.rotation.x = Math.PI / 2;
+      grpRearBearing.add(outerRace);
+      for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2;
+        const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.17, 10), gearHighlightMat);
+        roller.rotation.x = Math.PI / 2;
+        roller.position.set(Math.cos(a) * 0.58, Math.sin(a) * 0.58, 0);
+        grpRearBearing.add(roller);
+      }
     }
 
     // 18. PINHÃO DE ATAQUE (Drive Pinion)
@@ -740,11 +771,24 @@ export function AxleAssemblyViewer() {
         gear.rotation.z = idx === 0 ? -Math.PI / 2 : Math.PI / 2;
         grpSideGears.add(gear);
 
+        for (let toothIndex = 0; toothIndex < 12; toothIndex++) {
+          const angle = (toothIndex / 12) * Math.PI * 2;
+          const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.16), gearHighlightMat);
+          tooth.position.set(xOff, Math.cos(angle) * 0.46, Math.sin(angle) * 0.46);
+          tooth.rotation.x = angle;
+          grpSideGears.add(tooth);
+        }
+
         const splineGeom = new THREE.CylinderGeometry(0.18, 0.18, 0.38, 12);
         const spline = new THREE.Mesh(splineGeom, machinedSteelMat);
         spline.rotation.z = Math.PI / 2;
         spline.position.x = xOff + (idx === 0 ? -0.15 : 0.15);
         grpSideGears.add(spline);
+
+        const washer = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.04, 10, 24), fastenerMat);
+        washer.rotation.y = Math.PI / 2;
+        washer.position.x = xOff + (idx === 0 ? 0.18 : -0.18);
+        grpSideGears.add(washer);
       });
     }
 
@@ -1616,7 +1660,7 @@ export function AxleAssemblyViewer() {
             ref={containerRef}
             className="relative isolate w-full h-[540px] sm:h-[620px] rounded-2xl overflow-hidden border border-white/10 bg-[#0a0d12] shadow-2xl"
             style={{
-              backgroundImage: `linear-gradient(90deg, rgba(5, 8, 12, .93) 0%, rgba(8, 12, 18, .72) 48%, rgba(5, 8, 12, .9) 100%), linear-gradient(180deg, rgba(10, 14, 20, .3), rgba(5, 7, 10, .88)), url(${REAL_PHOTOS.productionLine.src})`,
+              backgroundImage: `linear-gradient(90deg, rgba(5, 8, 12, .58) 0%, rgba(8, 12, 18, .34) 48%, rgba(5, 8, 12, .62) 100%), linear-gradient(180deg, rgba(10, 14, 20, .08), rgba(5, 7, 10, .54)), url(${REAL_PHOTOS.productionLine.src})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
