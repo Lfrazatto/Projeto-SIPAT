@@ -22,4 +22,4 @@
 - [x] Exibir progresso, cronômetro, pontuação e resultado pós-desafio sem contagem genérica de quiz
 - [x] Validar no navegador: encaixe real, transição para Lean e sequência correta
 - [x] Passar typecheck, 42 testes automatizados e build de produção
-- [ ] Salvar checkpoint e atualizar pacote ZIP
+- [x] Salvar checkpoint e atualizar pacote ZIP

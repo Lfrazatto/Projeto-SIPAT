@@ -333,32 +333,32 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#141822] p-4 shadow-xl">
+    <div className="mx-auto w-full max-w-6xl px-3 py-5 sm:px-6 sm:py-8">
+      <div className="mb-4 flex flex-col gap-3 rounded-xl border border-white/10 bg-[#141822] p-3 shadow-xl sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:p-4">
         <div className="flex items-center gap-3">
-          <div className="rounded-lg border border-cyan-500/40 bg-cyan-950/80 p-2.5 text-cyan-400">
-            <SlidersHorizontal className="h-6 w-6" aria-hidden="true" />
+          <div className="rounded-lg border border-cyan-500/40 bg-cyan-950/80 p-2 text-cyan-400 sm:p-2.5">
+            <SlidersHorizontal className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
           </div>
           <div>
             <span className="font-mono text-[10px] font-bold tracking-widest text-cyan-400">5S • LEAN • ORGANIZAÇÃO VISUAL</span>
-            <h2 className="font-industrial text-xl font-bold uppercase text-white">Organize a fábrica Cummins</h2>
+            <h2 className="font-industrial text-lg font-bold uppercase leading-tight text-white sm:text-xl">Organize a fábrica Cummins</h2>
             <p className="mt-1 text-xs text-slate-400">{stage === "physical" ? "Etapa 1: encaixe cada item no local correto do posto." : "Etapa 2: ordene o ciclo 5S para liberar o posto."}</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div role="timer" aria-label={`${remainingTime} segundos restantes`} className="flex items-center gap-2 rounded-lg border border-white/15 bg-black/60 px-4 py-2">
+        <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:flex sm:w-auto sm:gap-4">
+          <div role="timer" aria-label={`${remainingTime} segundos restantes`} className="flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-black/60 px-2.5 py-2 sm:px-4">
             <Clock className={`h-5 w-5 ${remainingTime <= 15 ? "animate-pulse text-red-500" : "text-amber-400"}`} aria-hidden="true" />
             <div className="flex flex-col">
               <span className="font-mono text-[10px] leading-none text-slate-400">TEMPO</span>
               <span className="font-industrial text-2xl font-black leading-none text-white">{remainingTime}s</span>
             </div>
           </div>
-          <Button type="button" variant="outline" onClick={() => setIsPaused((current) => !current)} aria-pressed={isPaused} className="min-h-11 border-white/20 text-white">
+          <Button type="button" variant="outline" onClick={() => setIsPaused((current) => !current)} aria-pressed={isPaused} className="min-h-11 whitespace-nowrap border-white/20 px-3 text-white sm:px-4">
             {isPaused ? <Play className="mr-2 h-4 w-4" aria-hidden="true" /> : <Pause className="mr-2 h-4 w-4" aria-hidden="true" />}
             {isPaused ? "Continuar" : "Pausar"}
           </Button>
-          <div className="text-right">
-            <span className="font-mono text-[10px] text-slate-400">TAREFAS CONCLUÍDAS</span>
+          <div className="text-center sm:text-right">
+            <span className="block font-mono text-[9px] leading-tight text-slate-400 sm:text-[10px]">TAREFAS CONCLUÍDAS</span>
             <div className="font-industrial text-2xl font-black text-cyan-400">{completedTasks} / {totalTaskCount}</div>
           </div>
         </div>
@@ -391,7 +391,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
 
       {stage === "physical" ? (
         <div className="space-y-6">
-          <section className="rounded-2xl border border-white/10 bg-[#161a24] p-5 shadow-xl" aria-labelledby="items-heading">
+          <section className="rounded-2xl border border-white/10 bg-[#161a24] p-3 shadow-xl sm:p-5" aria-labelledby="items-heading">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h3 id="items-heading" className="flex items-center gap-2 font-industrial text-sm font-bold uppercase text-white"><Package className="h-4 w-4 text-amber-400" aria-hidden="true" /> Itens fora do lugar</h3>
               <span className="font-mono text-xs text-slate-400">{availableItems.length} restantes</span>
@@ -399,7 +399,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
             {availableItems.length === 0 ? (
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-6 text-center font-industrial text-sm font-bold uppercase text-emerald-300">Posto organizado. Preparando o fluxo Lean…</div>
             ) : (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
                 {availableItems.map((item) => {
                   const selected = selectedItem?.id === item.id;
                   return (
@@ -413,7 +413,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
                       disabled={isPaused}
                       aria-pressed={selected}
                       aria-label={`${item.name}. ${selected ? "Selecionado; escolha um encaixe." : "Selecionar item para organizar."}`}
-                      className={`group min-h-[100px] rounded-xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${selected ? "scale-[1.02] border-cyan-300 bg-cyan-950/70 shadow-lg shadow-cyan-950/40" : "border-white/10 bg-black/40 hover:-translate-y-0.5 hover:border-cyan-400/60 hover:bg-white/5"}`}
+                      className={`group min-h-[92px] touch-manipulation rounded-xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 sm:min-h-[100px] ${selected ? "scale-[1.02] border-cyan-300 bg-cyan-950/70 shadow-lg shadow-cyan-950/40" : "border-white/10 bg-black/40 hover:-translate-y-0.5 hover:border-cyan-400/60 hover:bg-white/5"}`}
                     >
                       <div className="flex items-start gap-3">
                         <span className={`mt-0.5 rounded-lg p-2 ${selected ? "bg-cyan-400/20 text-cyan-200" : "bg-white/5 text-slate-300"}`}><IconForItem icon={item.iconName} /></span>
@@ -429,15 +429,15 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
           </section>
 
           <section aria-labelledby="workstation-heading">
-            <div className="mb-3 flex items-center gap-2"><Factory className="h-4 w-4 text-[#da291c]" aria-hidden="true" /><h3 id="workstation-heading" className="font-industrial text-sm font-bold uppercase text-white">Posto de trabalho — encaixes padronizados</h3></div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mb-3 flex items-start gap-2"><Factory className="mt-0.5 h-4 w-4 shrink-0 text-[#da291c]" aria-hidden="true" /><h3 id="workstation-heading" className="font-industrial text-xs font-bold uppercase leading-tight text-white sm:text-sm">Posto de trabalho — encaixes padronizados</h3></div>
+            <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
               {stationOrder.map((station) => {
                 const slots = groupedSlots[station];
                 if (!slots?.length) return null;
                 const meta = stationMeta[station];
                 const colors = COLOR_CLASSES[meta.color];
                 return (
-                  <article key={station} className={`rounded-2xl border border-white/10 bg-[#141822] p-4 shadow-lg ${stage === "physical" ? "hover:border-white/20" : ""}`}>
+                  <article key={station} className={`rounded-2xl border border-white/10 bg-[#141822] p-3 shadow-lg sm:p-4 ${stage === "physical" ? "hover:border-white/20" : ""}`}>
                     <div className={`mb-3 flex items-center gap-2 border-b border-white/10 pb-3 ${colors.text}`}><IconForItem icon={meta.icon} className="h-5 w-5" /><h4 className="font-industrial text-xs font-black uppercase tracking-wide text-white">{meta.title}</h4></div>
                     <div className="space-y-2">
                       {slots.map((slot) => {
@@ -452,7 +452,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
                             onClick={() => handlePlaceInSlot(slot)}
                             disabled={Boolean(placed) || isPaused}
                             aria-label={`${slot.label}. ${slot.hint}. ${placed ? `Organizado: ${placed.name}.` : "Encaixe vazio; selecione ou arraste um item para cá."}`}
-                            className={`min-h-[94px] w-full rounded-xl border-2 border-dashed p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${placed ? `${slotColors.border} ${slotColors.soft} cursor-default` : `${slotColors.border} bg-black/20 hover:bg-white/10 hover:ring-2 ${slotColors.ring} disabled:opacity-50`}`}
+                            className={`min-h-[88px] w-full touch-manipulation rounded-xl border-2 border-dashed p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 sm:min-h-[94px] ${placed ? `${slotColors.border} ${slotColors.soft} cursor-default` : `${slotColors.border} bg-black/20 hover:bg-white/10 hover:ring-2 ${slotColors.ring} disabled:opacity-50`}`}
                           >
                             {placed ? (
                               <div className="flex items-start gap-2"><span className="rounded-lg bg-emerald-400/15 p-2 text-emerald-300"><CheckCircle2 className="h-4 w-4" aria-hidden="true" /></span><span className="min-w-0"><span className="block text-[11px] font-black uppercase text-emerald-200">Encaixado</span><span className="mt-1 block truncate text-xs font-bold text-white">{placed.name}</span><span className="mt-1 block text-[10px] text-emerald-300/80">Local correto</span></span></div>
@@ -471,28 +471,28 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
         </div>
       ) : (
         <section className="space-y-6" aria-labelledby="lean-heading">
-          <div className="rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-950/40 via-[#161a24] to-[#141822] p-5 shadow-xl">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div><div className="flex items-center gap-2 text-amber-300"><Layers className="h-5 w-5" aria-hidden="true" /><span className="font-mono text-[10px] font-black uppercase tracking-widest">Etapa 2 • Fluxo Lean</span></div><h3 id="lean-heading" className="mt-2 font-industrial text-2xl font-black uppercase text-white">Libere o posto seguindo o ciclo 5S</h3><p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">Agora organize as ações na ordem correta. Selecione uma etapa e depois escolha a posição vazia na linha de fluxo.</p></div>
+          <div className="rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-950/40 via-[#161a24] to-[#141822] p-4 shadow-xl sm:p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-4">
+              <div><div className="flex items-center gap-2 text-amber-300"><Layers className="h-5 w-5" aria-hidden="true" /><span className="font-mono text-[10px] font-black uppercase tracking-widest">Etapa 2 • Fluxo Lean</span></div><h3 id="lean-heading" className="mt-2 font-industrial text-xl font-black uppercase leading-tight text-white sm:text-2xl">Libere o posto seguindo o ciclo 5S</h3><p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">Agora organize as ações na ordem correta. Selecione uma etapa e depois escolha a posição vazia na linha de fluxo.</p></div>
               <div className="rounded-xl border border-amber-400/30 bg-black/30 px-4 py-3 text-right"><span className="block font-mono text-[10px] uppercase text-slate-400">Sequência</span><strong className="font-industrial text-2xl text-amber-300">{sequenceCompleted} / {sequenceSteps.length}</strong></div>
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-5" aria-label="Linha de sequência 5S">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-5 md:gap-3" aria-label="Linha de sequência 5S">
             {sequencePlaced.map((step, index) => (
-              <button key={index} type="button" onClick={() => handlePlaceSequenceStep(index)} disabled={Boolean(step) || isPaused} aria-label={step ? `Posição ${index + 1}: ${step.title}` : `Posição ${index + 1} vazia; selecionar etapa Lean para encaixar`} className={`min-h-[150px] rounded-2xl border-2 border-dashed p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 ${step ? "border-emerald-400/70 bg-emerald-950/40" : "border-amber-400/50 bg-black/25 hover:bg-amber-950/30"}`}>
+              <button key={index} type="button" onClick={() => handlePlaceSequenceStep(index)} disabled={Boolean(step) || isPaused} aria-label={step ? `Posição ${index + 1}: ${step.title}` : `Posição ${index + 1} vazia; selecionar etapa Lean para encaixar`} className={`min-h-[132px] touch-manipulation rounded-2xl border-2 border-dashed p-2.5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 sm:min-h-[150px] sm:p-3 ${step ? "border-emerald-400/70 bg-emerald-950/40" : "border-amber-400/50 bg-black/25 hover:bg-amber-950/30"}`}>
                 <span className="font-mono text-[10px] font-black text-amber-300">ETAPA {index + 1}</span>
                 {step ? <><span className="mt-4 flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-400/15 text-emerald-300"><CheckCircle2 className="h-5 w-5" aria-hidden="true" /></span><strong className="mt-3 block text-xs font-black uppercase text-white">{step.title}</strong></> : <><span className="mt-4 flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-amber-300"><ArrowRight className="h-5 w-5" aria-hidden="true" /></span><strong className="mt-3 block text-xs font-black uppercase text-amber-200">Próximo encaixe</strong><span className="mt-1 block text-[10px] text-slate-400">Selecione uma etapa</span></>}
               </button>
             ))}
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-[#161a24] p-5 shadow-xl">
+          <div className="rounded-2xl border border-white/10 bg-[#161a24] p-4 shadow-xl sm:p-5">
             <div className="mb-3 flex items-center justify-between"><h3 className="flex items-center gap-2 font-industrial text-sm font-bold uppercase text-white"><Package className="h-4 w-4 text-amber-400" aria-hidden="true" /> Etapas fora de ordem</h3><span className="font-mono text-xs text-slate-400">{sequencePool.length} restantes</span></div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {sequencePool.map((step) => {
                 const selected = selectedSequenceStep?.id === step.id;
-                return <button key={step.id} type="button" draggable onDragStart={() => setDraggedSequenceStep(step)} onDragEnd={() => setDraggedSequenceStep(null)} onClick={() => setSelectedSequenceStep((current) => current?.id === step.id ? null : step)} disabled={isPaused} aria-pressed={selected} className={`min-h-[118px] rounded-xl border p-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 ${selected ? "scale-[1.02] border-amber-300 bg-amber-950/60 shadow-lg" : "border-white/10 bg-black/30 hover:-translate-y-0.5 hover:border-amber-400/60"}`}><div className="flex items-start justify-between gap-3"><span className={`rounded-lg p-2 ${selected ? "bg-amber-400/20 text-amber-200" : "bg-white/5 text-slate-300"}`}><IconForItem icon={step.icon} /></span><GripVertical className="h-4 w-4 text-slate-500" aria-hidden="true" /></div><strong className="mt-3 block text-xs font-black uppercase text-white">{step.title}</strong><span className="mt-1 block text-[11px] leading-relaxed text-slate-400">{step.description}</span></button>;
+                return <button key={step.id} type="button" draggable onDragStart={() => setDraggedSequenceStep(step)} onDragEnd={() => setDraggedSequenceStep(null)} onClick={() => setSelectedSequenceStep((current) => current?.id === step.id ? null : step)} disabled={isPaused} aria-pressed={selected} className={`min-h-[112px] touch-manipulation rounded-xl border p-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 sm:min-h-[118px] sm:p-4 ${selected ? "scale-[1.02] border-amber-300 bg-amber-950/60 shadow-lg" : "border-white/10 bg-black/30 hover:-translate-y-0.5 hover:border-amber-400/60"}`}><div className="flex items-start justify-between gap-3"><span className={`rounded-lg p-2 ${selected ? "bg-amber-400/20 text-amber-200" : "bg-white/5 text-slate-300"}`}><IconForItem icon={step.icon} /></span><GripVertical className="h-4 w-4 text-slate-500" aria-hidden="true" /></div><strong className="mt-3 block text-xs font-black uppercase text-white">{step.title}</strong><span className="mt-1 block text-[11px] leading-relaxed text-slate-400">{step.description}</span></button>;
               })}
             </div>
           </div>
