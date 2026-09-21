@@ -15,7 +15,7 @@ import { timingSafeEqual } from "node:crypto";
 
 function isValidAdminKey(value: string) {
   const configuredKey = ENV.adminAccessKey.trim();
-  if (!configuredKey) return !ENV.isProduction && value.trim().toUpperCase() === "SIPATMA";
+  if (!configuredKey || !value.trim()) return false;
   const candidate = Buffer.from(value.trim());
   const expected = Buffer.from(configuredKey);
   return candidate.length === expected.length && timingSafeEqual(candidate, expected);
@@ -25,6 +25,28 @@ const scenarioImageUrlSchema = z.string().refine(
   (value) => value.startsWith("/manus-storage/") || /^https?:\/\//i.test(value),
   "Informe uma URL HTTPS ou uma imagem enviada ao armazenamento seguro."
 );
+
+const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+
+function clientAddress(req: { headers?: Record<string, string | string[] | undefined> }) {
+  const forwarded = req.headers?.["x-forwarded-for"];
+  const value = Array.isArray(forwarded) ? forwarded[0] : forwarded;
+  return value?.split(",")[0]?.trim() || "unknown-client";
+}
+
+function enforceRateLimit(scope: string, identity: string, limit: number, windowMs: number) {
+  const key = `${scope}:${identity}`;
+  const now = Date.now();
+  const current = rateBuckets.get(key);
+  if (!current || now >= current.resetAt) {
+    rateBuckets.set(key, { count: 1, resetAt: now + windowMs });
+    return;
+  }
+  if (current.count >= limit) {
+    throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Muitas tentativas em pouco tempo. Aguarde alguns instantes e tente novamente." });
+  }
+  current.count += 1;
+}
 
 function maskIdentifier(value: string) {
   const normalized = value.trim();
@@ -71,7 +93,8 @@ export const appRouter = router({
           identifier: z.string().trim().max(64).regex(/^[A-Za-z0-9._-]*$/, "Use apenas letras, números, ponto, hífen ou sublinhado.").optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        enforceRateLimit("participant-identify", clientAddress(ctx.req), 12, 60_000);
         const cleanName = input.name.trim();
         const identifier = input.identifier?.trim().toUpperCase() || "";
         if (input.participantType !== "visitante" && !identifier) {
@@ -141,7 +164,8 @@ export const appRouter = router({
           term: z.string().min(1),
         })
       )
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        enforceRateLimit("ranking-search", clientAddress(ctx.req), 30, 60_000);
         const result = await db.searchRankingUser(input.term);
         if (!result) return undefined;
         const { chapa, wwid, ...participant } = result;
@@ -224,7 +248,8 @@ export const appRouter = router({
           difficulty: z.enum(["facil", "medio", "dificil"]),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        enforceRateLimit("quiz-answer", clientAddress(ctx.req), 120, 60_000);
         const dbConn = await db.getDb();
         if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database offline" });
 
@@ -272,7 +297,8 @@ export const appRouter = router({
           timeSpentSeconds: z.number().min(0),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        enforceRateLimit("game-submit", clientAddress(ctx.req), 20, 60_000);
         const settings = await db.getGameSettings();
         const thisGameSetting = settings.find((s) => s.gameKey === input.gameType);
         const now = Date.now();
@@ -305,7 +331,8 @@ export const appRouter = router({
           adminKey: z.string(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        enforceRateLimit("admin-login", clientAddress(ctx.req), 8, 5 * 60_000);
         const isValid = isValidAdminKey(input.adminKey);
         return { isValid };
       }),

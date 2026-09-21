@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+import { getDb } from "./db";
+import { gameResults, participants } from "../drizzle/schema";
+import { like, or } from "drizzle-orm";
 
 function createMockContext(): TrpcContext {
   return {
@@ -71,5 +74,13 @@ describe("Participant Identification & Rules (Prompt Section 4 & 20)", () => {
 
     expect(progress.participant).toBeNull();
     expect(progress.rank).toBe(0);
+  });
+
+  afterAll(async () => {
+    const db = await getDb();
+    if (db) {
+      await db.delete(gameResults).where(or(like(gameResults.participantName, "%Teste%"), like(gameResults.participantChapa, "TEST%"), like(gameResults.participantName, "Mariana Engenheira"), like(gameResults.participantName, "Visitante Comunidade")));
+      await db.delete(participants).where(or(like(participants.name, "%Teste%"), like(participants.chapa, "TEST%"), like(participants.name, "Mariana Engenheira"), like(participants.name, "Visitante Comunidade")));
+    }
   });
 });

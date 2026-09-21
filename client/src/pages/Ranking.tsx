@@ -60,6 +60,11 @@ export default function Ranking() {
           <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
             Acompanhe a evolução da comunidade Cummins. O total considera a melhor pontuação obtida em cada um dos quatro desafios.
           </p>
+          <div className="flex flex-wrap gap-3 text-[11px] font-mono text-slate-400">
+            <span>Atualização: {rankingQuery.dataUpdatedAt ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(rankingQuery.dataUpdatedAt)) : "carregando"}</span>
+            <span className="text-slate-500">•</span>
+            <span>Ranking geral = melhor resultado de cada desafio, sem somar tentativas repetidas.</span>
+          </div>
         </div>
       </section>
 
@@ -262,9 +267,45 @@ export default function Ranking() {
         </div>
         </div>
 
-        {/* Ranking Table (Prompt Section 19: POSIÇÃO | NOME | WWID | PONTUAÇÃO | DESAFIOS CONCLUÍDOS) */}
+        {/* Ranking List: Cards on Mobile + Table on Desktop (Prompt Section 19) */}
         <div className="rounded-2xl bg-[#141822] border border-white/10 overflow-hidden shadow-2xl">
-          <div className="overflow-x-auto">
+          {rankingQuery.isLoading ? (
+            <div className="py-16 text-center text-slate-400 font-mono text-sm animate-pulse">
+              Carregando pontuações e classificações oficiais...
+            </div>
+          ) : list.length === 0 ? (
+            <div className="py-16 text-center text-slate-400 p-6">
+              <p className="text-base font-bold text-white uppercase font-industrial">Nenhum participante encontrado neste filtro</p>
+              <p className="text-xs text-slate-500 mt-1">Selecione outro filtro ou comece um desafio para registrar o primeiro resultado.</p>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Card View (< md) */}
+              <div className="md:hidden divide-y divide-white/10">
+                {list.map((row) => (
+                  <div key={row.id} className="p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-black text-sm text-amber-400">
+                        {row.rank === 1 ? "🥇 1º" : row.rank === 2 ? "🥈 2º" : row.rank === 3 ? "🥉 3º" : `${row.rank}º`}
+                      </span>
+                      <span className="font-mono text-xs font-bold text-[#da291c] bg-red-950/60 border border-red-500/30 px-2.5 py-0.5 rounded-full">
+                        {row.specificScore} pts
+                      </span>
+                    </div>
+                    <div>
+                      <div className="font-bold text-white text-sm">{row.name}</div>
+                      <div className="text-[11px] font-mono text-slate-400">ID: {row.identifier}</div>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                      <span>Desafios:</span>
+                      <span className="text-emerald-400 font-bold">{row.completedGamesCount} / 4 concluídos</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View (>= md) */}
+              <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs sm:text-sm">
               <thead>
                 <tr className="border-b border-white/10 bg-black/40 text-slate-400 font-mono text-[11px] uppercase tracking-wider">
@@ -276,14 +317,7 @@ export default function Ranking() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {list.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-12 text-center text-slate-500">
-                      Nenhum participante registrado até o momento. Seja o primeiro a jogar!
-                    </td>
-                  </tr>
-                ) : (
-                  list.map((row) => {
+                {list.map((row) => {
                     const isTop1 = row.rank === 1;
                     const isTop2 = row.rank === 2;
                     const isTop3 = row.rank === 3;
@@ -329,11 +363,12 @@ export default function Ranking() {
                         </td>
                       </tr>
                     );
-                  })
-                )}
+                  })}
               </tbody>
             </table>
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </section>
     </div>

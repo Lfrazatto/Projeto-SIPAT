@@ -521,12 +521,17 @@ export default function Admin() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanKey = inputKey.trim();
+    if (!cleanKey) {
+      toast.error("Informe a credencial administrativa para continuar.");
+      return;
+    }
     verifyKeyMutation.mutate(
-      { adminKey: inputKey },
+      { adminKey: cleanKey },
       {
         onSuccess: (data) => {
           if (data.isValid) {
-            setAdminKey(inputKey);
+            setAdminKey(cleanKey);
             setIsAuthenticated(true);
             toast.success("Acesso administrativo autorizado!");
           } else {
@@ -645,22 +650,26 @@ export default function Admin() {
               </p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
               <div className="space-y-1.5">
-                <Label className="text-xs text-slate-300 font-semibold">
+                <Label htmlFor="admin-access-key" className="text-xs text-slate-300 font-semibold">
                   Chave Mestra de Acesso
                 </Label>
                 <Input
+                  id="admin-access-key"
+                  name="admin-access-key"
                   type="password"
                   placeholder="Informe a chave de segurança..."
                   value={inputKey}
                   onChange={(e) => setInputKey(e.target.value)}
+                  autoComplete="new-password"
+                  aria-describedby="admin-access-help"
                   className="bg-black/50 border-white/15 text-white placeholder:text-slate-600 focus:border-amber-400"
                 />
               </div>
 
-              <div className="p-3 rounded bg-white/5 border border-white/10 text-[11px] text-slate-400">
-                A credencial é validada exclusivamente no servidor e não é armazenada no navegador.
+              <div id="admin-access-help" className="p-3 rounded bg-white/5 border border-white/10 text-[11px] text-slate-400">
+                A credencial é validada exclusivamente no servidor e não é exibida, armazenada ou incluída em mensagens públicas.
               </div>
 
               <Button

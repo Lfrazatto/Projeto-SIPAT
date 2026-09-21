@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -14,8 +14,8 @@ import NossoProjeto from "./pages/NossoProjeto";
 import Jogos from "./pages/Jogos";
 import Ranking from "./pages/Ranking";
 import MeuProgresso from "./pages/MeuProgresso";
-import Admin from "./pages/Admin";
-import Projeto3D from "./pages/Projeto3D";
+const Admin = lazy(() => import("./pages/Admin"));
+const Projeto3D = lazy(() => import("./pages/Projeto3D"));
 import { SiteFooter } from "./components/SiteFooter";
 
 const pageTitles: Record<string, string> = {
@@ -60,6 +60,10 @@ function Router() {
   );
 }
 
+function RouteLoading() {
+  return <div className="flex min-h-[50vh] items-center justify-center bg-[#0d0f13] px-6 text-center text-sm text-slate-300" role="status" aria-live="polite">Carregando esta experiência…</div>;
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
@@ -71,7 +75,7 @@ export default function App() {
               <RouteEffects />
               <Toaster position="top-right" richColors closeButton />
               <div id="conteudo-principal" tabIndex={-1}>
-                <Router />
+                <Suspense fallback={<RouteLoading />}><Router /></Suspense>
               </div>
               <SiteFooter />
               <AccessibilityToolbar />

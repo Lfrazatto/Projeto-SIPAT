@@ -56,7 +56,7 @@ export default function Home() {
     return { status, startAt, endAt, days, hours, minutes, seconds };
   }, [settingsQuery.data, now]);
 
-  const formatEventDate = (value: number | null) => value ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(value)) : "sem data definida";
+  const formatEventDate = (value: number | null) => value ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(value)) : null;
 
   const handleStartChallenge = () => {
     if (participant) {
@@ -132,14 +132,29 @@ export default function Home() {
                 <Button asChild variant="outline" size="sm" className="border-white/20 text-slate-300 text-xs uppercase"><Link href="/jogos?game=ache_o_erro">Achar os Erros</Link></Button>
               </div>
 
-              <div className={`rounded-lg border p-4 ${eventWindow.status === "active" ? "border-emerald-500/40 bg-emerald-950/30" : eventWindow.status === "closed" ? "border-red-500/40 bg-red-950/30" : "border-amber-500/40 bg-amber-950/30"}`}>
+              <div className={`rounded-xl border p-4 ${eventWindow.status === "active" ? "border-emerald-500/40 bg-emerald-950/30" : eventWindow.status === "closed" ? "border-red-500/40 bg-red-950/30" : "border-amber-500/40 bg-amber-950/30"}`}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-slate-400">Configurações do Evento • America/Sao_Paulo</div>
-                    <div className="mt-1 font-industrial text-sm font-bold uppercase text-white">{eventWindow.status === "active" ? "SIPAT liberada" : eventWindow.status === "closed" ? "A SIPAT foi encerrada" : "A SIPAT ainda não começou"}</div>
-                    <p className="mt-1 text-xs text-slate-400">{eventWindow.status === "active" ? `Período configurado: ${formatEventDate(eventWindow.startAt)} até ${formatEventDate(eventWindow.endAt)}` : eventWindow.status === "closed" ? "O período de participação deste evento terminou." : `Este evento estará disponível a partir de ${formatEventDate(eventWindow.startAt)}.`}</p>
+                    <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-slate-300">Status Oficial do Evento • Cummins Osasco</div>
+                    <div className="mt-1 font-industrial text-base font-bold uppercase text-white">{eventWindow.status === "active" ? "Evento Aberto • Participação Liberada" : eventWindow.status === "closed" ? "Evento Encerrado" : "Evento em Breve"}</div>
+                    <p className="mt-1 text-xs text-slate-300">
+                      {eventWindow.status === "active"
+                        ? eventWindow.startAt && eventWindow.endAt
+                          ? `Período oficial: ${formatEventDate(eventWindow.startAt)} até ${formatEventDate(eventWindow.endAt)}`
+                          : "A plataforma está em período de campanha ativa e pronta para registrar sua participação."
+                        : eventWindow.status === "closed"
+                        ? "O período oficial de submissão de pontuações foi concluído."
+                        : `Início previsto a partir de ${formatEventDate(eventWindow.startAt) || "breve"}.`}
+                    </p>
                   </div>
-                  {eventWindow.status !== "active" && <div className="grid grid-cols-4 gap-2 text-center font-mono"><div><div className="text-lg font-black text-white">{String(eventWindow.days).padStart(2, "0")}</div><div className="text-[9px] text-slate-500">dias</div></div><div><div className="text-lg font-black text-white">{String(eventWindow.hours).padStart(2, "0")}</div><div className="text-[9px] text-slate-500">horas</div></div><div><div className="text-lg font-black text-white">{String(eventWindow.minutes).padStart(2, "0")}</div><div className="text-[9px] text-slate-500">min</div></div><div><div className="text-lg font-black text-white">{String(eventWindow.seconds).padStart(2, "0")}</div><div className="text-[9px] text-slate-500">seg</div></div></div>}
+                  {eventWindow.status !== "active" && eventWindow.startAt && (
+                    <div className="grid grid-cols-4 gap-2 text-center font-mono">
+                      <div className="rounded bg-black/40 p-2"><div className="text-lg font-black text-white">{String(eventWindow.days).padStart(2, "0")}</div><div className="text-[9px] text-slate-400">dias</div></div>
+                      <div className="rounded bg-black/40 p-2"><div className="text-lg font-black text-white">{String(eventWindow.hours).padStart(2, "0")}</div><div className="text-[9px] text-slate-400">horas</div></div>
+                      <div className="rounded bg-black/40 p-2"><div className="text-lg font-black text-white">{String(eventWindow.minutes).padStart(2, "0")}</div><div className="text-[9px] text-slate-400">min</div></div>
+                      <div className="rounded bg-black/40 p-2"><div className="text-lg font-black text-white">{String(eventWindow.seconds).padStart(2, "0")}</div><div className="text-[9px] text-slate-400">seg</div></div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -179,7 +194,10 @@ export default function Home() {
 
                   {/* 4 Games preview list */}
                   <div className="space-y-3">
-                    <div className="p-3 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between hover:border-[#da291c]/50 transition">
+                    <div className="p-3.5 rounded-xl bg-black/40 border-2 border-red-500/50 flex items-center justify-between hover:border-[#da291c] transition relative">
+                      <span className="absolute -top-2.5 right-3 bg-[#da291c] text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow">
+                        Recomendado para começar
+                      </span>
                       <div className="flex items-center gap-3">
                         <div className="p-2 rounded bg-red-500/20 text-[#da291c]">
                           <ShieldAlert className="w-5 h-5" />
@@ -278,6 +296,45 @@ export default function Home() {
             sourceUrl={REAL_PHOTOS.assembly.sourceUrl}
             className="group lg:col-span-2"
           />
+        </div>
+      </section>
+
+      {/* SECTION: JOGOS EM DESTAQUE */}
+      <section className="border-b border-white/10 bg-[#0d0f13] px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl space-y-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#da291c]">JOGOS EM DESTAQUE</span>
+              <h2 className="mt-1 font-industrial text-3xl font-black uppercase tracking-wide text-white">Escolha como quer aprender</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">Cada desafio combina prática, tomada de decisão e uma explicação objetiva para você levar o aprendizado para a rotina.</p>
+            </div>
+            <Button asChild variant="outline" className="w-fit border-white/20 text-white hover:bg-white/10"><Link href="/jogos">Ver todos os jogos <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { key: "quiz_seguranca", title: "Quiz de Segurança", learn: "Red Flag, EPIs, LOTO e comunicação de riscos.", interaction: "Teclado ou toque", quantity: "12 perguntas", time: "10–12 min", score: "Até 3.600 pts", difficulty: "Fácil a difícil", Icon: ShieldAlert, iconClass: "bg-red-950/70 text-red-300 border-red-500/30", hoverClass: "hover:border-red-400/60" },
+              { key: "quiz_ergonomia", title: "Quiz de Ergonomia", learn: "Postura, pausas, movimentação e sinais de fadiga.", interaction: "Teclado ou toque", quantity: "12 perguntas", time: "10–12 min", score: "Até 3.600 pts", difficulty: "Fácil a difícil", Icon: HeartPulse, iconClass: "bg-emerald-950/70 text-emerald-300 border-emerald-500/30", hoverClass: "hover:border-emerald-400/60" },
+              { key: "ache_o_erro", title: "Ache o Erro", learn: "Identificação visual de atos e condições inseguras.", interaction: "Clique, toque ou teclado", quantity: "5 fases", time: "5–10 min", score: "Até 2.000 pts", difficulty: "Fácil a muito difícil", Icon: Eye, iconClass: "bg-amber-950/70 text-amber-300 border-amber-500/30", hoverClass: "hover:border-amber-400/60" },
+              { key: "organize_a_fabrica", title: "Organize a Fábrica", learn: "5S, Lean, fluxo seguro e organização do posto.", interaction: "Arrastar ou mover com teclado", quantity: "6–12 itens", time: "5–8 min", score: "Até 1.200 pts", difficulty: "Fácil a difícil", Icon: SlidersHorizontal, iconClass: "bg-cyan-950/70 text-cyan-300 border-cyan-500/30", hoverClass: "hover:border-cyan-400/60" },
+            ].map(({ key, title, learn, interaction, quantity, time, score, difficulty, Icon, iconClass, hoverClass }) => (
+              <article key={key} className={`flex flex-col rounded-2xl border border-white/10 bg-[#141822] p-5 shadow-lg transition hover:-translate-y-0.5 ${hoverClass}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-xl border ${iconClass}`}><Icon className="h-6 w-6" aria-hidden="true" /></span>
+                  <span className="rounded-full border border-white/15 bg-black/30 px-2 py-1 text-[10px] font-mono font-bold uppercase text-slate-300">Disponível</span>
+                </div>
+                <h3 className="mt-4 font-industrial text-lg font-black uppercase text-white">{title}</h3>
+                <p className="mt-2 min-h-12 text-xs leading-relaxed text-slate-300">Você aprende: {learn}</p>
+                <dl className="mt-4 space-y-1.5 border-t border-white/10 pt-3 text-[11px] text-slate-400">
+                  <div className="flex justify-between gap-2"><dt>Interação</dt><dd className="text-right text-slate-200">{interaction}</dd></div>
+                  <div className="flex justify-between gap-2"><dt>Quantidade</dt><dd className="text-right text-slate-200">{quantity}</dd></div>
+                  <div className="flex justify-between gap-2"><dt>Tempo estimado</dt><dd className="text-right text-slate-200">{time}</dd></div>
+                  <div className="flex justify-between gap-2"><dt>Pontuação máxima</dt><dd className="text-right text-amber-300">{score}</dd></div>
+                  <div className="flex justify-between gap-2"><dt>Nível</dt><dd className="text-right text-slate-200">{difficulty}</dd></div>
+                </dl>
+                <Button asChild className="mt-5 w-full bg-[#da291c] text-xs font-bold uppercase text-white hover:bg-[#b01e12]"><Link href={`/jogos?game=${key}`}>Começar desafio</Link></Button>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -452,53 +509,86 @@ export default function Home() {
         </div>
       </section>
 
-      {/* QUICK HOW IT WORKS */}
+      {/* SECTION: COMO FUNCIONA (3 PASSOS + INDICADOR DE PROGRESSO) */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 border-b border-white/10 bg-[#12151d]">
         <div className="max-w-7xl mx-auto space-y-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <span className="text-xs font-mono font-bold text-[#da291c] tracking-widest uppercase">
-                DINÂMICA DE GAMIFICAÇÃO
+                COMO FUNCIONA O DESAFIO
               </span>
               <h2 className="text-3xl font-extrabold font-industrial text-white tracking-wide uppercase mt-1">
-                COMO FUNCIONA O DESAFIO
+                3 PASSOS PARA PARTICIPAR E APRENDER
               </h2>
             </div>
-            <Button asChild className="bg-[#da291c] hover:bg-[#b01e12] text-white font-bold text-xs uppercase tracking-wider"><Link href="/jogos">Acessar Área de Jogos</Link></Button>
+            {participant && (
+              <div className="rounded-xl border border-white/15 bg-black/40 px-4 py-2.5 text-xs font-mono text-slate-300">
+                Progresso pessoal: <strong className="text-amber-300">{participant.completedGamesCount} de 4 desafios concluídos</strong>
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="p-5 rounded-lg bg-black/40 border border-white/10 space-y-2">
-              <div className="text-2xl font-black font-industrial text-[#da291c]">01</div>
-              <h4 className="font-bold text-white text-sm uppercase">Identificação</h4>
-              <p className="text-xs text-slate-400">
-                Informe seu nome e o identificador do seu perfil — chapa para terceiro ou WWID para funcionário Cummins — para salvar suas pontuações oficiais.
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-black font-industrial text-[#da291c]">01</div>
+                <Users className="w-5 h-5 text-red-400" />
+              </div>
+              <h4 className="font-bold text-white text-base uppercase font-industrial">Identifique-se</h4>
+              <p className="text-xs leading-relaxed text-slate-300">
+                Escolha seu perfil — Funcionário Cummins (WWID), Terceiro (chapa) ou Visitante (nome). Os dados salvam sua evolução sem expor senhas.
               </p>
             </div>
 
-            <div className="p-5 rounded-lg bg-black/40 border border-white/10 space-y-2">
-              <div className="text-2xl font-black font-industrial text-[#da291c]">02</div>
-              <h4 className="font-bold text-white text-sm uppercase">Escolha a Dificuldade</h4>
-              <p className="text-xs text-slate-400">
-                Fácil (100 pts), Médio (200 pts) ou Difícil (300 pts). Maior risco, maior recompensa!
+            <div className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-black font-industrial text-amber-400">02</div>
+                <Target className="w-5 h-5 text-amber-400" />
+              </div>
+              <h4 className="font-bold text-white text-base uppercase font-industrial">Jogue e Aprenda</h4>
+              <p className="text-xs leading-relaxed text-slate-300">
+                Complete os quatro desafios práticos: quizzes técnicos, identificação visual de erros e organização de fábrica com conceitos 5S e Lean.
               </p>
             </div>
 
-            <div className="p-5 rounded-lg bg-black/40 border border-white/10 space-y-2">
-              <div className="text-2xl font-black font-industrial text-[#da291c]">03</div>
-              <h4 className="font-bold text-white text-sm uppercase">Velocidade & Precisão</h4>
-              <p className="text-xs text-slate-400">
-                Responda com agilidade dentro dos 60 segundos por questão para pontuação máxima.
+            <div className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-black font-industrial text-emerald-400">03</div>
+                <Trophy className="w-5 h-5 text-emerald-400" />
+              </div>
+              <h4 className="font-bold text-white text-base uppercase font-industrial">Acompanhe sua Evolução</h4>
+              <p className="text-xs leading-relaxed text-slate-300">
+                Consulte sua pontuação por jogo, revise explicações educativas e veja sua posição no ranking geral em tempo real.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div className="p-5 rounded-lg bg-black/40 border border-white/10 space-y-2">
-              <div className="text-2xl font-black font-industrial text-[#da291c]">04</div>
-              <h4 className="font-bold text-white text-sm uppercase">Acumule no Ranking</h4>
-              <p className="text-xs text-slate-400">
-                Complete os 4 desafios. Sua melhor pontuação em cada um forma seu total no Ranking.
-              </p>
-            </div>
+      {/* SECTION: CTA FINAL */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-t from-[#141822] via-[#0d0f13] to-[#0d0f13] text-center border-t border-white/10">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-950/80 px-4 py-1.5 text-xs font-mono font-bold uppercase tracking-widest text-red-300">
+            <ShieldCheck className="w-4 h-4 text-[#da291c]" />
+            <span>PRONTO PARA TRANSFORMAR CONHECIMENTO EM ATITUDE?</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black font-industrial uppercase text-white tracking-tight">
+            COMECE SEUS <span className="text-[#da291c]">DESAFIOS AGORA</span>
+          </h2>
+          <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            Participe, teste sua percepção e ajude a construir um chão de fábrica cada vez mais seguro para todos em Osasco.
+          </p>
+          <div className="pt-2 flex flex-wrap justify-center gap-4">
+            <Button
+              onClick={handleStartChallenge}
+              size="lg"
+              className="bg-[#da291c] hover:bg-[#b01e12] text-white font-extrabold uppercase tracking-wider text-sm px-8 py-6 rounded-xl shadow-lg shadow-red-950/70"
+            >
+              Escolher Meu Desafio
+            </Button>
+            <Button asChild variant="outline" size="lg" className="border-white/20 text-white font-bold text-sm px-6 py-6 rounded-xl hover:bg-white/10">
+              <Link href="/ranking">Consultar Ranking</Link>
+            </Button>
           </div>
         </div>
       </section>

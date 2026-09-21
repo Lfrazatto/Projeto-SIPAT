@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { BarChart3, Box, Gamepad2, Info, Lock, LogOut, Menu, Sparkles, Trophy, User, X } from "lucide-react";
+import { BarChart3, Box, Gamepad2, Info, LogOut, Menu, Sparkles, Trophy, User, X } from "lucide-react";
 import { useParticipant } from "@/contexts/ParticipantContext";
 import { Button } from "@/components/ui/button";
 
@@ -10,12 +10,12 @@ interface NavbarProps {
 
 const navLinks = [
   { label: "Início", path: "/" },
-  { label: "Sobre", path: "/sobre", icon: Info },
-  { label: "Nosso projeto", path: "/nosso-projeto", icon: Sparkles },
-  { label: "Projeto 3D", path: "/projeto-3d", icon: Box },
   { label: "Jogos", path: "/jogos", icon: Gamepad2 },
-  { label: "Ranking", path: "/ranking", icon: Trophy },
   { label: "Meu progresso", path: "/meu-progresso", icon: BarChart3 },
+  { label: "Ranking", path: "/ranking", icon: Trophy },
+  { label: "Sobre", path: "/sobre", icon: Info },
+  { label: "Projeto 3D", path: "/projeto-3d", icon: Box },
+  { label: "Nosso projeto", path: "/nosso-projeto", icon: Sparkles },
 ];
 
 export function Navbar({ onOpenIdentify }: NavbarProps) {
@@ -70,13 +70,13 @@ export function Navbar({ onOpenIdentify }: NavbarProps) {
                 </button>
               </div>
             ) : (
-              <Button type="button" variant="outline" onClick={identify} className="min-h-11 border-white/20 text-xs text-white hover:bg-white/10">
+              <Button type="button" variant="outline" onClick={identify} className="min-h-11 border-white/20 text-xs text-white hover:bg-white/10 font-bold">
                 <User className="mr-2 h-4 w-4" aria-hidden="true" /> Identificar-se
               </Button>
             )}
-            <Link href="/admin" aria-label="Abrir painel administrativo" className={`inline-flex min-h-11 items-center gap-2 rounded-lg border px-3 text-xs font-bold ${location.startsWith("/admin") ? "border-amber-300 bg-amber-400/20 text-amber-200" : "border-slate-600 bg-slate-900 text-slate-200 hover:border-amber-400 hover:text-amber-200"}`}>
-              <Lock className="h-4 w-4 text-amber-300" aria-hidden="true" /> Admin
-            </Link>
+            <Button asChild className="min-h-11 bg-[#da291c] font-bold text-xs uppercase tracking-wider text-white hover:bg-[#b01e12] shadow-md shadow-red-950/60">
+              <Link href="/jogos">Começar agora</Link>
+            </Button>
           </div>
 
           <button type="button" onClick={() => setMobileMenuOpen((current) => !current)} aria-label={mobileMenuOpen ? "Fechar menu principal" : "Abrir menu principal"} aria-expanded={mobileMenuOpen} aria-controls="menu-principal-mobile" className="min-h-11 min-w-11 rounded-lg border border-white/15 bg-white/5 p-2 text-white hover:bg-white/10 xl:hidden">
@@ -92,7 +92,7 @@ export function Navbar({ onOpenIdentify }: NavbarProps) {
           </div>
           <div className="mx-auto mt-3 flex max-w-7xl flex-col gap-2 border-t border-white/10 pt-3 sm:flex-row">
             {participant ? <Button type="button" variant="outline" onClick={logoutParticipant} className="min-h-11 flex-1 border-white/20 text-white"><LogOut className="mr-2 h-4 w-4" aria-hidden="true" /> Trocar participante: {participant.name}</Button> : <Button type="button" onClick={identify} className="min-h-11 flex-1 bg-[#da291c] text-white"><User className="mr-2 h-4 w-4" aria-hidden="true" /> Identificar-se</Button>}
-            <Link href="/admin" className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-amber-400/50 bg-amber-400/10 px-3 text-sm font-bold text-amber-200"><Lock className="h-4 w-4" aria-hidden="true" /> Painel administrativo</Link>
+            <Button asChild className="min-h-11 flex-1 bg-[#da291c] font-bold text-white uppercase"><Link href="/jogos">Começar desafio</Link></Button>
           </div>
         </nav>
       )}

@@ -78,3 +78,14 @@ Em atendimento às solicitações mais recentes:
    > O Red Flag reforça a necessidade de atenção máxima em nossas atividades, com foco na identificação de riscos, prevenção de incidentes e cuidado com todos ao nosso redor.
 2. **Logo oficial da Cummins:** o símbolo anterior foi substituído pela marca oficial vetorial com a letra `C` e o wordmark `Cummins`, aplicada tanto no cabeçalho global quanto no destaque do painel Red Flag.
 3. **Foto da equipe em "Nosso projeto":** a fotografia real enviada dos integrantes do projeto foi inserida na seção "Quem criou esta ideia", acompanhada de legenda descritiva e texto alternativo acessível.
+
+
+## Atualização Geral — Auditoria e Implementação do Prompt Mestre
+
+Em conformidade com todas as diretrizes do prompt mestre de excelência (18 seções):
+1. **Página Inicial Reestruturada**: novo cabeçalho limpo com CTA *Começar agora*, seção *Como funciona* em 3 passos com indicador de progresso 0/4, vitrine detalhada dos 4 jogos com selo de recomendação e dados de interação/tempo/dificuldade, pilares claros da SIPAT e chamada final para ação.
+2. **Quatro Jogos Padronizados e Educativos**: quizzes com banco rotativo dinâmico de perguntas e alternativas equilibradas; Ache o Erro com pares reais e hotspots calibrados; Organize a Fábrica acessível por teclado; telas de encerramento padronizadas com navegação para ranking e progresso.
+3. **Ranking e Progresso**: ranking com visualização em tabela no desktop e cards adaptativos no celular; anonimização e mascaramento de identificadores; exibição de horário de atualização e explicação do cálculo; página Meu Progresso com dicas personalizadas de segurança.
+4. **Projeto 3D Otimizado**: assembly enriquecida com elementos mecânicos volumétricos; animação coordenada de componentes internos; modos normal e curva; foto real da fábrica ao fundo; carregamento sob demanda (lazy loading) via Suspense.
+5. **Segurança e Higienização**: todos os participantes de teste foram removidos do banco de produção; testes automatizados agora possuem limpeza automática; credencial administrativa isolada via secret de ambiente com tempo constante de validação; rate limiting ativo em endpoints críticos.
+6. **Acessibilidade Completa**: toolbar flutuante com alto contraste, redução de movimento, tempo estendido e escala de fontes; foco visível e navegação por teclado em 100% dos fluxos.

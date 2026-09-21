@@ -222,9 +222,13 @@ export default function MeuProgresso() {
                   </div>
                 </div>
                 <div className="p-3 rounded-xl bg-black/40 border border-white/10">
-                  <div className="text-[10px] text-slate-400 font-mono uppercase">Status do Desafio</div>
+                  <div className="text-[10px] text-slate-400 font-mono uppercase">Status Global</div>
                   <div className="text-sm font-black font-industrial text-white mt-1">
-                    {isCompletedAll ? "CONCLUÍDO 100%" : "EM ANDAMENTO"}
+                    {isCompletedAll ? (
+                      <span className="text-emerald-400">JORNADA COMPLETA 100%</span>
+                    ) : (
+                      <span className="text-amber-400">EM ANDAMENTO ({4 - completedCount} RESTANTES)</span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -330,6 +334,16 @@ export default function MeuProgresso() {
             <div className="flex justify-center pt-4">
               <Button asChild size="lg" className="bg-[#da291c] hover:bg-[#b01e12] text-white font-bold uppercase tracking-wider text-xs px-8 py-6 flex items-center gap-2"><Link href="/jogos"><RotateCcw className="w-4 h-4" /><span>Refazer Desafios Para Melhorar Pontuação</span></Link></Button>
             </div>
+
+            {!isCompletedAll && (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 text-xs text-slate-300 flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-industrial uppercase text-sm">Dica de Especialista EHS</strong>
+                  Complete todos os quatro desafios para desbloquear sua pontuação máxima e concorrer às premiações de engajamento da SIPAT 2026.
+                </div>
+              </div>
+            )}
           </div>
         )}
       </section>

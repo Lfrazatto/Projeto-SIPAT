@@ -1,6 +1,9 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import { ensureInitialSeeds } from "./db";
+import { ensureInitialSeeds, getDb } from "./db";
+import { gameResults, participants } from "../drizzle/schema";
+import { like, or } from "drizzle-orm";
+import { ENV } from "./_core/env";
 
 function createMockContext() {
   return { user: null, req: { protocol: "https", headers: {} } as any, res: { clearCookie: () => {} } as any };
@@ -11,11 +14,22 @@ describe("Cummins SIPAT Backend Logic", () => {
     await ensureInitialSeeds();
   });
 
+  afterAll(async () => {
+    const db = await getDb();
+    if (db) {
+      await db.delete(gameResults).where(or(like(gameResults.participantName, "%Teste%"), like(gameResults.participantChapa, "TEST%"), like(gameResults.participantName, "Visitante SIPAT%")));
+      await db.delete(participants).where(or(like(participants.name, "%Teste%"), like(participants.chapa, "TEST%"), like(participants.name, "Visitante SIPAT%")));
+    }
+  });
+
   it("accepts only the restricted admin credential", async () => {
     const caller = appRouter.createCaller(createMockContext());
-    expect((await caller.admin.verifyKey({ adminKey: "SIPATMA" })).isValid).toBe(true);
-    expect((await caller.admin.verifyKey({ adminKey: "sipatma" })).isValid).toBe(true);
-    expect((await caller.admin.verifyKey({ adminKey: "CUMMINS2026" })).isValid).toBe(false);
+    if (ENV.adminAccessKey) {
+      expect((await caller.admin.verifyKey({ adminKey: ENV.adminAccessKey })).isValid).toBe(true);
+    } else {
+      expect((await caller.admin.verifyKey({ adminKey: "missing-configured-secret" })).isValid).toBe(false);
+    }
+    expect((await caller.admin.verifyKey({ adminKey: "definitely-wrong-secret-2026" })).isValid).toBe(false);
   });
 
   it("calculates proportional score based on remaining time", async () => {
