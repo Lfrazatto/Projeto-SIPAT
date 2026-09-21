@@ -231,7 +231,6 @@ export const appRouter = router({
         return {
           isCorrect: isCorrect && input.remainingSeconds > 0,
           earnedPoints,
-          correctOption: question.correctOption,
           explanation: question.explanation,
         };
       }),

@@ -35,13 +35,13 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
   const { extendedTime } = useAccessibility();
   const secondsPerQuestion = extendedTime ? 120 : 60;
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [optionOrderSeed] = useState(() => Math.floor(Math.random() * 233280));
   const [selectedOption, setSelectedOption] = useState<"A" | "B" | "C" | "D" | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState(secondsPerQuestion);
   const [isAnswered, setIsAnswered] = useState(false);
   const [answerFeedback, setAnswerFeedback] = useState<{
     isCorrect: boolean;
     earnedPoints: number;
-    correctOption: "A" | "B" | "C" | "D";
     explanation?: string | null;
   } | null>(null);
 
@@ -80,13 +80,13 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
       { key: "C" as const, text: currentQuestion.optionC },
       { key: "D" as const, text: currentQuestion.optionD },
     ];
-    if (gameType !== "quiz_ergonomia") return options;
-    let seed = currentQuestion.id * 97 + 13;
+    // A ordem muda por sessão e por questão, sem revelar a alternativa correta.
+    let seed = currentQuestion.id * 97 + currentIndex * 53 + optionOrderSeed;
     return [...options].sort(() => {
       seed = (seed * 9301 + 49297) % 233280;
       return seed / 233280 - 0.5;
     });
-  }, [currentQuestion, gameType]);
+  }, [currentQuestion, currentIndex, optionOrderSeed]);
 
   const basePointsPerQuestion = difficulty === "dificil" ? 300 : difficulty === "medio" ? 200 : 100;
   const maxPossibleScore = questions.length * basePointsPerQuestion;
@@ -130,11 +130,10 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
             setAnswerFeedback({
               isCorrect: false,
               earnedPoints: 0,
-              correctOption: data.correctOption,
               explanation: `Tempo esgotado! Você não respondeu dentro dos ${secondsPerQuestion} segundos.`,
             });
           },
-          onError: () => setAnswerFeedback({ isCorrect: false, earnedPoints: 0, correctOption: "A", explanation: "O tempo terminou e a resposta correta não pôde ser carregada. Você pode seguir para a próxima questão." }),
+          onError: () => setAnswerFeedback({ isCorrect: false, earnedPoints: 0, explanation: "O tempo terminou. Você pode seguir para a próxima questão." }),
         }
       );
     }
@@ -336,11 +335,6 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
             <span className="px-3 py-1 rounded text-xs font-mono font-semibold bg-white/5 border border-white/10 text-slate-300">
               Tema: {currentQuestion.theme}
             </span>
-            {gameType === "quiz_ergonomia" && (
-              <span className="px-3 py-1 rounded text-[10px] font-mono font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
-                ALTERNATIVAS EMBARALHADAS
-              </span>
-            )}
             <span className="text-xs font-mono text-slate-400">
               Potencial nesta questão: <strong className="text-emerald-400">{potentialPointsNow} pts</strong>
             </span>
@@ -354,15 +348,14 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
           <div className="grid grid-cols-1 gap-3 pt-2" role="group" aria-labelledby="quiz-question">
             {displayOptions.map((opt) => {
               const isSelected = selectedOption === opt.key;
-              const isCorrectAnswer = answerFeedback?.correctOption === opt.key;
 
               let btnStyle = "bg-black/40 border-white/10 hover:border-white/30 text-slate-200";
 
               if (isAnswered) {
-                if (isCorrectAnswer) {
-                  btnStyle = "bg-emerald-950/60 border-emerald-500 text-emerald-200 ring-2 ring-emerald-500/40";
-                } else if (isSelected && !answerFeedback?.isCorrect) {
+                if (isSelected && !answerFeedback?.isCorrect) {
                   btnStyle = "bg-red-950/60 border-red-500 text-red-200 ring-2 ring-red-500/40";
+                } else if (isSelected && answerFeedback?.isCorrect) {
+                  btnStyle = "bg-white/10 border-white/35 text-white ring-2 ring-white/20";
                 } else {
                   btnStyle = "bg-black/30 border-white/5 text-slate-500 opacity-60";
                 }

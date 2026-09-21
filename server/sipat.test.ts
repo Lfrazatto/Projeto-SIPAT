@@ -23,8 +23,11 @@ describe("Cummins SIPAT Backend Logic", () => {
     const questions = await caller.games.getQuestions({ gameType: "quiz_seguranca" });
     expect(questions.length).toBeGreaterThan(0);
     const q = questions[0];
+    expect("correctOption" in q).toBe(false);
     const full = await caller.games.verifyAnswer({ questionId: q.id, selectedOption: "B", remainingSeconds: 60, difficulty: "facil" });
     const half = await caller.games.verifyAnswer({ questionId: q.id, selectedOption: "B", remainingSeconds: 30, difficulty: "medio" });
+    expect("correctOption" in full).toBe(false);
+    expect("correctOption" in half).toBe(false);
     if (full.isCorrect) expect(full.earnedPoints).toBe(100);
     if (half.isCorrect) expect(half.earnedPoints).toBe(100);
   });
