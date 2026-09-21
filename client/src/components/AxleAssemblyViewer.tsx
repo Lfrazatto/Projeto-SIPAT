@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MS120_CATALOG, ComponentDefinition, getComponentById } from "@/data/ms120Catalog";
+import { REAL_PHOTOS } from "@/data/realPhotos";
 
 type Mode = "assembled" | "exploded" | "running" | "curve";
 type ViewMode = "solid" | "wireframe" | "xray" | "section";
@@ -99,7 +100,7 @@ export function AxleAssemblyViewer() {
 
   useEffect(() => {
     modeRef.current = mode;
-  }, []);
+  }, [mode]);
 
   useEffect(() => {
     labelIdsRef.current = labelIds;
@@ -202,7 +203,9 @@ export function AxleAssemblyViewer() {
 
     // Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0e1117);
+    // Fundo transparente: a fotografia industrial é aplicada no container HTML atrás do WebGL.
+    scene.background = null;
+    renderer.setClearColor(0x0e1117, 0);
     sceneRef.current = scene;
 
     // Camera
@@ -1308,15 +1311,21 @@ export function AxleAssemblyViewer() {
           compMap["spider_gears"].rotation.x = ang;
           compMap["spider_gears"].rotation.y = isCurve ? ang * relativeDiff * 2.2 : 0;
         }
-        if (compMap["left_side_gear"]) compMap["left_side_gear"].rotation.x = ang * leftSpeed;
-        if (compMap["right_side_gear"]) compMap["right_side_gear"].rotation.x = ang * rightSpeed;
+        if (compMap["side_gears"]) compMap["side_gears"].rotation.x = ang;
 
         if (compMap["left_axle_shaft"]) compMap["left_axle_shaft"].rotation.x = ang * leftSpeed;
         if (compMap["right_axle_shaft"]) compMap["right_axle_shaft"].rotation.x = ang * rightSpeed;
+        if (compMap["left_axle_splines"]) compMap["left_axle_splines"].rotation.x = ang * leftSpeed;
+        if (compMap["right_axle_splines"]) compMap["right_axle_splines"].rotation.x = ang * rightSpeed;
         if (compMap["left_wheel_hub"]) compMap["left_wheel_hub"].rotation.x = ang * leftSpeed;
         if (compMap["right_wheel_hub"]) compMap["right_wheel_hub"].rotation.x = ang * rightSpeed;
-        if (compMap["left_hub_outer_bearing"]) compMap["left_hub_outer_bearing"].rotation.x = ang * leftSpeed;
-        if (compMap["right_hub_outer_bearing"]) compMap["right_hub_outer_bearing"].rotation.x = ang * rightSpeed;
+        if (compMap["left_hub_bearings"]) compMap["left_hub_bearings"].rotation.x = ang * leftSpeed;
+        if (compMap["right_hub_bearings"]) compMap["right_hub_bearings"].rotation.x = ang * rightSpeed;
+        if (compMap["left_hub_seal"]) compMap["left_hub_seal"].rotation.x = ang * leftSpeed;
+        if (compMap["right_hub_seal"]) compMap["right_hub_seal"].rotation.x = ang * rightSpeed;
+        if (compMap["left_brake_assembly"]) compMap["left_brake_assembly"].rotation.x = ang * leftSpeed;
+        if (compMap["right_brake_assembly"]) compMap["right_brake_assembly"].rotation.x = ang * rightSpeed;
+        if (compMap["wheel_studs"]) compMap["wheel_studs"].rotation.x = ang;
       }
 
       renderer.render(scene, camera);
@@ -1605,14 +1614,20 @@ export function AxleAssemblyViewer() {
         <div className="lg:col-span-8 flex flex-col gap-3">
           <div
             ref={containerRef}
-            className="relative w-full h-[540px] sm:h-[620px] rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#13161f] via-[#0d1017] to-[#08090d] shadow-2xl"
+            className="relative isolate w-full h-[540px] sm:h-[620px] rounded-2xl overflow-hidden border border-white/10 bg-[#0a0d12] shadow-2xl"
+            style={{
+              backgroundImage: `linear-gradient(90deg, rgba(5, 8, 12, .93) 0%, rgba(8, 12, 18, .72) 48%, rgba(5, 8, 12, .9) 100%), linear-gradient(180deg, rgba(10, 14, 20, .3), rgba(5, 7, 10, .88)), url(${REAL_PHOTOS.productionLine.src})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(218,41,28,.15),transparent_38%)]" aria-hidden="true" />
             <canvas
               ref={canvasRef}
               aria-label="Visualizador 3D Interativo do Eixo Traseiro Meritor Cummins MS-120 com Exploded View"
-              className="w-full h-full cursor-grab active:cursor-grabbing outline-none"
+              className="relative z-10 w-full h-full cursor-grab active:cursor-grabbing outline-none"
             />
-            <div ref={(node) => { if (!node) return; }} className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div ref={(node) => { if (!node) return; }} className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
               {labelIds.map((id) => {
                 const item = getComponentById(id);
                 if (!item) return null;
@@ -1629,8 +1644,12 @@ export function AxleAssemblyViewer() {
               })}
             </div>
 
+            <div className="pointer-events-none absolute bottom-4 right-4 z-20 max-w-[14rem] rounded-lg border border-white/10 bg-black/65 px-3 py-2 text-[10px] leading-relaxed text-slate-300 backdrop-blur-md">
+              Fundo industrial: linha de produção Cummins/Meritor em Osasco · Crédito: Transporte Moderno
+            </div>
+
             {/* Overlaid Camera Preset Bar */}
-            <div className="absolute top-4 left-4 flex flex-wrap gap-1.5 p-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10">
+            <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-1.5 p-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10">
               <button
                 onClick={() => setCameraView("iso")}
                 className="px-2.5 py-1 text-xs rounded font-medium text-slate-300 hover:text-white hover:bg-white/10"
@@ -1664,7 +1683,7 @@ export function AxleAssemblyViewer() {
             </div>
 
             {/* Floating Status & Instruction Badge */}
-            <div className="absolute bottom-4 left-4 flex flex-col gap-2 max-w-sm">
+            <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2 max-w-sm">
               {measuredDistance && (
                 <div className="p-3 rounded-lg bg-amber-950/80 border border-amber-500/40 text-amber-200 text-xs backdrop-blur-md">
                   <span className="font-semibold block mb-0.5">Medição Visual:</span>
@@ -1683,7 +1702,7 @@ export function AxleAssemblyViewer() {
 
             {/* Torque Flow Banner when Running */}
             {mode === "running" && (
-              <div className="absolute top-4 right-4 p-3 rounded-xl bg-gradient-to-r from-red-950/90 to-black/80 border border-red-500/40 backdrop-blur-md max-w-xs text-xs text-slate-200">
+              <div className="absolute top-4 right-4 z-20 p-3 rounded-xl bg-gradient-to-r from-red-950/90 to-black/80 border border-red-500/40 backdrop-blur-md max-w-xs text-xs text-slate-200">
                 <div className="font-bold text-red-400 uppercase tracking-wide flex items-center gap-1.5">
                   <Activity className="w-4 h-4 animate-spin text-red-500" />
                   Fluxo de Potência & Torque
@@ -1695,7 +1714,7 @@ export function AxleAssemblyViewer() {
             )}
 
             {mode === "curve" && (
-              <div className="absolute top-4 right-4 p-3 rounded-xl bg-gradient-to-r from-cyan-950/90 to-black/80 border border-cyan-500/40 backdrop-blur-md max-w-xs text-xs text-slate-200">
+              <div className="absolute top-4 right-4 z-20 p-3 rounded-xl bg-gradient-to-r from-cyan-950/90 to-black/80 border border-cyan-500/40 backdrop-blur-md max-w-xs text-xs text-slate-200">
                 <div className="font-bold text-cyan-400 uppercase tracking-wide flex items-center gap-1.5">
                   <Activity className="w-4 h-4 animate-spin text-cyan-400" />
                   Dinâmica em Curva (Didático)
