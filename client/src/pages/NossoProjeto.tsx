@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, Code2, Gamepad2, GraduationCap, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Code2, ExternalLink, Gamepad2, GraduationCap, Linkedin, Mail, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { Link } from "wouter";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,9 @@ const pillars = [
 ];
 
 const creators = [
-  { name: "Ryan Neiva", role: "Idealização e desenvolvimento" },
-  { name: "Leonardo Frazatto", role: "Idealização e desenvolvimento" },
-  { name: "Matheus Felipe", role: "Idealização e desenvolvimento" },
+  { name: "Ryan Neiva", role: "Idealização e desenvolvimento", email: "ryanneiva80@gmail.com", linkedin: "https://www.linkedin.com/in/ryan-neiva" },
+  { name: "Leonardo Frazatto", role: "Idealização e desenvolvimento", email: "lmpfrazatto@gmail.com", linkedin: "https://www.linkedin.com/in/leonardo-machado-pereira-fraza" },
+  { name: "Matheus Felipe", role: "Idealização e desenvolvimento", email: "matheusfelipedasferreira@gmail.com" },
 ];
 
 export default function NossoProjeto() {
@@ -64,7 +64,7 @@ export default function NossoProjeto() {
             </figure>
           </div>
 
-          <div className="mt-14"><div className="v2-kicker">Principais criadores</div><p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">Leonardo Frazatto, Matheus Felipe e Ryan Neiva foram os principais criadores do projeto, responsáveis pela idealização, organização e desenvolvimento da proposta.</p><div className="mt-7 grid gap-4 md:grid-cols-3">{creators.map((creator, index) => <article key={creator.name} className="relative overflow-hidden rounded-xl border border-white/10 bg-[#171b24] p-6 transition hover:-translate-y-1 hover:border-red-500/50"><span className="absolute right-4 top-4 font-mono text-xs text-red-400/70">0{index + 1}</span><div className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-950/50 text-[#da291c]"><Users className="h-5 w-5" /></div><h3 className="mt-8 font-industrial text-2xl uppercase text-white">{creator.name}</h3><p className="mt-2 text-xs uppercase tracking-widest text-slate-500">Criador do projeto</p><p className="mt-4 text-xs leading-relaxed text-slate-400">{creator.role}</p></article>)}</div></div>
+          <div className="mt-14"><div className="v2-kicker">Principais criadores</div><p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">Leonardo Frazatto, Matheus Felipe e Ryan Neiva foram os principais criadores do projeto, responsáveis pela idealização, organização e desenvolvimento da proposta.</p><div className="mt-7 grid gap-4 md:grid-cols-3">{creators.map((creator, index) => <article key={creator.name} className="relative overflow-hidden rounded-xl border border-white/10 bg-[#171b24] p-6 transition hover:-translate-y-1 hover:border-red-500/50"><span className="absolute right-4 top-4 font-mono text-xs text-red-400/70">0{index + 1}</span><div className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-950/50 text-[#da291c]"><Users className="h-5 w-5" /></div><h3 className="mt-8 font-industrial text-2xl uppercase text-white">{creator.name}</h3><div className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-xs"><a href={`mailto:${creator.email}`} aria-label={`Enviar e-mail para ${creator.name}`} className="inline-flex min-w-0 items-center gap-1.5 text-slate-300 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400"><Mail className="h-3.5 w-3.5 shrink-0 text-red-400" /><span className="break-all">{creator.email}</span></a>{creator.linkedin && <a href={creator.linkedin} target="_blank" rel="noreferrer" aria-label={`Abrir LinkedIn de ${creator.name}`} className="inline-flex items-center gap-1.5 text-slate-300 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"><Linkedin className="h-3.5 w-3.5 shrink-0 text-[#6fa8dc]" /> LinkedIn <ExternalLink className="h-3 w-3" /></a>}</div><p className="mt-3 text-xs uppercase tracking-widest text-slate-500">Criador do projeto</p><p className="mt-4 text-xs leading-relaxed text-slate-400">{creator.role}</p></article>)}</div></div>
 
           <div className="mt-12 grid gap-6 lg:grid-cols-[.8fr_1.2fr] lg:items-center"><div><div className="v2-kicker">Colaboradores e apoiadores</div><h3 className="mt-2 font-industrial text-3xl uppercase text-white">Uma construção coletiva</h3></div><div className="rounded-xl border border-amber-500/20 bg-amber-950/10 p-6"><p className="text-base leading-relaxed text-slate-300">Os demais integrantes da turma contribuíram como colaboradores e apoiadores, trazendo ideias, sugestões e melhorias que ajudaram a fortalecer o projeto.</p></div></div>
 
