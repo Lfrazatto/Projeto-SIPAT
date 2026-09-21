@@ -128,3 +128,10 @@ O bloco Red Flag passou a ter uma sequência interativa em três etapas — **PA
 A página História da Cummins agora usa uma timeline expansível com marcos selecionáveis, fonte oficial e painel de conteúdo contextual. A página Nosso projeto recebeu uma timeline do processo do Formare, de “Aprendemos” a “Entregamos”, também operável por teclado e toque. Os componentes novos foram implementados com estados persistentes enquanto o usuário navega na seção, foco visível e suporte a telas estreitas.
 
 A validação final desta rodada foi concluída com **TypeScript sem erros**, **42 testes passando em 9 arquivos** e **build de produção concluído**. A auditoria visual confirmou Home, História da Cummins e Nosso projeto em desktop e mobile; o console do navegador não apresentou erros durante a navegação.
+
+
+## Correção do Organize a Fábrica — 21/09/2026
+
+A mecânica do quarto desafio foi redesenhada para corresponder ao objetivo de organização física e melhoria contínua. O fluxo deixou de ser um classificador de categorias e passou a ter duas etapas: primeiro, o participante encaixa itens em locais padronizados do posto de trabalho; depois, organiza a sequência 5S/Lean em cinco posições de fluxo. O jogo mantém arrastar e soltar, toque, seleção por teclado, feedback educativo, slots travados após acerto, cronômetro, pausa, pontuação e envio do resultado ao ranking.
+
+A validação funcional foi feita no navegador com um encaixe individual, os cinco encaixes restantes, a transição para a etapa Lean e a sequência correta de cinco etapas. O modal de resultado também foi ajustado para exibir “tarefas” e a quantidade real do desafio, sem a indicação genérica de “12 perguntas”.

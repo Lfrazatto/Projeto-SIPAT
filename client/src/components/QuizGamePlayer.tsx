@@ -462,6 +462,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
         maxScore={maxPossibleScore}
         correctCount={correctCount}
         wrongCount={wrongCount}
+        totalQuestions={questions.length}
         totalTimeSeconds={Math.round((Date.now() - gameStartTime) / 1000)}
         difficulty={difficulty}
         currentRank={finalSubmitData?.rank || 1}

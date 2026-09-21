@@ -25,10 +25,13 @@ interface QuizFinalResultModalProps {
   maxScore: number;
   correctCount: number;
   wrongCount: number;
+  totalQuestions?: number;
+  unitLabel?: string;
   totalTimeSeconds: number;
   difficulty: "facil" | "medio" | "dificil" | "muito_dificil";
   currentRank: number;
   isNewBest?: boolean;
+  resultHeading?: string;
   onPlayAgain: () => void;
   onOtherChallenge: () => void;
 }
@@ -43,10 +46,13 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
   maxScore,
   correctCount,
   wrongCount,
+  totalQuestions,
+  unitLabel = "perguntas",
   totalTimeSeconds,
   difficulty,
   currentRank,
   isNewBest,
+  resultHeading = "QUIZ FINALIZADO!",
   onPlayAgain,
   onOtherChallenge,
 }) => {
@@ -62,7 +68,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
           </div>
 
           <DialogTitle className="text-2xl sm:text-3xl font-black font-industrial uppercase tracking-wide text-white">
-            QUIZ FINALIZADO!
+            {resultHeading}
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-300">
             {gameTitle} — Parabéns pelo seu empenho e atitude de segurança!
@@ -109,7 +115,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
               <span className="text-slate-500">/</span>
               <span className="text-red-400">{wrongCount}</span>
             </div>
-            <div className="text-[10px] text-slate-500">12 perguntas</div>
+            <div className="text-[10px] text-slate-500">{totalQuestions ?? correctCount + wrongCount} {unitLabel}</div>
           </div>
 
           <div className="p-3 rounded-lg bg-black/40 border border-white/10">

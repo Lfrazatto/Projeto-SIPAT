@@ -1,50 +1,25 @@
-# Checklist de consolidação — SIPAT MS-120
+# Checklist — redesign interativo concluído
 
-## Concluído
+- [x] Auditar Home, navegação, jogos, ranking, história e página do projeto
+- [x] Adicionar parallax suave, cursor glow, linhas de energia e entrada sequencial na hero
+- [x] Tornar a missão clicável com estado ativo e próxima ação contextual
+- [x] Criar sequência Red Flag PARE → COMUNIQUE → AJA COM SEGURANÇA
+- [x] Adicionar contadores animados sem alterar valores do ranking
+- [x] Criar timeline interativa da história da Cummins
+- [x] Criar timeline interativa do processo do projeto Formare
+- [x] Garantir foco visível, teclado, toque e prefers-reduced-motion
+- [x] Validar TypeScript, 42 testes e build de produção
+- [x] Validar Home, História e Nosso projeto em desktop e mobile
+- [x] Salvar checkpoint final e atualizar pacote ZIP
 
-- [x] Comparar os dois projetos por experiência, conteúdo, jogos, administração, banco de dados, segurança e testes.
-- [x] Adotar como base a experiência visual e os quatro desafios do projeto mais completo.
-- [x] Incorporar o backend mais seguro, a edição de cenários, o upload validado e os testes adicionais da outra versão.
-- [x] Padronizar a identidade para **Cummins SIPAT — Desafio MS-120 2026**.
-- [x] Preservar as páginas Início, Sobre, Nosso projeto, Projeto 3D, Jogos, Ranking, Meu progresso e Admin.
-- [x] Preservar os quatro desafios: Quiz de Segurança, Quiz de Ergonomia, Ache o Erro e Organize a Fábrica.
-- [x] Adicionar painel global de acessibilidade com alto contraste, texto ampliado, movimento reduzido e tempo 2×.
-- [x] Adicionar atalho “Pular para o conteúdo”, foco visível, títulos por rota e navegação móvel sem becos sem saída.
-- [x] Tornar identificação, filtros, feedbacks e estados de carregamento compreensíveis por leitores de tela.
-- [x] Tornar o jogo de organização operável por clique, toque, teclado e arrastar/soltar.
-- [x] Adicionar pausa e recuperação de falha de rede aos jogos cronometrados.
-- [x] Criar modo textual equivalente para o jogo “Ache o Erro”.
-- [x] Respeitar `prefers-reduced-motion` e permitir zoom do navegador.
-- [x] Manter identificação somente na sessão do navegador e mascarar chapa/WWID no ranking público.
-- [x] Remover credencial administrativa fixa de ambientes de produção.
-- [x] Evitar envio duplicado de resultados nos jogos.
-- [x] Corrigir o rodapé duplicado da página inicial.
-- [x] Instalar e declarar a dependência Three.js usada pelos visualizadores 3D.
-- [x] Remover imagens externas quebradas e criar alternativas locais acessíveis.
-- [x] Corrigir controles interativos aninhados e foco do diálogo de pausa.
-- [x] Gerar e aplicar a migração inicial no banco gerenciado.
-- [x] Executar verificação TypeScript, 42 testes e build de produção.
-- [x] Verificar as oito rotas principais em desktop e celular.
-- [x] Executar auditoria funcional e de acessibilidade, corrigindo as falhas encontradas.
-- [x] Remover do banco o participante fictício usado na auditoria.
-- [x] Inserir fotos reais da unidade Cummins/Meritor em Osasco com legendas, créditos e alt text nas páginas Início, Sobre e Projeto 3D.
-- [x] Corrigir o carregamento das imagens do jogo Ache o Erro com novos pares seguro/inseguro funcionais.
-- [x] Inspecionar visualmente as cinco cenas em quadrantes e recalibrar os 35 hotspots sobre os atos inseguros reais.
-- [x] Sincronizar os 35 hotspots recalibrados no banco gerenciado.
-- [x] Ordenar o seletor das fases de Fase 1 a Fase 5.
-- [x] Validar no navegador duas imagens carregadas e cliques reais reconhecidos.
-- [x] Rodar validação final (tsc + 42 vitest + build vite/esbuild), salvar checkpoint e atualizar pacote ZIP.
+## Correção do Organize a Fábrica — 21/09/2026
 
-
-## Rodada de redesign interativo — concluída
-
-- [x] Adicionar parallax suave, cursor glow, linhas de energia e entrada sequencial na hero.
-- [x] Tornar a missão clicável com estado ativo e próxima ação contextual.
-- [x] Criar sequência Red Flag PARE → COMUNIQUE → AJA COM SEGURANÇA.
-- [x] Adicionar contadores animados sem alterar valores do ranking.
-- [x] Criar timeline interativa da história da Cummins.
-- [x] Criar timeline interativa do processo do projeto Formare.
-- [x] Garantir foco visível, teclado, toque e prefers-reduced-motion.
-- [x] Validar TypeScript, 42 testes e build de produção.
-- [x] Validar Home, História e Nosso projeto em desktop e mobile.
-- [ ] Salvar checkpoint final e atualizar pacote ZIP.
+- [x] Substituir o classificador de categorias por organização física do posto
+- [x] Criar encaixes padronizados por estação: ferramentas, EPIs, resíduos, almoxarifado, descarte e produção
+- [x] Permitir arrastar e soltar, toque e seleção por teclado
+- [x] Criar feedback de encaixe correto, erro de posicionamento e slot travado
+- [x] Criar segunda etapa com sequência Lean/5S: Separar, Definir, Limpar, Padronizar e Manter
+- [x] Exibir progresso, cronômetro, pontuação e resultado pós-desafio sem contagem genérica de quiz
+- [x] Validar no navegador: encaixe real, transição para Lean e sequência correta
+- [x] Passar typecheck, 42 testes automatizados e build de produção
+- [ ] Salvar checkpoint e atualizar pacote ZIP

@@ -330,9 +330,9 @@ export default function Jogos() {
               </div>
 
               <div className="pt-2 flex flex-wrap gap-2 text-[11px] text-slate-400 font-mono">
-                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">6 a 12 Itens 5S</span>
-                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">Drag and Drop</span>
-                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">Lean Manufacturing</span>
+                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">6 a 12 Encaixes</span>
+                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">Toque, arraste ou teclado</span>
+                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">Sequência 5S / Lean</span>
               </div>
             </div>
 
