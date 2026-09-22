@@ -339,3 +339,20 @@ Conforme a necessidade de visibilidade imediata sem exigir que os usuários role
    - `pnpm check`: sem erros de tipagem.
    - `pnpm test`: todos os 48 testes automatizados aprovados em 10 arquivos.
    - `pnpm build`: build de produção concluído com sucesso.
+
+
+## Atualização — Alinhamento Integral com a Especificação Oficial SIPAT (22/09/2026)
+
+1. **Substituição Pedagógica do Segundo Quiz por Lean Manufacturing**:
+   - O segundo desafio foi convertido integralmente de Ergonomia para **Lean Manufacturing** (5S, Kaizen, fluxo, Just in Time, Kanban, poka-yoke, gestão visual e OEE), mantendo o identificador técnico `quiz_ergonomia` no banco de dados para evitar migrações destrutivas e perda de dados anteriores.
+   - O catálogo oficial em `server/quizQuestionsCatalog.ts` foi expandido para **40 perguntas no total** (20 de Segurança e Prevenção + 20 de Lean Manufacturing), com distribuição equilibrada por níveis (Fácil, Médio e Difícil).
+
+2. **Pontuação Acumulada e Conquistas Reais**:
+   - A pontuação geral passou a ser acumulada pelas tentativas válidas dos desafios, mantendo a melhor pontuação de cada jogo para comparação analítica e exibição no perfil.
+   - Foi criada a tabela `participant_achievements` e o módulo `shared/achievements.ts`, persistindo conquistas reais (Primeiro Desafio, Precisão, Mestre da Segurança, Especialista Lean, Olho de Águia, Velocidade, Perfeito e Jogador Completo).
+   - A tela `/meu-progresso` agora renderiza a grade dinâmica de conquistas conectada ao backend tRPC.
+
+3. **Validação de Fluxo e Resultados**:
+   - A central de jogos (`/jogos`) não inicia mais partidas via URL sem a identificação prévia do participante.
+   - O modal de encerramento (`QuizFinalResultModal`) foi aprimorado com métrica de tempo médio por pergunta/item e mensagem orientativa para participantes não identificados.
+   - Todos os 10 arquivos de teste Vitest (48 testes) foram executados e aprovados com 100% de sucesso.

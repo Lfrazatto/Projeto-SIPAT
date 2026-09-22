@@ -1,4 +1,4 @@
-import { boolean, double, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, double, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -135,6 +135,15 @@ export const muralMessages = mysqlTable("mural_messages", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const participantAchievements = mysqlTable("participant_achievements", {
+  id: int("id").autoincrement().primaryKey(),
+  participantId: int("participantId").notNull(),
+  achievementKey: varchar("achievementKey", { length: 64 }).notNull(),
+  unlockedAt: timestamp("unlockedAt").defaultNow().notNull(),
+}, (table) => ({
+  participantAchievementUnique: uniqueIndex("participant_achievement_unique").on(table.participantId, table.achievementKey),
+}));
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Participant = typeof participants.$inferSelect;
@@ -149,3 +158,5 @@ export type SpotErrorHotspot = typeof spotErrorHotspots.$inferSelect;
 export type InsertSpotErrorHotspot = typeof spotErrorHotspots.$inferInsert;
 export type MuralMessage = typeof muralMessages.$inferSelect;
 export type InsertMuralMessage = typeof muralMessages.$inferInsert;
+export type ParticipantAchievement = typeof participantAchievements.$inferSelect;
+export type InsertParticipantAchievement = typeof participantAchievements.$inferInsert;

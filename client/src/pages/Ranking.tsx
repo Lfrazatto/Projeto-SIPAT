@@ -71,12 +71,12 @@ export default function Ranking() {
             RANKING <span className="text-[#da291c]">GERAL</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
-            Acompanhe a evolução da comunidade Cummins. O total considera a melhor pontuação obtida em cada um dos quatro desafios.
+            Acompanhe a evolução da comunidade Cummins. O total considera a soma das pontuações válidas de todos os desafios concluídos.
           </p>
           <div className="flex flex-wrap gap-3 text-[11px] font-mono text-slate-400">
             <span>Atualização: {rankingQuery.dataUpdatedAt ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(rankingQuery.dataUpdatedAt)) : "carregando"}</span>
             <span className="text-slate-500">•</span>
-            <span>Ranking geral = melhor resultado de cada desafio, sem somar tentativas repetidas.</span>
+            <span>Ranking geral = pontos acumulados em cada desafio concluído.</span>
           </div>
           {participant ? (
             <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-amber-400/35 bg-amber-950/25 p-4 sm:flex-row sm:items-center sm:justify-between" role="status" aria-live="polite">
@@ -216,7 +216,7 @@ export default function Ranking() {
                   <div className="font-bold text-white">{searchResult.bestSecurityScore} pts</div>
                 </div>
                 <div className="p-2 rounded bg-black/40 border border-white/10">
-                  <div className="text-[10px] text-slate-400">Quiz de Ergonomia</div>
+                  <div className="text-[10px] text-slate-400">Quiz Lean Manufacturing</div>
                   <div className="font-bold text-white">{searchResult.bestEnvironmentScore} pts</div>
                 </div>
                 <div className="p-2 rounded bg-black/40 border border-white/10">
@@ -240,7 +240,7 @@ export default function Ranking() {
             {[
               { id: "geral", label: "Ranking Geral" },
               { id: "quiz_seguranca", label: "Quiz Segurança" },
-              { id: "quiz_ergonomia", label: "Quiz de Ergonomia" },
+              { id: "quiz_ergonomia", label: "Quiz Lean Manufacturing" },
               { id: "ache_o_erro", label: "Ache o Erro" },
               { id: "organize_a_fabrica", label: "Organize a Fábrica" },
             ].map((f) => (

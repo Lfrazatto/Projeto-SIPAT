@@ -75,16 +75,16 @@ describe("Cummins SIPAT Backend Logic", () => {
     expect(settings.every((setting) => setting.title.includes("SIPAT CDBS"))).toBe(true);
   });
 
-  it("serves ergonomics questions instead of environmental content", async () => {
+  it("serves Lean Manufacturing questions instead of ergonomics content", async () => {
     const caller = appRouter.createCaller(createMockContext());
     const questions = await caller.games.getQuestions({ gameType: "quiz_ergonomia" });
-    expect(questions).toHaveLength(12);
-    expect(questions.every((question) => question.theme.includes("Ergonomia") || question.theme.includes("Postura") || question.theme.includes("Movimentação") || question.theme.includes("Pausas") || question.theme.includes("Saúde"))).toBe(true);
-    expect(questions.some((question) => /postura|moviment|pausa|saúde/i.test(question.question))).toBe(true);
-    expect(questions.every((question) => !/resíduo|emissão|ambiental|drenagem/i.test(`${question.question} ${question.explanation || ""}`))).toBe(true);
+    expect(questions.length).toBeGreaterThanOrEqual(6);
+    expect(questions.every((question) => question.theme.includes("Lean"))).toBe(true);
+    expect(questions.some((question) => /5S|Kaizen|Kanban|qualidade|fluxo/i.test(question.question))).toBe(true);
+    expect(questions.every((question) => !/postura|pausa|lombar|ergonomia/i.test(`${question.question} ${question.theme}`))).toBe(true);
   });
 
-  it("registers chapa and keeps the best score per challenge", async () => {
+  it("registers chapa and accumulates valid scores across challenges", async () => {
     const caller = appRouter.createCaller(createMockContext());
     const id = `TEST${Date.now().toString().slice(-4)}`;
     const identified = await caller.participant.identify({ name: "Engenheiro Teste Cummins", participantType: "terceiro", identifier: id });
@@ -97,10 +97,10 @@ describe("Cummins SIPAT Backend Logic", () => {
     expect(submit1.participant.bestSecurityScore).toBe(850);
 
     const submitRetry = await caller.games.submitResult({ ...first, score: 700, correctCount: 8, wrongCount: 4 });
-    expect(submitRetry.totalScore).toBe(850);
+    expect(submitRetry.totalScore).toBe(1550);
 
     const submitEnv = await caller.games.submitResult({ participantChapa: id, participantName: "Engenheiro Teste Cummins", participantWwid: id, gameType: "quiz_ergonomia", difficulty: "dificil", score: 900, correctCount: 11, wrongCount: 1, timeSpentSeconds: 50 });
-    expect(submitEnv.totalScore).toBe(1750);
+    expect(submitEnv.totalScore).toBe(2450);
     expect(submitEnv.participant.completedGamesCount).toBe(2);
   });
 

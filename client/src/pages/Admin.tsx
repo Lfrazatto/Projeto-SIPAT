@@ -1544,7 +1544,7 @@ export default function Admin() {
                   className="w-full bg-black/50 border border-white/15 text-white text-xs rounded p-2"
                 >
                   <option value="quiz_seguranca">Quiz de Segurança</option>
-                  <option value="quiz_ergonomia">Quiz de Ergonomia</option>
+                  <option value="quiz_ergonomia">Quiz Lean Manufacturing</option>
                 </select>
               </div>
 
@@ -1567,7 +1567,7 @@ export default function Admin() {
               <Input
                 value={qTheme}
                 onChange={(e) => setQTheme(e.target.value)}
-                placeholder="Ex: EPIs, Bloqueio LOTO, Ergonomia"
+                placeholder="Ex: EPIs, Bloqueio LOTO, 5S, Kaizen"
                 className="bg-black/50 border-white/15 text-white text-xs"
               />
             </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { IdentifyModal } from "@/components/IdentifyModal";
 import { DifficultyModal, DifficultyLevel } from "@/components/DifficultyModal";
@@ -30,16 +30,7 @@ export default function Jogos() {
   const [difficultyModalOpen, setDifficultyModalOpen] = useState(false);
   const [selectedGameForLaunch, setSelectedGameForLaunch] = useState<ActiveGameMode>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>("facil");
-  const [activeRunningGame, setActiveRunningGame] = useState<ActiveGameMode>(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const play = params.get("play") || params.get("game");
-      if (play === "quiz_seguranca" || play === "quiz_ergonomia" || play === "ache_o_erro" || play === "organize_a_fabrica") {
-        return play;
-      }
-    }
-    return null;
-  });
+  const [activeRunningGame, setActiveRunningGame] = useState<ActiveGameMode>(null);
   const gameSettingsQuery = trpc.games.getSettings.useQuery();
 
   // Fetch participant progress if identified to show badges
@@ -49,6 +40,21 @@ export default function Jogos() {
   );
 
   const pData = progressQuery.data?.participant;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get("play") || params.get("game");
+    if (!target) return;
+    if (target === "quiz_seguranca" || target === "quiz_ergonomia" || target === "ache_o_erro" || target === "organize_a_fabrica") {
+      setSelectedGameForLaunch(target);
+      if (!participant) {
+        setIdentifyModalOpen(true);
+      } else {
+        setDifficultyModalOpen(true);
+      }
+    }
+  }, [participant]);
 
   const handleLaunchGameClick = (gameKey: ActiveGameMode) => {
     const setting = gameSettingsQuery.data?.find((game) => game.gameKey === gameKey);
@@ -75,7 +81,7 @@ export default function Jogos() {
       case "quiz_seguranca":
         return "Quiz de Segurança";
       case "quiz_ergonomia":
-        return "Quiz de Ergonomia";
+        return "Quiz Lean Manufacturing";
       case "ache_o_erro":
         return "Ache o Erro";
       case "organize_a_fabrica":
@@ -241,17 +247,17 @@ export default function Jogos() {
 
               <div>
                 <h2 className="text-2xl font-black font-industrial text-white uppercase tracking-wide">
-                  QUIZ DE ERGONOMIA
+                  QUIZ LEAN MANUFACTURING
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-                  “Aprenda a proteger seu corpo na rotina CDBS: postura, movimentação, pausas e saúde ocupacional.”
+                  “Teste seus conhecimentos sobre 5S, Kaizen, Kanban, Just in Time, qualidade e melhoria contínua na manufatura.”
                 </p>
               </div>
 
               <div className="pt-2 flex flex-wrap gap-2 text-[11px] text-slate-400 font-mono">
                 <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">12 Perguntas</span>
                 <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">60s / Questão</span>
-                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">Postura & Pausas</span>
+                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">5S • Kaizen • Fluxo</span>
               </div>
             </div>
 

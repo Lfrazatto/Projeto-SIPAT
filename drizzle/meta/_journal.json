@@ -15,6 +15,13 @@
       "when": 1790083992083,
       "tag": "0001_wide_rictor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1790107777674,
+      "tag": "0002_wide_sunset_bain",
+      "breakpoints": true
     }
   ]
 }

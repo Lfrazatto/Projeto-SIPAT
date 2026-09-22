@@ -17,6 +17,7 @@ import {
   Eye,
   SlidersHorizontal,
   Flame,
+  Medal,
   Award
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -263,7 +264,7 @@ export default function MeuProgresso() {
                   </div>
                 </div>
 
-                {/* 2. Quiz de Ergonomia */}
+                {/* 2. Quiz Lean Manufacturing */}
                 <div className="p-5 rounded-xl bg-[#141822] border border-white/10 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-lg bg-emerald-950/80 text-emerald-400">
@@ -271,7 +272,7 @@ export default function MeuProgresso() {
                     </div>
                     <div>
                       <div className="font-bold text-sm text-white uppercase font-industrial">
-                        Quiz de Ergonomia
+                        Quiz Lean Manufacturing
                       </div>
                       <div className="text-xs text-slate-400">
                         {pData.bestEnvironmentScore > 0 ? "Concluído" : "Pendente"}
@@ -328,6 +329,49 @@ export default function MeuProgresso() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Grade de Conquistas Reais do Backend */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-black font-industrial uppercase text-white flex items-center gap-2">
+                  <Medal className="w-5 h-5 text-amber-400" /> Conquistas Desbloqueadas
+                </h3>
+                <span className="text-xs font-mono text-amber-300">
+                  {(progressQuery.data?.achievements || []).filter((a: any) => a.unlocked).length} de {(progressQuery.data?.achievements || []).length}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {(progressQuery.data?.achievements || []).map((ach: any) => (
+                  <div
+                    key={ach.key}
+                    className={`p-4 rounded-xl border transition-all ${
+                      ach.unlocked
+                        ? "bg-amber-950/20 border-amber-500/50 shadow-md shadow-amber-950/30"
+                        : "bg-black/30 border-white/10 opacity-60"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-mono font-bold uppercase text-amber-400">
+                        {ach.category}
+                      </span>
+                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
+                        ach.unlocked
+                          ? "border-emerald-400/40 bg-emerald-950/60 text-emerald-300"
+                          : "border-white/10 bg-white/5 text-slate-400"
+                      }`}>
+                        {ach.unlocked ? "Conquistado" : "Bloqueado"}
+                      </span>
+                    </div>
+                    <div className="mt-2 font-industrial font-bold uppercase text-sm text-white">
+                      {ach.title}
+                    </div>
+                    <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+                      {ach.description}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
 

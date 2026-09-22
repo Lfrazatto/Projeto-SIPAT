@@ -242,7 +242,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
     return (
       <div className="py-24 text-center space-y-4">
         <div className="w-12 h-12 border-4 border-[#da291c] border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-slate-300 font-mono text-sm">Carregando perguntas de ergonomia SIPAT CDBS...</p>
+        <p className="text-slate-300 font-mono text-sm">Carregando perguntas de Lean Manufacturing SIPAT CDBS...</p>
       </div>
     );
   }
@@ -282,7 +282,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
               DESAFIO OFICIAL SIPAT
             </span>
             <h2 className="older-title text-xl sm:text-2xl font-bold font-industrial uppercase text-white">
-              {gameType === "quiz_seguranca" ? "Quiz de Segurança" : "Quiz de Ergonomia"}
+              {gameType === "quiz_seguranca" ? "Quiz de Segurança" : "Quiz Lean Manufacturing"}
             </h2>
             {participant && dailyAttemptsQuery.data && (
               <span className="older-meta text-[11px] font-mono text-slate-400">
@@ -458,7 +458,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
         onOpenChange={setIsFinished}
         playerName={participant?.name || "Colaborador"}
         playerWwid={participant?.wwid || "WWID"}
-        gameTitle={gameType === "quiz_seguranca" ? "Quiz de Segurança" : "Quiz de Ergonomia"}
+        gameTitle={gameType === "quiz_seguranca" ? "Quiz de Segurança" : "Quiz Lean Manufacturing"}
         score={totalScore}
         maxScore={maxPossibleScore}
         correctCount={correctCount}

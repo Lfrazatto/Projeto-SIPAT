@@ -59,6 +59,8 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
 }) => {
   const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
   const diffLabel = difficulty === "muito_dificil" ? "MUITO DIFÍCIL" : difficulty === "dificil" ? "DIFÍCIL" : difficulty === "medio" ? "MÉDIO" : "FÁCIL";
+  const totalItemsCount = totalQuestions ?? (correctCount + wrongCount);
+  const averageTime = totalItemsCount > 0 ? (totalTimeSeconds / totalItemsCount).toFixed(1) : "0.0";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -124,7 +126,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
             <div className="text-2xl font-black font-industrial text-emerald-400">
               {currentRank > 0 ? `${currentRank}º` : "—"}
             </div>
-            <div className="text-[10px] text-slate-500">Geral Atual</div>
+            <div className="text-[10px] text-slate-500">{currentRank > 0 ? "Geral Atual" : "Identifique-se para pontuar"}</div>
           </div>
         </div>
 
@@ -133,6 +135,10 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
           <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-white/5 border border-white/10">
             <Clock className="w-3.5 h-3.5 text-slate-400" />
             Tempo Total: <strong className="text-white ml-1">{totalTimeSeconds}s</strong>
+          </span>
+          <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-white/5 border border-white/10">
+            <Clock className="w-3.5 h-3.5 text-amber-400" />
+            Tempo Médio: <strong className="text-white ml-1">{averageTime}s/{unitLabel === "perguntas" ? "questão" : "item"}</strong>
           </span>
           <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-white/5 border border-white/10">
             <Zap className="w-3.5 h-3.5 text-amber-400" />

@@ -134,10 +134,12 @@ export const appRouter = router({
 
         const rankIndex = ranking.findIndex((item) => item.wwid === participant.wwid);
 
+        const achievements = await db.getParticipantAchievements(participant.id);
         return {
           participant,
           rank: rankIndex >= 0 ? rankIndex + 1 : 1,
           totalParticipants: ranking.length,
+          achievements,
         };
       }),
   }),
@@ -330,7 +332,12 @@ export const appRouter = router({
           });
         }
 
-        return db.recordGameResult(input);
+        const recorded = await db.recordGameResult(input);
+        const unlockedAchievements = await db.evaluateAndUnlockAchievements(recorded.participant.id);
+        return {
+          ...recorded,
+          unlockedAchievements,
+        };
       }),
   }),
 

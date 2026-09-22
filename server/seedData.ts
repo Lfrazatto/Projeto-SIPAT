@@ -156,8 +156,8 @@ export const INITIAL_GAME_SETTINGS = [
   },
   {
     gameKey: "quiz_ergonomia",
-    title: "SIPAT CDBS • Ergonomia",
-    description: "Desafios sobre postura, movimentação, pausas e saúde ocupacional na rotina CDBS.",
+    title: "SIPAT CDBS • Lean Manufacturing",
+    description: "Desafios sobre 5S, Kaizen, Kanban, Just in Time, qualidade e melhoria contínua na rotina CDBS.",
     active: true,
   },
   {
