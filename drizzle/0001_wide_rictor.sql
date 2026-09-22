@@ -1,0 +1,20 @@
+CREATE TABLE `mural_messages` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`promptKey` varchar(64) NOT NULL,
+	`promptText` varchar(255) NOT NULL,
+	`message` text NOT NULL,
+	`publicName` varchar(80),
+	`isAnonymous` boolean NOT NULL DEFAULT true,
+	`consent` boolean NOT NULL DEFAULT false,
+	`participantId` int,
+	`status` enum('pendente','aprovada','rejeitada','arquivada') NOT NULL DEFAULT 'pendente',
+	`isFeatured` boolean NOT NULL DEFAULT false,
+	`flagged` boolean NOT NULL DEFAULT false,
+	`flagReasons` text,
+	`moderationNote` text,
+	`submittedAt` timestamp NOT NULL DEFAULT (now()),
+	`moderatedAt` timestamp,
+	`moderatedBy` varchar(120),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `mural_messages_id` PRIMARY KEY(`id`)
+);

@@ -182,3 +182,42 @@ Nesta etapa, a navegação mobile e os três jogos editáveis da SIPAT Cummins 2
 
 5. **Validação Técnica e Build**:
    TypeScript 100% aprovado sem erros (`pnpm check`), Vitest com 42 testes passando em 9 arquivos (`pnpm test`) e build de produção compilado com sucesso (`pnpm build`).
+
+
+## Atualização — Mural Interativo “Voltar Seguro para Casa” (22/09/2026)
+
+Implementamos dentro da aplicação da SIPAT Cummins Osasco o espaço emocional, acolhedor e seguro solicitado no briefing:
+
+1. **Localização e Integração**:
+   - **Página Inicial**: A seção do mural foi posicionada estrategicamente imediatamente após a seção de **Red Flag** e antes da **Central de Jogos** (`#central-jogos`), estabelecendo uma transição natural de consciência: *"Depois de identificar o risco, lembre-se do motivo para se cuidar"*.
+   - **Página Dedicada (`/mural`)**: Ambiente tranquilo para leitura de todas as mensagens aprovadas, pesquisa por palavras-chave, contadores em tempo real, visualização do motivo em destaque e paginação com "Carregar mais".
+   - **Menu e Navegação**: O link oficial *Mural* foi adicionado ao menu principal no desktop e no mobile (posicionado logo após *Jogos* e *Ranking*).
+
+2. **Fluxo de Publicação e Experiência do Usuário**:
+   - Botão de destaque **"Deixar minha mensagem"** presente na Home, na página `/mural` e em chamadas contextuais após a finalização de cada jogo.
+   - Formulário acessível (`MuralSubmitModal`) com seleção de 6 perguntas orientadoras oficiais:
+     - *“Eu me cuido porque...”*
+     - *“Quero voltar para casa para...”*
+     - *“Minha maior motivação é...”*
+     - *“Deixo esta mensagem para...”*
+     - *“Segurança, para mim, significa...”*
+     - *“Eu escolho voltar seguro porque...”*
+   - Limite de 280 caracteres com contador dinâmico e aviso colorido.
+   - Opção de identificação pública por primeiro nome/apelido ou publicação anônima.
+   - Checkbox de consentimento obrigatório para publicação pública.
+   - Sanitização de texto contra injeção de HTML/scripts e prevenção de duplo clique.
+
+3. **Moderação e Proteção de Dados (Privacidade por Padrão)**:
+   - Nenhuma mensagem enviada por participante aparece imediatamente na área pública. Todas entram com o status inicial `pendente`.
+   - Algoritmo de filtragem automática (`analyzeMuralSafety`) que analisa números de telefone, endereços de e-mail, links externos, documentos (CPF/CNPJ) e termos inadequados, sinalizando para o moderador.
+   - Nunca são divulgados publicamente dados confidenciais como chapa, WWID ou e-mail.
+
+4. **Painel de Moderação no `/admin`**:
+   - Nova aba dedicada **"Moderação Mural"** no Painel de Controle protegido por secret.
+   - Listagem com busca, filtros de status (`pendente`, `aprovada`, `rejeitada`, `arquivada`), alerta visual de moderação (`flagged`), botão de **Aprovar**, **Rejeitar**, **Tornar Destaque** (ou remover), **Editar texto** (para correção gramatical/formatação) e **Excluir**.
+   - Mensagem em destaque configurada pelo gestor para exibição proeminente no topo do mural.
+
+5. **Testes Automatizados e Build**:
+   - Criada a suíte `server/mural.test.ts` com 5 testes de integração cobrindo sanitização, submissão pendente, consulta pública restrita a aprovadas e proteção da rota admin.
+   - **47 testes automatizados aprovados** no Vitest (`10/10 test files`).
+   - TypeScript verificado sem erros (`pnpm check`) e build de produção compilado com sucesso (`pnpm build`).

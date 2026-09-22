@@ -6,6 +6,7 @@ import {
   Camera,
   ChevronDown,
   Gamepad2,
+  HeartHandshake,
   Info,
   LogOut,
   Menu,
@@ -29,6 +30,7 @@ const MOBILE_PRIORITY_LINKS = [
   { label: "Começar desafio", path: "/jogos", icon: Zap, isHighlight: true },
   { label: "Jogos", path: "/jogos", icon: Gamepad2 },
   { label: "Ranking", path: "/ranking", icon: Trophy },
+  { label: "Mural", path: "/mural", icon: HeartHandshake },
   { label: "Meu progresso", path: "/meu-progresso", icon: BarChart3 },
   { label: "Nosso projeto", path: "/nosso-projeto", icon: Sparkles },
   { label: "Formare", path: "/formare", icon: BookOpen },
@@ -40,6 +42,7 @@ const DESKTOP_PRIMARY_LINKS = [
   { label: "Início", path: "/" },
   { label: "Jogos", path: "/jogos", icon: Gamepad2 },
   { label: "Ranking", path: "/ranking", icon: Trophy },
+  { label: "Mural", path: "/mural", icon: HeartHandshake },
   { label: "Meu progresso", path: "/meu-progresso", icon: BarChart3 },
   { label: "Nosso projeto", path: "/nosso-projeto", icon: Sparkles },
 ];

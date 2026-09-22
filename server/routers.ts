@@ -11,6 +11,7 @@ import { CDBS_SPOT_ERROR_SCENARIOS } from "./seedData";
 import { storagePut } from "./storage";
 import { ENV } from "./_core/env";
 import { timingSafeEqual } from "node:crypto";
+import { analyzeMuralSafety, MURAL_PROMPTS } from "../shared/muralData";
 
 
 function isValidAdminKey(value: string) {
@@ -655,6 +656,138 @@ export const appRouter = router({
         }
         await db.updateGameAccess(input.gameKey, { active: input.active, accessStartAt: start, accessEndAt: end });
         return { success: true };
+      }),
+
+    listMuralMessages: publicProcedure
+      .input(
+        z.object({
+          adminKey: z.string(),
+          status: z.enum(["todos", "pendente", "aprovada", "rejeitada", "arquivada"]).optional(),
+          search: z.string().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        if (!isValidAdminKey(input.adminKey)) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+        }
+        return db.listAllMuralMessagesAdmin(input.status, input.search);
+      }),
+
+    moderateMuralMessage: publicProcedure
+      .input(
+        z.object({
+          adminKey: z.string(),
+          id: z.number(),
+          action: z.enum(["aprovar", "rejeitar", "arquivar", "destacar", "remover_destaque"]),
+          note: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        if (!isValidAdminKey(input.adminKey)) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+        }
+        await db.moderateMuralMessage(input.id, input.action, "Gestor EHS", input.note);
+        return { success: true };
+      }),
+
+    editMuralMessageText: publicProcedure
+      .input(
+        z.object({
+          adminKey: z.string(),
+          id: z.number(),
+          message: z.string().min(5).max(280),
+        })
+      )
+      .mutation(async ({ input }) => {
+        if (!isValidAdminKey(input.adminKey)) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+        }
+        await db.updateMuralMessageText(input.id, input.message, "Gestor EHS");
+        return { success: true };
+      }),
+
+    deleteMuralMessage: publicProcedure
+      .input(
+        z.object({
+          adminKey: z.string(),
+          id: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        if (!isValidAdminKey(input.adminKey)) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+        }
+        await db.deleteMuralMessage(input.id);
+        return { success: true };
+      }),
+  }),
+
+  mural: router({
+    listApproved: publicProcedure
+      .input(
+        z.object({
+          promptKey: z.string().optional(),
+          limit: z.number().int().min(1).max(100).optional(),
+        }).optional()
+      )
+      .query(async ({ input }) => {
+        return db.listApprovedMuralMessages(input?.promptKey, input?.limit ?? 60);
+      }),
+
+    getFeatured: publicProcedure.query(async () => {
+      return db.getFeaturedMuralMessage();
+    }),
+
+    getPrompts: publicProcedure.query(async () => {
+      return MURAL_PROMPTS;
+    }),
+
+    submitMessage: publicProcedure
+      .input(
+        z.object({
+          promptKey: z.string().min(1, "Selecione uma pergunta orientadora."),
+          message: z.string().trim().min(5, "A frase deve ter no mínimo 5 caracteres.").max(280, "A frase deve ter no máximo 280 caracteres."),
+          publicName: z.string().trim().max(80, "O nome pode ter no máximo 80 caracteres.").optional(),
+          isAnonymous: z.boolean().default(true),
+          consent: z.literal(true),
+          participantId: z.number().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        enforceRateLimit("mural-submit", clientAddress(ctx.req), 5, 60_000);
+
+        // Sanitização básica contra HTML / scripts
+        const sanitizedMessage = input.message.replace(/<[^>]*>?/gm, "").trim();
+        const sanitizedName = (input.publicName || "").replace(/<[^>]*>?/gm, "").trim();
+
+        if (sanitizedMessage.length < 5) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "A frase não pode ser vazia ou conter apenas caracteres inválidos." });
+        }
+
+        const promptMeta = MURAL_PROMPTS.find((p) => p.key === input.promptKey) || {
+          key: input.promptKey,
+          question: "Meu motivo para voltar seguro",
+        };
+
+        const safety = analyzeMuralSafety(sanitizedMessage, sanitizedName);
+
+        await db.createMuralSubmission({
+          promptKey: promptMeta.key,
+          promptText: promptMeta.question,
+          message: sanitizedMessage,
+          publicName: input.isAnonymous ? null : (sanitizedName || "Colaborador Cummins"),
+          isAnonymous: input.isAnonymous,
+          consent: true,
+          participantId: input.participantId ?? null,
+          flagged: safety.flagged,
+          flagReasons: safety.reasons.length ? safety.reasons.join("; ") : null,
+        });
+
+        return {
+          success: true,
+          status: "pendente" as const,
+          message: "Obrigado por compartilhar seu motivo. Sua mensagem será revisada pela moderação antes de aparecer no mural.",
+        };
       }),
   }),
 });

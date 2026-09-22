@@ -12,7 +12,8 @@ import {
   Clock, 
   Target, 
   Sparkles,
-  Zap
+  Zap,
+  HeartHandshake
 } from "lucide-react";
 
 interface QuizFinalResultModalProps {
@@ -177,6 +178,24 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
             >
               <Link href="/meu-progresso" className="w-full"><BarChart3 className="w-3.5 h-3.5 text-blue-400" />Meu Progresso</Link>
             </Button>
+        </div>
+
+        {/* Convite amigável e opcional ao Mural Voltar Seguro para Casa */}
+        <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3.5 text-center space-y-2">
+          <p className="text-xs text-slate-300 leading-relaxed">
+            Segurança também é voltar para quem importa. Quer deixar uma mensagem no mural da fábrica?
+          </p>
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="w-full border-amber-400/40 text-amber-200 hover:bg-amber-400/10 text-xs font-bold uppercase min-h-10"
+          >
+            <Link href="/mural">
+              <HeartHandshake className="w-4 h-4 mr-1.5 text-amber-400" />
+              Deixar frase no Mural
+            </Link>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -28,7 +28,10 @@ import {
   Save,
   Upload,
   Link2,
-  Eye
+  Eye,
+  HeartHandshake,
+  Check,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,6 +84,10 @@ export default function Admin() {
   const [playerSearch, setPlayerSearch] = useState("");
   const [playerTypeFilter, setPlayerTypeFilter] = useState<"todos" | "cummins" | "terceiro" | "visitante">("todos");
   const [resultSearch, setResultSearch] = useState("");
+  const [muralStatusFilter, setMuralStatusFilter] = useState<"todos" | "pendente" | "aprovada" | "rejeitada" | "arquivada">("todos");
+  const [muralSearch, setMuralSearch] = useState("");
+  const [editingMuralId, setEditingMuralId] = useState<number | null>(null);
+  const [editingMuralText, setEditingMuralText] = useState("");
 
   // Ache o Erro editor state
   const [hotspotTitle, setHotspotTitle] = useState("");
@@ -177,6 +184,10 @@ export default function Admin() {
     { adminKey },
     { enabled: isAuthenticated, retry: false }
   );
+  const muralMessagesQuery = trpc.admin.listMuralMessages.useQuery(
+    { adminKey, status: muralStatusFilter === "todos" ? undefined : muralStatusFilter, search: muralSearch },
+    { enabled: isAuthenticated, retry: false }
+  );
 
   useEffect(() => {
     setEditorHotspots((hotspotsQuery.data || []).slice(0, 15).map((hotspot) => ({
@@ -213,6 +224,43 @@ export default function Admin() {
       utils.admin.listParticipants.invalidate();
       utils.admin.dashboardStats.invalidate();
       utils.ranking.list.invalidate();
+    },
+  });
+
+  const moderateMuralMutation = trpc.admin.moderateMuralMessage.useMutation({
+    onSuccess: () => {
+      toast.success("Ação de moderação aplicada com sucesso!");
+      utils.admin.listMuralMessages.invalidate();
+      utils.mural.listApproved.invalidate();
+      utils.mural.getFeatured.invalidate();
+    },
+    onError: (err) => {
+      toast.error(err.message || "Erro ao moderar a mensagem.");
+    },
+  });
+
+  const editMuralTextMutation = trpc.admin.editMuralMessageText.useMutation({
+    onSuccess: () => {
+      toast.success("Texto da mensagem atualizado com sucesso!");
+      setEditingMuralId(null);
+      utils.admin.listMuralMessages.invalidate();
+      utils.mural.listApproved.invalidate();
+      utils.mural.getFeatured.invalidate();
+    },
+    onError: (err) => {
+      toast.error(err.message || "Erro ao editar mensagem.");
+    },
+  });
+
+  const deleteMuralMutation = trpc.admin.deleteMuralMessage.useMutation({
+    onSuccess: () => {
+      toast.success("Mensagem do mural excluída definitivamente.");
+      utils.admin.listMuralMessages.invalidate();
+      utils.mural.listApproved.invalidate();
+      utils.mural.getFeatured.invalidate();
+    },
+    onError: (err) => {
+      toast.error(err.message || "Erro ao excluir mensagem.");
     },
   });
 
@@ -751,6 +799,9 @@ export default function Admin() {
             <TabsTrigger value="acesso" className="text-xs font-bold uppercase flex items-center gap-1.5 data-[state=active]:bg-[#da291c] data-[state=active]:text-white">
               <CalendarDays className="w-3.5 h-3.5" /> Acesso do Evento
             </TabsTrigger>
+            <TabsTrigger value="mural" className="text-xs font-bold uppercase flex items-center gap-1.5 data-[state=active]:bg-[#da291c] data-[state=active]:text-white">
+              <HeartHandshake className="w-3.5 h-3.5" /> Moderação Mural
+            </TabsTrigger>
           </TabsList>
 
           {/* TAB 1: DASHBOARD METRICS (PROMPT SECTION 23) */}
@@ -1238,6 +1289,237 @@ export default function Admin() {
                   </Button>
                 </div>
               ))}
+            </div>
+          </TabsContent>
+
+          {/* TAB: MODERAÇÃO DO MURAL VOLTAR SEGURO PARA CASA */}
+          <TabsContent value="mural" className="space-y-5">
+            <div className="p-5 rounded-xl bg-[#141822] border border-white/10 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="font-industrial text-xl font-bold uppercase text-white flex items-center gap-2">
+                    <HeartHandshake className="w-5 h-5 text-amber-400" />
+                    Moderação do Mural Voltar Seguro para Casa
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Apenas mensagens aprovadas aparecem publicamente no site. Revise o conteúdo, garanta a privacidade e escolha a mensagem em destaque.
+                  </p>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => muralMessagesQuery.refetch()}
+                  className="border-white/20 text-xs text-slate-200"
+                >
+                  Atualizar lista
+                </Button>
+              </div>
+
+              {/* Filtros de moderação */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    placeholder="Buscar frase ou autor..."
+                    value={muralSearch}
+                    onChange={(e) => setMuralSearch(e.target.value)}
+                    className="pl-9 bg-black/40 border-white/15 text-white text-xs h-10"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs text-slate-300 shrink-0">Status:</Label>
+                  <select
+                    value={muralStatusFilter}
+                    onChange={(e) => setMuralStatusFilter(e.target.value as typeof muralStatusFilter)}
+                    className="w-full h-10 rounded-md border border-white/15 bg-black/40 px-3 text-xs font-bold text-white"
+                  >
+                    <option value="todos">Todos os status</option>
+                    <option value="pendente">Pendentes (aguardando revisão)</option>
+                    <option value="aprovada">Aprovadas (públicas)</option>
+                    <option value="rejeitada">Rejeitadas</option>
+                    <option value="arquivada">Arquivadas</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center justify-end text-xs font-mono text-slate-400">
+                  Total encontrado: {(muralMessagesQuery.data || []).length} mensagem(ns)
+                </div>
+              </div>
+            </div>
+
+            {/* Lista de mensagens do mural */}
+            <div className="space-y-3">
+              {(muralMessagesQuery.data || []).map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`p-5 rounded-xl border space-y-3 ${
+                    msg.isFeatured
+                      ? "bg-[#181d28] border-amber-400/50 ring-1 ring-amber-400/30"
+                      : msg.status === "pendente"
+                      ? "bg-[#1a1c22] border-amber-500/30"
+                      : msg.status === "aprovada"
+                      ? "bg-[#141822] border-emerald-500/30"
+                      : "bg-[#11141b] border-white/10 opacity-75"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+                          msg.status === "aprovada"
+                            ? "bg-emerald-950/60 text-emerald-300 border border-emerald-500/40"
+                            : msg.status === "pendente"
+                            ? "bg-amber-950/60 text-amber-300 border border-amber-500/40"
+                            : "bg-red-950/60 text-red-300 border border-red-500/40"
+                        }`}
+                      >
+                        {msg.status}
+                      </span>
+
+                      {msg.isFeatured && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-amber-400/20 text-amber-300 border border-amber-400/50 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" /> Destaque Oficial
+                        </span>
+                      )}
+
+                      {msg.flagged && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-red-500/20 text-red-300 border border-red-500/40 flex items-center gap-1" title={msg.flagReasons || ""}>
+                          <AlertTriangle className="w-3 h-3" /> Alerta de Moderação: {msg.flagReasons}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
+                      <span>Enviado em: {new Date(msg.submittedAt).toLocaleString("pt-BR")}</span>
+                      {msg.moderatedBy && <span>• Mod: {msg.moderatedBy}</span>}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-mono font-bold uppercase text-amber-300 block">
+                      Pergunta: {msg.promptText}
+                    </span>
+                    {editingMuralId === msg.id ? (
+                      <div className="space-y-2 pt-1">
+                        <textarea
+                          value={editingMuralText}
+                          onChange={(e) => setEditingMuralText(e.target.value)}
+                          rows={3}
+                          className="w-full rounded-md border border-white/20 bg-black/50 p-2.5 text-sm text-white"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => editMuralTextMutation.mutate({ adminKey, id: msg.id, message: editingMuralText })}
+                            className="h-8 bg-emerald-600 hover:bg-emerald-700 text-xs text-white uppercase font-bold"
+                          >
+                            Salvar alteração
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingMuralId(null)}
+                            className="h-8 border-white/20 text-xs text-slate-300"
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-base font-semibold text-white leading-relaxed">
+                        “{msg.message}”
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs text-slate-400">
+                    <div>
+                      <span>Identificação pública: </span>
+                      <strong className="text-slate-200">
+                        {msg.isAnonymous ? "Anônimo" : msg.publicName || "Colaborador"}
+                      </strong>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      {editingMuralId !== msg.id && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingMuralId(msg.id);
+                            setEditingMuralText(msg.message);
+                          }}
+                          className="h-8 border-white/20 text-xs"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 mr-1" /> Editar texto
+                        </Button>
+                      )}
+
+                      {msg.status !== "aprovada" ? (
+                        <Button
+                          size="sm"
+                          onClick={() => moderateMuralMutation.mutate({ adminKey, id: msg.id, action: "aprovar" })}
+                          className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase"
+                        >
+                          <Check className="w-3.5 h-3.5 mr-1" /> Aprovar
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => moderateMuralMutation.mutate({ adminKey, id: msg.id, action: "rejeitar" })}
+                          className="h-8 border-red-500/40 text-red-300 hover:bg-red-950/40 text-xs"
+                        >
+                          <X className="w-3.5 h-3.5 mr-1" /> Rejeitar
+                        </Button>
+                      )}
+
+                      {msg.status === "aprovada" && (
+                        msg.isFeatured ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => moderateMuralMutation.mutate({ adminKey, id: msg.id, action: "remover_destaque" })}
+                            className="h-8 border-amber-400/40 text-amber-300 text-xs"
+                          >
+                            Remover destaque
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => moderateMuralMutation.mutate({ adminKey, id: msg.id, action: "destacar" })}
+                            className="h-8 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold uppercase"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 mr-1" /> Tornar Destaque
+                          </Button>
+                        )
+                      )}
+
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => {
+                          if (confirm("Deseja realmente excluir esta mensagem do mural?")) {
+                            deleteMuralMutation.mutate({ adminKey, id: msg.id });
+                          }
+                        }}
+                        className="h-8 text-xs"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 mr-1" /> Excluir
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {!(muralMessagesQuery.data || []).length && (
+                <div className="p-8 rounded-xl border border-dashed border-white/10 bg-black/20 text-center text-sm text-slate-400">
+                  Nenhuma mensagem cadastrada para o filtro selecionado.
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>

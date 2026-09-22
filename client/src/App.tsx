@@ -17,6 +17,7 @@ import Galeria from "./pages/Galeria";
 import Jogos from "./pages/Jogos";
 import Ranking from "./pages/Ranking";
 import MeuProgresso from "./pages/MeuProgresso";
+import Mural from "./pages/Mural";
 const Admin = lazy(() => import("./pages/Admin"));
 const Projeto3D = lazy(() => import("./pages/Projeto3D"));
 import { SiteFooter } from "./components/SiteFooter";
@@ -34,6 +35,7 @@ const pageTitles: Record<string, string> = {
   "/jogos": "Jogos",
   "/ranking": "Ranking",
   "/meu-progresso": "Meu progresso",
+  "/mural": "Mural Voltar Seguro para Casa",
   "/admin": "Painel administrativo",
 };
 
@@ -65,6 +67,7 @@ function Router() {
       <Route path="/jogos" component={Jogos} />
       <Route path="/ranking" component={Ranking} />
       <Route path="/meu-progresso" component={MeuProgresso} />
+      <Route path="/mural" component={Mural} />
       <Route path="/admin" component={Admin} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

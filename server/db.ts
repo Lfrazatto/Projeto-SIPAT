@@ -15,6 +15,9 @@ import {
   quizQuestions,
   scenarioImages,
   spotErrorHotspots,
+  muralMessages,
+  MuralMessage,
+  InsertMuralMessage,
   users,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -170,6 +173,26 @@ export async function ensureInitialSeeds(): Promise<void> {
     const imageData = { label: scenario.label, imageUrl: scenario.image, safeImageUrl: scenario.safeImage, description: "Par correspondente da mesma cena: imagem segura e imagem com condições inseguras. Ilustração criada com IA para treinamento SIPAT CDBS; não é fotografia real da fábrica.", updatedAt: new Date() };
     if (existingImageKeys.has(scenario.key)) await db.update(scenarioImages).set(imageData).where(eq(scenarioImages.scenarioKey, scenario.key));
     else await db.insert(scenarioImages).values({ scenarioKey: scenario.key, ...imageData });
+  }
+
+  const countMural = await db.select({ count: sql<number>`count(*)` }).from(muralMessages);
+  if (Number(countMural[0]?.count ?? 0) === 0) {
+    const { INITIAL_APPROVED_MURAL_MESSAGES } = await import("../shared/muralData");
+    for (const msg of INITIAL_APPROVED_MURAL_MESSAGES) {
+      await db.insert(muralMessages).values({
+        promptKey: msg.promptKey,
+        promptText: msg.promptText,
+        message: msg.message,
+        publicName: msg.publicName,
+        isAnonymous: msg.isAnonymous,
+        consent: true,
+        status: msg.status,
+        isFeatured: msg.isFeatured,
+        flagged: false,
+        moderatedAt: new Date(),
+        moderatedBy: "Sistema SIPAT",
+      });
+    }
   }
 }
 
@@ -731,4 +754,152 @@ export async function listAllGameResults(search?: string) {
   }
 
   return db.select().from(gameResults).orderBy(desc(gameResults.createdAt)).limit(100);
+}
+
+export async function listApprovedMuralMessages(promptKey?: string, limit = 60) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions = [eq(muralMessages.status, "aprovada")];
+  if (promptKey && promptKey !== "todas") {
+    conditions.push(eq(muralMessages.promptKey, promptKey));
+  }
+
+  return db
+    .select({
+      id: muralMessages.id,
+      promptKey: muralMessages.promptKey,
+      promptText: muralMessages.promptText,
+      message: muralMessages.message,
+      publicName: muralMessages.publicName,
+      isAnonymous: muralMessages.isAnonymous,
+      isFeatured: muralMessages.isFeatured,
+      submittedAt: muralMessages.submittedAt,
+    })
+    .from(muralMessages)
+    .where(and(...conditions))
+    .orderBy(desc(muralMessages.isFeatured), desc(muralMessages.submittedAt))
+    .limit(limit);
+}
+
+export async function getFeaturedMuralMessage() {
+  const db = await getDb();
+  if (!db) return null;
+  const [featured] = await db
+    .select({
+      id: muralMessages.id,
+      promptKey: muralMessages.promptKey,
+      promptText: muralMessages.promptText,
+      message: muralMessages.message,
+      publicName: muralMessages.publicName,
+      isAnonymous: muralMessages.isAnonymous,
+      isFeatured: muralMessages.isFeatured,
+      submittedAt: muralMessages.submittedAt,
+    })
+    .from(muralMessages)
+    .where(and(eq(muralMessages.status, "aprovada"), eq(muralMessages.isFeatured, true)))
+    .orderBy(desc(muralMessages.submittedAt))
+    .limit(1);
+
+  return featured || null;
+}
+
+export async function createMuralSubmission(data: {
+  promptKey: string;
+  promptText: string;
+  message: string;
+  publicName?: string | null;
+  isAnonymous: boolean;
+  consent: boolean;
+  participantId?: number | null;
+  flagged: boolean;
+  flagReasons?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database offline");
+
+  const [inserted] = await db.insert(muralMessages).values({
+    promptKey: data.promptKey,
+    promptText: data.promptText,
+    message: data.message,
+    publicName: data.publicName || null,
+    isAnonymous: data.isAnonymous,
+    consent: data.consent,
+    participantId: data.participantId || null,
+    status: "pendente",
+    isFeatured: false,
+    flagged: data.flagged,
+    flagReasons: data.flagReasons || null,
+  });
+
+  return inserted;
+}
+
+export async function listAllMuralMessagesAdmin(statusFilter?: "todos" | "pendente" | "aprovada" | "rejeitada" | "arquivada", search?: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions = [];
+  if (statusFilter && statusFilter !== "todos") {
+    conditions.push(eq(muralMessages.status, statusFilter));
+  }
+  if (search && search.trim()) {
+    const term = `%${search.trim()}%`;
+    conditions.push(or(like(muralMessages.message, term), like(muralMessages.publicName, term), like(muralMessages.promptText, term)));
+  }
+
+  return db
+    .select()
+    .from(muralMessages)
+    .where(conditions.length ? and(...conditions) : undefined)
+    .orderBy(desc(muralMessages.submittedAt));
+}
+
+export async function moderateMuralMessage(id: number, action: "aprovar" | "rejeitar" | "arquivar" | "destacar" | "remover_destaque", moderator: string, note?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database offline");
+
+  const updateObj: Record<string, unknown> = {
+    moderatedAt: new Date(),
+    moderatedBy: moderator,
+    updatedAt: new Date(),
+  };
+  if (note !== undefined) updateObj.moderationNote = note;
+
+  if (action === "aprovar") {
+    updateObj.status = "aprovada";
+  } else if (action === "rejeitar") {
+    updateObj.status = "rejeitada";
+    updateObj.isFeatured = false;
+  } else if (action === "arquivar") {
+    updateObj.status = "arquivada";
+    updateObj.isFeatured = false;
+  } else if (action === "destacar") {
+    await db.update(muralMessages).set({ isFeatured: false }).where(eq(muralMessages.isFeatured, true));
+    updateObj.status = "aprovada";
+    updateObj.isFeatured = true;
+  } else if (action === "remover_destaque") {
+    updateObj.isFeatured = false;
+  }
+
+  await db.update(muralMessages).set(updateObj).where(eq(muralMessages.id, id));
+}
+
+export async function updateMuralMessageText(id: number, message: string, moderator: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database offline");
+  await db
+    .update(muralMessages)
+    .set({
+      message: message.trim(),
+      moderatedBy: moderator,
+      updatedAt: new Date(),
+    })
+    .where(eq(muralMessages.id, id));
+}
+
+export async function deleteMuralMessage(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(muralMessages).where(eq(muralMessages.id, id));
 }

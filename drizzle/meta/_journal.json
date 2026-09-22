@@ -8,6 +8,13 @@
       "when": 1789911705495,
       "tag": "0000_marvelous_weapon_omega",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1790083992083,
+      "tag": "0001_wide_rictor",
+      "breakpoints": true
     }
   ]
 }

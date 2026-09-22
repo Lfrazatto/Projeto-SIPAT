@@ -115,6 +115,26 @@ export const scenarioImages = mysqlTable("scenario_images", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const muralMessages = mysqlTable("mural_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  promptKey: varchar("promptKey", { length: 64 }).notNull(),
+  promptText: varchar("promptText", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  publicName: varchar("publicName", { length: 80 }),
+  isAnonymous: boolean("isAnonymous").default(true).notNull(),
+  consent: boolean("consent").default(false).notNull(),
+  participantId: int("participantId"),
+  status: mysqlEnum("status", ["pendente", "aprovada", "rejeitada", "arquivada"]).default("pendente").notNull(),
+  isFeatured: boolean("isFeatured").default(false).notNull(),
+  flagged: boolean("flagged").default(false).notNull(),
+  flagReasons: text("flagReasons"),
+  moderationNote: text("moderationNote"),
+  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+  moderatedAt: timestamp("moderatedAt"),
+  moderatedBy: varchar("moderatedBy", { length: 120 }),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Participant = typeof participants.$inferSelect;
@@ -127,3 +147,5 @@ export type GameSetting = typeof gameSettings.$inferSelect;
 export type InsertGameSetting = typeof gameSettings.$inferInsert;
 export type SpotErrorHotspot = typeof spotErrorHotspots.$inferSelect;
 export type InsertSpotErrorHotspot = typeof spotErrorHotspots.$inferInsert;
+export type MuralMessage = typeof muralMessages.$inferSelect;
+export type InsertMuralMessage = typeof muralMessages.$inferInsert;
