@@ -578,7 +578,7 @@ html[data-contrast="high"] .game-legibility .older-stage {
 }
 
 
-/* Experiência SIPAT 3D: palco compacto na Home, controles grandes e hotspots legíveis. */
+/* Experiência SIPAT 3D: palco limpo na Home e controles externos organizados. */
 .axle-viewer-compact .axle-viewer-toolbar,
 .axle-viewer-compact .axle-viewer-sliders,
 .axle-viewer-compact .axle-viewer-sidebar {
@@ -594,38 +594,6 @@ html[data-contrast="high"] .game-legibility .older-stage {
   min-height: 290px;
 }
 
-.axle-viewer-compact .axle-educational-hotspot {
-  max-width: min(11rem, 34vw);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 10px;
-  line-height: 1.1;
-}
-
-.axle-viewer-compact .axle-educational-hotspot > span:last-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.axle-educational-hotspot {
-  animation: sipat-hotspot-pulse 2.8s ease-in-out infinite;
-}
-
-.axle-educational-hotspot:nth-child(2n) {
-  animation-delay: 420ms;
-}
-
-@keyframes sipat-hotspot-pulse {
-  0%, 100% { box-shadow: 0 8px 24px rgba(0, 0, 0, .55), 0 0 0 0 rgba(251, 191, 36, .22); }
-  50% { box-shadow: 0 8px 24px rgba(0, 0, 0, .55), 0 0 0 7px rgba(251, 191, 36, .06); }
-}
-
-[data-motion="reduced"] .axle-educational-hotspot,
-[data-motion="reduced"] .axle-educational-hotspot:nth-child(2n) {
-  animation: none;
-}
-
 @media (max-width: 639px) {
   .axle-viewer-compact .axle-viewer-viewport {
     min-height: 280px;
@@ -633,15 +601,6 @@ html[data-contrast="high"] .game-legibility .older-stage {
     border-radius: 1rem;
   }
 
-  .axle-viewer-compact .axle-educational-hotspot {
-    min-height: 44px;
-    max-width: 8.5rem;
-    padding: .5rem .65rem;
-  }
-
-  .axle-viewer-compact .axle-educational-hotspot > span:last-child {
-    max-width: 5.5rem;
-  }
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {

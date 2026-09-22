@@ -8,15 +8,9 @@ import {
   Maximize2,
   Activity,
   Ruler,
-  Info,
   ChevronRight,
   ShieldCheck,
-  CheckCircle2,
-  HelpCircle,
-  ExternalLink,
-  Sparkles,
   Focus,
-  Tags,
   Pause,
   Play
 } from "lucide-react";
@@ -66,25 +60,14 @@ interface ComponentMeshMap {
   [id: string]: THREE.Group;
 }
 
-export interface EducationalHotspot {
-  id: string;
-  label: string;
-  position: { top: string; left: string };
-  targetComponentId?: string;
-}
-
 interface AxleAssemblyViewerProps {
   compact?: boolean;
   onWebglError?: () => void;
-  educationalHotspots?: EducationalHotspot[];
-  onEducationalHotspot?: (hotspot: EducationalHotspot) => void;
 }
 
 export function AxleAssemblyViewer({
   compact = false,
   onWebglError,
-  educationalHotspots = [],
-  onEducationalHotspot,
 }: AxleAssemblyViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -100,7 +83,6 @@ export function AxleAssemblyViewer({
   const [showOptionalComponents, setShowOptionalComponents] = useState<boolean>(true);
   const [measureModeActive, setMeasureModeActive] = useState<boolean>(false);
   const [measuredDistance, setMeasuredDistance] = useState<string | null>(null);
-  const [showLabels, setShowLabels] = useState<boolean>(true);
   const [isolatedId, setIsolatedId] = useState<string | null>(null);
   const [motionPaused, setMotionPaused] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1);
@@ -136,8 +118,6 @@ export function AxleAssemblyViewer({
     phi: Math.PI / 3.2
   });
   const modeRef = useRef<Mode>("assembled");
-  const labelIdsRef = useRef<string[]>([]);
-  const labelElementsRef = useRef<Record<string, HTMLDivElement | null>>({});
 
   const selectedComponent = useMemo(() => {
     return getComponentById(selectedId) || MS120_CATALOG[0];
@@ -150,11 +130,6 @@ export function AxleAssemblyViewer({
       return comp.category === filterCategory;
     });
   }, [filterCategory, showOptionalComponents]);
-
-  const labelIds = useMemo(() => {
-    if (!showLabels) return [];
-    return selectedId ? [selectedId] : [];
-  }, [selectedId, showLabels, explodeDepth]);
 
   useEffect(() => {
     modeRef.current = mode;
@@ -179,10 +154,6 @@ export function AxleAssemblyViewer({
   useEffect(() => {
     autoRotateRef.current = autoRotate;
   }, [autoRotate]);
-
-  useEffect(() => {
-    labelIdsRef.current = labelIds;
-  }, [labelIds]);
 
   // Set camera preset
   const setCameraView = useCallback((preset: CameraPreset) => {
@@ -1540,19 +1511,6 @@ export function AxleAssemblyViewer({
       camera.position.z = target.z + dist * Math.sin(phi) * Math.cos(theta);
       camera.lookAt(target);
 
-      // Technical labels are HTML overlays positioned from the 3D bounding-box centers.
-      labelIdsRef.current.forEach((id) => {
-        const label = labelElementsRef.current[id];
-        const group = compMap[id];
-        if (!label || !group) return;
-        const labelPoint = new THREE.Box3().setFromObject(group).getCenter(new THREE.Vector3()).project(camera);
-        const x = (labelPoint.x * 0.5 + 0.5) * container.clientWidth;
-        const y = (-labelPoint.y * 0.5 + 0.5) * container.clientHeight;
-        const visible = labelPoint.z > -1 && labelPoint.z < 1;
-        label.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
-        label.style.opacity = visible ? "1" : "0";
-      });
-
       // Running mode animation
       if ((modeRef.current === "running" || modeRef.current === "curve") && !motionPausedRef.current) {
         const isCurve = modeRef.current === "curve";
@@ -1901,16 +1859,6 @@ export function AxleAssemblyViewer({
             <Sliders className="w-3.5 h-3.5 mr-1" />
             Section View
           </Button>
-          <Button
-            size="sm"
-            variant={showLabels ? "secondary" : "ghost"}
-            onClick={() => setShowLabels((value) => !value)}
-            className="text-xs text-red-300"
-            aria-pressed={showLabels}
-          >
-            <Tags className="w-3.5 h-3.5 mr-1" />
-            Labels
-          </Button>
         </div>
 
         <div className="flex items-center gap-2">
@@ -1936,6 +1884,43 @@ export function AxleAssemblyViewer({
         </div>
       </div>
 
+      {compact && (
+        <div className="axle-compact-toolbar flex flex-col gap-3 rounded-xl border border-white/10 bg-[#12151d] p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-[11px] font-mono font-bold uppercase tracking-[.14em] text-amber-200">Controles do modelo</div>
+            <div className="mt-1 text-xs text-slate-400">A imagem permanece limpa; use os controles fora do palco.</div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (reducedMotionRef.current) return;
+                setAutoRotate((value) => !value);
+              }}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs font-bold text-white hover:bg-white/10"
+              aria-pressed={autoRotate}
+            >
+              {autoRotate ? <Pause className="h-4 w-4" aria-hidden="true" /> : <Play className="h-4 w-4" aria-hidden="true" />}
+              {autoRotate ? "Pausar rotação" : "Rotacionar"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setCameraView("iso")}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/10"
+            >
+              <Focus className="h-4 w-4" aria-hidden="true" /> Vista inicial
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-red-400/40 bg-red-950/30 px-3 py-2 text-xs font-bold text-red-100 hover:bg-red-900/50"
+            >
+              <RotateCcw className="h-4 w-4" aria-hidden="true" /> Resetar
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main 3D Canvas + Technical Sidebar */}
       <div className="axle-viewer-main-grid grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* 3D Viewport Area */}
@@ -1957,154 +1942,6 @@ export function AxleAssemblyViewer({
               aria-label="Visualizador 3D Interativo do Eixo Traseiro Meritor Cummins MS-120 com Exploded View"
               className="relative z-10 w-full h-full cursor-grab active:cursor-grabbing outline-none"
             />
-            <div ref={(node) => { if (!node) return; }} className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
-              {labelIds.map((id) => {
-                const item = getComponentById(id);
-                if (!item) return null;
-                return (
-                  <div
-                    key={id}
-                    ref={(node) => { labelElementsRef.current[id] = node; }}
-                    className="absolute left-0 top-0 rounded-md border border-red-400/60 bg-[#120e0e]/90 px-2 py-1 text-[10px] font-semibold text-red-100 shadow-lg shadow-black/40 backdrop-blur-sm whitespace-nowrap transition-opacity duration-150"
-                    style={{ opacity: 0 }}
-                  >
-                    #{item.number} {item.namePt}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="pointer-events-none absolute bottom-4 right-4 z-20 max-w-[14rem] rounded-lg border border-white/10 bg-black/65 px-3 py-2 text-[10px] leading-relaxed text-slate-300 backdrop-blur-md">
-              Fundo industrial: linha de produção Cummins/Meritor em Osasco · Crédito: Transporte Moderno
-            </div>
-
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={handleReset}
-              className="absolute bottom-16 right-4 z-30 bg-[#da291c] text-white shadow-lg shadow-black/40 hover:bg-red-700"
-              aria-label="Resetar visualizador 3D para a montagem inicial"
-            >
-              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-              RESET
-            </Button>
-
-            {/* Overlaid Camera Preset Bar */}
-            <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-1.5 p-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10">
-              <button
-                onClick={() => setCameraView("iso")}
-                className="px-2.5 py-1 text-xs rounded font-medium text-slate-300 hover:text-white hover:bg-white/10"
-              >
-                Isométrica 3/4
-              </button>
-              <button
-                onClick={() => setCameraView("front")}
-                className="px-2.5 py-1 text-xs rounded font-medium text-slate-300 hover:text-white hover:bg-white/10"
-              >
-                Frontal (Pinhão)
-              </button>
-              <button
-                onClick={() => setCameraView("top")}
-                className="px-2.5 py-1 text-xs rounded font-medium text-slate-300 hover:text-white hover:bg-white/10"
-              >
-                Superior
-              </button>
-              <button
-                onClick={() => setCameraView("side")}
-                className="px-2.5 py-1 text-xs rounded font-medium text-slate-300 hover:text-white hover:bg-white/10"
-              >
-                Lateral (Cubo)
-              </button>
-              <button
-                onClick={() => setCameraView("diff")}
-                className="px-2.5 py-1 text-xs rounded font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10"
-              >
-                Zoom Diferencial
-              </button>
-            </div>
-
-            <div className="axle-compact-controls absolute right-4 top-4 z-30 flex flex-wrap gap-2 rounded-xl border border-white/15 bg-black/70 p-2 backdrop-blur-md">
-              <button
-                type="button"
-                onClick={() => {
-                  if (reducedMotionRef.current) return;
-                  setAutoRotate((value) => !value);
-                }}
-                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-[11px] font-bold text-white hover:bg-white/10"
-                aria-pressed={autoRotate}
-              >
-                {autoRotate ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                {autoRotate ? "Pausar" : "Rotacionar"}
-              </button>
-              <button
-                type="button"
-                onClick={handleReset}
-                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-red-400/40 bg-red-950/40 px-3 py-2 text-[11px] font-bold text-red-100 hover:bg-red-900/50"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                Resetar
-              </button>
-            </div>
-
-            {educationalHotspots.map((hotspot, index) => (
-              <button
-                key={hotspot.id}
-                type="button"
-                className="axle-educational-hotspot seg-focus absolute z-30 inline-flex min-h-11 -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full border-2 border-amber-300 bg-[#17120a]/95 px-3 py-2 text-[11px] font-black uppercase tracking-wide text-amber-100 shadow-lg shadow-black/60 transition hover:scale-105 hover:bg-amber-900/80"
-                style={{ top: hotspot.position.top, left: hotspot.position.left }}
-                onClick={() => {
-                  if (hotspot.targetComponentId) selectComponent(hotspot.targetComponentId, true);
-                  onEducationalHotspot?.(hotspot);
-                }}
-                aria-label={`Ponto educativo ${index + 1}: ${hotspot.label}`}
-              >
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-300 text-[10px] text-black" aria-hidden="true">{index + 1}</span>
-                <span>{hotspot.label}</span>
-              </button>
-            ))}
-
-            {/* Floating Status & Instruction Badge */}
-            <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2 max-w-sm">
-              {measuredDistance && (
-                <div className="p-3 rounded-lg bg-amber-950/80 border border-amber-500/40 text-amber-200 text-xs backdrop-blur-md">
-                  <span className="font-semibold block mb-0.5">Medição Visual:</span>
-                  {measuredDistance}
-                  <span className="block mt-1 text-[10px] text-amber-300/80">
-                    Aviso: Medição do modelo 3D educacional. Não utilizar como desenho de fabricação.
-                  </span>
-                </div>
-              )}
-
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/70 border border-white/10 text-xs text-slate-400 backdrop-blur-md">
-                <span className="w-2 h-2 rounded-full bg-[#da291c] animate-pulse" />
-                <span>Clique em qualquer peça para inspecionar ficha técnica e função.</span>
-              </div>
-            </div>
-
-            {/* Torque Flow Banner when Running */}
-            {mode === "running" && (
-              <div className="absolute top-4 right-4 z-20 p-3 rounded-xl bg-gradient-to-r from-red-950/90 to-black/80 border border-red-500/40 backdrop-blur-md max-w-xs text-xs text-slate-200">
-                <div className="font-bold text-red-400 uppercase tracking-wide flex items-center gap-1.5">
-                  <Activity className="w-4 h-4 animate-spin text-red-500" />
-                  Fluxo de Potência & Torque
-                </div>
-                <p className="mt-1 text-[11px] leading-relaxed text-slate-300">
-                  Cardã → Flange → Pinhão Cônico → Coroa Hipoide → Caixa do Diferencial → Satélites & Planetárias → Semieixos → Cubos de Roda.
-                </p>
-              </div>
-            )}
-
-            {mode === "curve" && (
-              <div className="absolute top-4 right-4 z-20 p-3 rounded-xl bg-gradient-to-r from-cyan-950/90 to-black/80 border border-cyan-500/40 backdrop-blur-md max-w-xs text-xs text-slate-200">
-                <div className="font-bold text-cyan-400 uppercase tracking-wide flex items-center gap-1.5">
-                  <Activity className="w-4 h-4 animate-spin text-cyan-400" />
-                  Dinâmica em Curva (Didático)
-                </div>
-                <p className="mt-1 text-[11px] leading-relaxed text-slate-300">
-                  As engrenagens satélites giram sobre o eixo cruzeta. O semieixo externo (direito) gira mais rápido do que o interno (esquerdo) para compensar o raio da curva sem arrasto de pneu.
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Precision Exploded View & Section Sliders with Native Range Controls */}

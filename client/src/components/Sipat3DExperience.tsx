@@ -3,20 +3,16 @@ import { Link } from "wouter";
 import {
   Accessibility,
   ArrowRight,
-  CheckCircle2,
   Factory,
   HelpCircle,
-  Info,
   Maximize2,
   Minimize2,
-  RotateCcw,
   ShieldCheck,
   Sparkles,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
-import type { EducationalHotspot } from "@/components/AxleAssemblyViewer";
 import { REAL_PHOTOS } from "@/data/realPhotos";
 
 const LazyAxleAssemblyViewer = lazy(async () => {
@@ -109,24 +105,6 @@ export const EDUCATION_POINTS: EducationPoint[] = [
   },
 ];
 
-const HOTSPOT_POSITIONS: Array<{ top: string; left: string }> = [
-  { top: "38%", left: "20%" },
-  { top: "27%", left: "50%" },
-  { top: "66%", left: "18%" },
-  { top: "70%", left: "50%" },
-  { top: "38%", left: "80%" },
-  { top: "24%", left: "70%" },
-  { top: "56%", left: "68%" },
-  { top: "70%", left: "82%" },
-];
-
-const EDUCATIONAL_HOTSPOTS: EducationalHotspot[] = EDUCATION_POINTS.map((point, index) => ({
-  id: point.id,
-  label: point.title,
-  position: HOTSPOT_POSITIONS[index]!,
-  targetComponentId: point.targetComponentId,
-}));
-
 function WebglFallback({ onExplore }: { onExplore: (id?: string) => void }) {
   return (
     <div className="rounded-2xl border-2 border-amber-400/40 bg-[#111720] p-5 shadow-xl sm:p-7" role="status">
@@ -180,19 +158,10 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
   const [webglAvailable, setWebglAvailable] = useState<boolean | null>(null);
   const [accessibleOpen, setAccessibleOpen] = useState(false);
   const [immersive, setImmersive] = useState(false);
-  const [selectedId, setSelectedId] = useState<string>(EDUCATION_POINTS[0]!.id);
-  const [exploredIds, setExploredIds] = useState<string[]>([]);
   const [showInstructions, setShowInstructions] = useState(() => {
     if (typeof window === "undefined") return true;
     return window.localStorage.getItem("sipat_3d_instructions_seen") !== "true";
   });
-
-  const selectedPoint = useMemo(
-    () => EDUCATION_POINTS.find((point) => point.id === selectedId) ?? EDUCATION_POINTS[0]!,
-    [selectedId]
-  );
-  const progress = Math.round((exploredIds.length / EDUCATION_POINTS.length) * 100);
-  const allExplored = exploredIds.length === EDUCATION_POINTS.length;
 
   useEffect(() => {
     const timer = window.setTimeout(() => setLoad3D(true), fullPage ? 80 : 250);
@@ -227,11 +196,6 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
     document.addEventListener("fullscreenchange", onFullscreenChange);
     return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
   }, [immersive]);
-
-  const markExplored = (id: string) => {
-    setSelectedId(id);
-    setExploredIds((current) => (current.includes(id) ? current : [...current, id]));
-  };
 
   const dismissInstructions = () => {
     setShowInstructions(false);
@@ -271,8 +235,8 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
             <span className="font-industrial text-xs uppercase tracking-widest text-amber-200">
               Ambiente SIPAT 3D
             </span>
-            <span className="rounded-full border border-emerald-400/30 bg-emerald-950/60 px-2 py-0.5 text-[10px] font-mono text-emerald-300">
-              {exploredIds.length} de {EDUCATION_POINTS.length} explorados
+            <span className="rounded-full border border-white/15 bg-black/30 px-2 py-0.5 text-[10px] font-mono text-slate-300">
+              Modelo limpo
             </span>
           </div>
 
@@ -300,7 +264,7 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
 
         {showInstructions && (
           <div className="flex items-center justify-between gap-2 rounded-lg border border-cyan-400/30 bg-cyan-950/30 px-3 py-2 text-[11px] text-cyan-200">
-            <span>Arraste para girar. Toque nos pontos destacados para aprender.</span>
+            <span>Arraste para girar e use dois dedos para aproximar. Os conteúdos educativos ficam organizados fora da imagem.</span>
             <button
               type="button"
               onClick={dismissInstructions}
@@ -325,8 +289,6 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
             <Suspense fallback={<ViewerLoading />}>
               <LazyAxleAssemblyViewer
                 compact
-                educationalHotspots={EDUCATIONAL_HOTSPOTS}
-                onEducationalHotspot={(hotspot) => markExplored(hotspot.id)}
                 onWebglError={() => setWebglAvailable(false)}
               />
             </Suspense>
@@ -335,19 +297,14 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
           )}
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-[#121620] p-3 text-xs">
-          <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
-            <span className="font-bold text-amber-200 uppercase tracking-wide">
-              Ponto ativo: {selectedPoint.title} ({selectedPoint.category})
-            </span>
-            <Link
-              href={selectedPoint.href}
-              className="inline-flex items-center font-bold text-red-300 hover:text-white"
-            >
-              {selectedPoint.action} <ArrowRight className="ml-1 h-3.5 w-3.5" />
-            </Link>
+        <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-[#121620] p-3 text-xs sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <strong className="block uppercase tracking-wide text-amber-200">Imagem limpa para explorar</strong>
+            <span className="mt-1 block text-slate-400">Consulte os conteúdos educativos em uma lista organizada, sem cobrir o modelo.</span>
           </div>
-          <p className="mt-2 text-slate-300">{selectedPoint.description}</p>
+          <Button type="button" onClick={() => setAccessibleOpen(true)} variant="outline" className="min-h-10 shrink-0 border-emerald-400/30 bg-transparent text-xs font-bold text-emerald-200 hover:bg-emerald-950/30">
+            <Accessibility className="mr-2 h-4 w-4" aria-hidden="true" /> Ver conteúdos
+          </Button>
         </div>
 
         {accessibleOpen && (
@@ -405,14 +362,10 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
             </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/25 p-4 sm:p-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <div className="text-xs font-bold uppercase tracking-[.16em] text-slate-400">Pontos educativos encontrados</div>
-                <div className="mt-1 font-industrial text-3xl text-white">{exploredIds.length} <span className="text-lg text-slate-500">de {EDUCATION_POINTS.length}</span></div>
-              </div>
-              <div className="h-3 min-w-40 flex-1 overflow-hidden rounded-full bg-white/10" aria-label={`${progress}% da exploração concluída`}>
-                <div className="h-full rounded-full bg-gradient-to-r from-[#da291c] via-amber-400 to-emerald-400 transition-all duration-500" style={{ width: `${progress}%` }} />
-              </div>
+            <div>
+              <div className="text-xs font-bold uppercase tracking-[.16em] text-slate-400">Interface organizada</div>
+              <div className="mt-1 font-industrial text-2xl text-white">Modelo sem tópicos sobre a imagem</div>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">A cena fica livre para você observar as peças. Os conteúdos educativos foram movidos para uma área própria.</p>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <Button type="button" onClick={() => setShowInstructions(true)} variant="outline" className="min-h-11 border-white/20 bg-transparent text-xs font-bold text-white hover:bg-white/10">
@@ -431,7 +384,7 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
 
         {showInstructions && (
           <div className="mt-6 flex flex-col gap-3 rounded-xl border-2 border-cyan-400/30 bg-cyan-950/20 p-4 sm:flex-row sm:items-center sm:justify-between" role="status">
-            <p className="text-sm font-semibold text-cyan-100"><span className="font-black uppercase text-cyan-300">Como explorar:</span> arraste para girar, use dois dedos para aproximar e toque nos pontos destacados para aprender.</p>
+            <p className="text-sm font-semibold text-cyan-100"><span className="font-black uppercase text-cyan-300">Como explorar:</span> arraste para girar e use dois dedos para aproximar. Consulte os conteúdos no painel separado.</p>
             <Button type="button" onClick={dismissInstructions} variant="outline" className="min-h-11 shrink-0 border-cyan-300/30 bg-transparent text-xs font-bold text-cyan-100 hover:bg-cyan-900/40">Entendi</Button>
           </div>
         )}
@@ -456,8 +409,6 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
               <Suspense fallback={<ViewerLoading />}>
                 <LazyAxleAssemblyViewer
                   compact={!fullPage && !immersive}
-                  educationalHotspots={EDUCATIONAL_HOTSPOTS}
-                  onEducationalHotspot={(hotspot) => markExplored(hotspot.id)}
                   onWebglError={() => setWebglAvailable(false)}
                 />
               </Suspense>
@@ -466,24 +417,19 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
             )}
           </div>
 
-          <aside className="rounded-2xl border border-white/10 bg-[#121821] p-5 shadow-xl" aria-label="Ponto educativo selecionado">
-            <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
-              <div>
-                <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-amber-300">Ponto em destaque</div>
-                <h3 className="mt-1 font-industrial text-xl uppercase text-white">{selectedPoint.title}</h3>
-              </div>
-              <Info className="h-6 w-6 shrink-0 text-amber-300" aria-hidden="true" />
+          <aside className="rounded-2xl border border-white/10 bg-[#121821] p-5 shadow-xl" aria-label="Controles e conteúdo do modelo 3D">
+            <div className="border-b border-white/10 pb-4">
+              <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-amber-300">Modelo organizado</div>
+              <h3 className="mt-1 font-industrial text-xl uppercase text-white">Explore sem poluição visual</h3>
             </div>
-            <div className="mt-4 rounded-lg border border-amber-400/20 bg-amber-950/20 px-3 py-2 text-xs font-bold uppercase tracking-wide text-amber-200">{selectedPoint.category}</div>
-            <p className="mt-4 text-sm leading-relaxed text-slate-300">{selectedPoint.description}</p>
-            <Button asChild className="mt-5 min-h-12 w-full bg-[#da291c] text-xs font-black uppercase text-white hover:bg-[#b01e12]"><Link href={selectedPoint.href}>{selectedPoint.action}<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Link></Button>
-            {allExplored && (
-              <div className="mt-5 rounded-xl border-2 border-emerald-400/40 bg-emerald-950/25 p-4" role="status">
-                <div className="flex items-center gap-2 text-emerald-200"><CheckCircle2 className="h-5 w-5" aria-hidden="true" /><strong className="text-sm">Exploração concluída</strong></div>
-                <p className="mt-2 text-xs leading-relaxed text-emerald-100/80">Você explorou os principais pontos de segurança. Agora teste seus conhecimentos nos desafios.</p>
-                <Link href="/jogos" className="mt-3 inline-flex min-h-10 items-center text-xs font-black uppercase text-emerald-200 hover:text-white">Abrir central de desafios <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Link>
-              </div>
-            )}
+            <div className="mt-4 space-y-3 text-sm leading-relaxed text-slate-300">
+              <p><strong className="text-white">1.</strong> Arraste para girar a câmera.</p>
+              <p><strong className="text-white">2.</strong> Use a roda do mouse ou dois dedos para aproximar.</p>
+              <p><strong className="text-white">3.</strong> Use Resetar para voltar à vista inicial.</p>
+            </div>
+            <Button type="button" onClick={() => setAccessibleOpen(true)} className="mt-5 min-h-12 w-full bg-[#da291c] text-xs font-black uppercase text-white hover:bg-[#b01e12]">
+              <Accessibility className="mr-2 h-4 w-4" aria-hidden="true" /> Ver conteúdos educativos
+            </Button>
           </aside>
         </div>
 
@@ -494,18 +440,15 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
               <button type="button" onClick={() => setAccessibleOpen(false)} className="seg-focus inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/15 px-3 text-xs font-bold text-slate-200 hover:bg-white/10"><X className="h-4 w-4" /> Fechar</button>
             </div>
             <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {EDUCATION_POINTS.map((point, index) => {
-                const explored = exploredIds.includes(point.id);
-                return (
-                  <article key={point.id} className={`rounded-xl border p-4 transition ${explored ? "border-emerald-400/40 bg-emerald-950/20" : "border-white/10 bg-black/20"}`}>
-                    <div className="flex items-start justify-between gap-2"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-300 font-black text-black">{index + 1}</span>{explored && <CheckCircle2 className="h-5 w-5 text-emerald-300" aria-label="Ponto explorado" />}</div>
+              {EDUCATION_POINTS.map((point, index) => (
+                  <article key={point.id} className="rounded-xl border border-white/10 bg-black/20 p-4">
+                    <div className="flex items-start justify-between gap-2"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-300 font-black text-black">{index + 1}</span></div>
                     <div className="mt-4 text-[10px] font-bold uppercase tracking-wide text-amber-300">{point.category}</div>
                     <h4 className="mt-1 font-industrial text-lg uppercase text-white">{point.title}</h4>
                     <p className="mt-2 text-xs leading-relaxed text-slate-300">{point.description}</p>
                     <Link href={point.href} className="mt-4 inline-flex min-h-10 items-center text-xs font-black uppercase text-red-200 hover:text-white">{point.action}<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Link>
                   </article>
-                );
-              })}
+              ))}
             </div>
           </div>
         )}

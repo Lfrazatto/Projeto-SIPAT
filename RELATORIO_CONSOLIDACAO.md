@@ -266,3 +266,23 @@ O projeto 3D do eixo MS-120 e do ambiente industrial de Osasco foi promovido a e
    - `pnpm check`: 0 erros de TypeScript.
    - `pnpm test`: 48 testes aprovados em 10 arquivos.
    - `pnpm build`: compilação e empacotamento Vite/esbuild concluídos com sucesso.
+
+
+## Atualização — Imagem Limpa e Reorganização do Projeto 3D (22/09/2026)
+
+Conforme a solicitação do usuário, a apresentação do modelo 3D foi completamente despoluída:
+
+1. **Remoção total dos tópicos sobre a imagem**:
+   - Foram eliminados os 8 marcadores flutuantes numerados ("EPI", "Red Flag", "Organização 5S", etc.) que ficavam sobrepostos ao modelo.
+   - Foram retirados também os rótulos técnicos flutuantes, legendas sobre a cena e mensagens automáticas que concorriam com a visualização do eixo.
+   - A imagem agora exibe apenas a geometria mecânica limpa do eixo MS-120 com a linha de montagem de Osasco como plano de fundo.
+
+2. **Reorganização dos controles fora do palco**:
+   - No modo compacto da Home, os botões de controle (**Pausar/Rotacionar**, **Vista inicial** e **Resetar**) foram posicionados em uma barra externa organizada, acima da viewport, sem cobrir nenhuma parte do modelo.
+   - O botão de **Tela cheia** e o botão de **Acessibilidade (Sem 3D)** permanecem alinhados no topo do card.
+   - Os conteúdos educativos sobre segurança, 5S e ergonomia foram preservados em um painel estruturado acessível via botão, permitindo leitura completa sem poluir o canvas visual.
+
+3. **Validação**:
+   - `pnpm check`: 0 erros de TypeScript.
+   - `pnpm test`: 48 testes aprovados em 10 arquivos.
+   - `pnpm build`: compilação e empacotamento concluídos com sucesso.
