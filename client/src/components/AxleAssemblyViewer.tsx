@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MS120_CATALOG, ComponentDefinition, getComponentById } from "@/data/ms120Catalog";
 import { REAL_PHOTOS } from "@/data/realPhotos";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
 
 const ROTATING_COMPONENTS = new Set([
   "input_flange",
@@ -65,9 +66,29 @@ interface ComponentMeshMap {
   [id: string]: THREE.Group;
 }
 
-export function AxleAssemblyViewer() {
+export interface EducationalHotspot {
+  id: string;
+  label: string;
+  position: { top: string; left: string };
+  targetComponentId?: string;
+}
+
+interface AxleAssemblyViewerProps {
+  compact?: boolean;
+  onWebglError?: () => void;
+  educationalHotspots?: EducationalHotspot[];
+  onEducationalHotspot?: (hotspot: EducationalHotspot) => void;
+}
+
+export function AxleAssemblyViewer({
+  compact = false,
+  onWebglError,
+  educationalHotspots = [],
+  onEducationalHotspot,
+}: AxleAssemblyViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { reducedMotion } = useAccessibility();
 
   // States
   const [mode, setMode] = useState<Mode>("assembled");
@@ -83,6 +104,7 @@ export function AxleAssemblyViewer() {
   const [isolatedId, setIsolatedId] = useState<string | null>(null);
   const [motionPaused, setMotionPaused] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1);
+  const [autoRotate, setAutoRotate] = useState(!reducedMotion);
 
   // Three references
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -97,6 +119,8 @@ export function AxleAssemblyViewer() {
   const rotationAngleRef = useRef<number>(0);
   const motionPausedRef = useRef(false);
   const animationSpeedRef = useRef(1);
+  const autoRotateRef = useRef(!reducedMotion);
+  const reducedMotionRef = useRef(reducedMotion);
   const gridRef = useRef<THREE.GridHelper | null>(null);
   const initialCameraTargetRef = useRef(new THREE.Vector3(0, 0, 0));
   const initialCameraDistanceRef = useRef(14);
@@ -143,6 +167,18 @@ export function AxleAssemblyViewer() {
   useEffect(() => {
     animationSpeedRef.current = animationSpeed;
   }, [animationSpeed]);
+
+  useEffect(() => {
+    reducedMotionRef.current = reducedMotion;
+    if (reducedMotion) {
+      autoRotateRef.current = false;
+      setAutoRotate(false);
+    }
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    autoRotateRef.current = autoRotate;
+  }, [autoRotate]);
 
   useEffect(() => {
     labelIdsRef.current = labelIds;
@@ -229,13 +265,19 @@ export function AxleAssemblyViewer() {
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      alpha: true,
-      powerPreference: "high-performance"
-    });
+    // Renderer: WebGL pode estar indisponível em navegadores, dispositivos ou modos de economia.
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance"
+      });
+    } catch {
+      onWebglError?.();
+      return;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.shadowMap.enabled = true;
@@ -1371,6 +1413,10 @@ export function AxleAssemblyViewer() {
 
     // Mouse Controls (Orbit & Pan)
     const onMouseDown = (e: MouseEvent) => {
+      if (autoRotateRef.current) {
+        autoRotateRef.current = false;
+        setAutoRotate(false);
+      }
       if (e.button === 0) isDraggingRef.current = true;
       if (e.button === 2) isRightDraggingRef.current = true;
       previousMousePositionRef.current = { x: e.clientX, y: e.clientY };
@@ -1420,6 +1466,10 @@ export function AxleAssemblyViewer() {
     });
 
     const onTouchStart = (e: TouchEvent) => {
+      if (autoRotateRef.current) {
+        autoRotateRef.current = false;
+        setAutoRotate(false);
+      }
       if (e.touches.length === 1) {
         isDraggingRef.current = true;
         previousMousePositionRef.current = getTouchPoint(e.touches[0]);
@@ -1480,6 +1530,10 @@ export function AxleAssemblyViewer() {
       const { theta, phi } = cameraPolarRef.current;
       const dist = cameraDistanceRef.current;
       const target = cameraTargetRef.current;
+
+      if (autoRotateRef.current && !reducedMotionRef.current) {
+        cameraPolarRef.current.theta += 0.0025 * animationSpeedRef.current;
+      }
 
       camera.position.x = target.x + dist * Math.sin(phi) * Math.sin(theta);
       camera.position.y = target.y + dist * Math.cos(phi);
@@ -1694,6 +1748,9 @@ export function AxleAssemblyViewer() {
     setMode("assembled");
     setMotionPaused(false);
     setAnimationSpeed(1);
+    const shouldAutoRotate = !reducedMotionRef.current;
+    autoRotateRef.current = shouldAutoRotate;
+    setAutoRotate(shouldAutoRotate);
     setExplodeDepth(0);
     setViewMode("solid");
     setSectionPlanePos(0);
@@ -1706,9 +1763,9 @@ export function AxleAssemblyViewer() {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className={`axle-viewer-root w-full flex flex-col gap-4 ${compact ? "axle-viewer-compact" : ""}`}>
       {/* Top Bar with Mode Buttons & Presets */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-white/10 bg-[#12151d] backdrop-blur-md">
+      <div className="axle-viewer-toolbar flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-white/10 bg-[#12151d] backdrop-blur-md">
         <div className="flex flex-wrap items-center gap-2">
           <Button
             size="sm"
@@ -1793,6 +1850,20 @@ export function AxleAssemblyViewer() {
             </>
           )}
 
+          <Button
+            size="sm"
+            variant={autoRotate ? "secondary" : "outline"}
+            onClick={() => {
+              if (reducedMotionRef.current) return;
+              setAutoRotate((value) => !value);
+            }}
+            className="text-xs border-white/15"
+            aria-pressed={autoRotate}
+          >
+            {autoRotate ? <Pause className="w-4 h-4 mr-1.5" /> : <Play className="w-4 h-4 mr-1.5" />}
+            {autoRotate ? "Pausar rotação" : "Ativar rotação"}
+          </Button>
+
           <div className="h-6 w-px bg-white/10 mx-1 hidden sm:block" />
 
           {/* View Modes */}
@@ -1866,12 +1937,12 @@ export function AxleAssemblyViewer() {
       </div>
 
       {/* Main 3D Canvas + Technical Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className="axle-viewer-main-grid grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* 3D Viewport Area */}
         <div className="lg:col-span-8 flex flex-col gap-3">
           <div
             ref={containerRef}
-            className="relative isolate w-full h-[540px] sm:h-[620px] rounded-2xl overflow-hidden border border-white/10 bg-[#0a0d12] shadow-2xl"
+            className="axle-viewer-viewport relative isolate w-full h-[540px] sm:h-[620px] rounded-2xl overflow-hidden border border-white/10 bg-[#0a0d12] shadow-2xl"
             style={{
               backgroundImage: explodeDepth > 0.05
                 ? `linear-gradient(90deg, rgba(5, 8, 12, .68) 0%, rgba(8, 12, 18, .46) 48%, rgba(5, 8, 12, .7) 100%), linear-gradient(180deg, rgba(10, 14, 20, .1), rgba(5, 7, 10, .62)), url(${REAL_PHOTOS.productionLine.src})`
@@ -1952,6 +2023,46 @@ export function AxleAssemblyViewer() {
               </button>
             </div>
 
+            <div className="axle-compact-controls absolute right-4 top-4 z-30 flex flex-wrap gap-2 rounded-xl border border-white/15 bg-black/70 p-2 backdrop-blur-md">
+              <button
+                type="button"
+                onClick={() => {
+                  if (reducedMotionRef.current) return;
+                  setAutoRotate((value) => !value);
+                }}
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-[11px] font-bold text-white hover:bg-white/10"
+                aria-pressed={autoRotate}
+              >
+                {autoRotate ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                {autoRotate ? "Pausar" : "Rotacionar"}
+              </button>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-red-400/40 bg-red-950/40 px-3 py-2 text-[11px] font-bold text-red-100 hover:bg-red-900/50"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Resetar
+              </button>
+            </div>
+
+            {educationalHotspots.map((hotspot, index) => (
+              <button
+                key={hotspot.id}
+                type="button"
+                className="axle-educational-hotspot seg-focus absolute z-30 inline-flex min-h-11 -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full border-2 border-amber-300 bg-[#17120a]/95 px-3 py-2 text-[11px] font-black uppercase tracking-wide text-amber-100 shadow-lg shadow-black/60 transition hover:scale-105 hover:bg-amber-900/80"
+                style={{ top: hotspot.position.top, left: hotspot.position.left }}
+                onClick={() => {
+                  if (hotspot.targetComponentId) selectComponent(hotspot.targetComponentId, true);
+                  onEducationalHotspot?.(hotspot);
+                }}
+                aria-label={`Ponto educativo ${index + 1}: ${hotspot.label}`}
+              >
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-300 text-[10px] text-black" aria-hidden="true">{index + 1}</span>
+                <span>{hotspot.label}</span>
+              </button>
+            ))}
+
             {/* Floating Status & Instruction Badge */}
             <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2 max-w-sm">
               {measuredDistance && (
@@ -1997,7 +2108,7 @@ export function AxleAssemblyViewer() {
           </div>
 
           {/* Precision Exploded View & Section Sliders with Native Range Controls */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl border border-white/10 bg-[#12151d]">
+          <div className="axle-viewer-sliders grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl border border-white/10 bg-[#12151d]">
             <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-semibold text-slate-300 flex items-center gap-1.5">
@@ -2071,7 +2182,7 @@ export function AxleAssemblyViewer() {
         </div>
 
         {/* Technical Component Inspector & Catalog (Right Column) */}
-        <div className="lg:col-span-4 flex flex-col gap-4">
+        <div className="axle-viewer-sidebar lg:col-span-4 flex flex-col gap-4">
           {/* Active Component Spec Sheet Card */}
           <div className="p-5 rounded-2xl border border-white/10 bg-[#141822] shadow-xl flex flex-col gap-3">
             <div className="flex items-start justify-between gap-2 border-b border-white/10 pb-3">

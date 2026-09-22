@@ -230,3 +230,39 @@ Implementamos dentro da aplicação da SIPAT Cummins Osasco o espaço emocional,
 O último cenário do Ache o Erro agora encerra obrigatoriamente a experiência do jogo. Ao finalizar essa fase, o resultado exibe a mensagem **“Último desafio do Ache o Erro concluído”** e um único botão de ação: **“Sair do Ache o Erro e escolher outro jogo”**. Nesse estado, os comandos “Repetir”, “Próxima” e “Ranking” não são exibidos, evitando que o participante permaneça ou avance circularmente dentro do Ache o Erro. O catálogo mantém a navegação entre os cenários anteriores, mas o último cenário direciona a pessoa de volta à Central de Desafios para continuar a SIPAT em outro jogo.
 
 A regra foi extraída para a função testável `isLastScenarioInCatalog`. A suíte passou com **48 testes**, `pnpm check` sem erros e build de produção concluído com sucesso.
+
+
+## Atualização — Projeto 3D em Destaque na Primeira Dobra da SIPAT (22/09/2026)
+
+O projeto 3D do eixo MS-120 e do ambiente industrial de Osasco foi promovido a elemento central e interativo da plataforma:
+
+1. **Posicionamento na primeira dobra da Home**:
+   - No **desktop (1280px+)**, o visualizador ocupa a área direita da Hero (~52% da largura útil), formando uma composição de duas colunas balanceada com o título, os botões principais de ação e o painel de missão.
+   - Foram adicionados os botões **“Explorar em 3D”** e **“Ver ranking”** com contraste e alinhamento visual de fácil leitura.
+   - No **celular (320px–430px)**, a altura do visualizador foi otimizada para 280–310px, permitindo rolar a página normalmente sem bloqueio por gestos de rotação.
+
+2. **Hotspots educativos e conexões diretas com os jogos**:
+   - Foram criados 8 pontos interativos distribuídos sobre o ambiente e peças reais do conjunto mecânico:
+     1. **EPI e proteção** → Atalho para o Quiz de Segurança;
+     2. **Red Flag** → Atalho para o Quiz de Segurança;
+     3. **Área de circulação** → Atalho para o Ache o Erro;
+     4. **Organização 5S** → Atalho para o Organize a Fábrica;
+     5. **Ergonomia** → Atalho para o Quiz de Ergonomia;
+     6. **Sinalização** → Atalho para o Ache o Erro;
+     7. **Comunicação de riscos** → Atalho para o Quiz de Segurança;
+     8. **Projeto Formare** → Conhecer autoria dos alunos e página institucional.
+   - Contador de exploração: “X de 8 explorados” com barra de progresso visual (sem alterar pontuação competitiva).
+   - Ao concluir todos os pontos, surge uma mensagem de conclusão orientando a testar os conhecimentos nos desafios.
+
+3. **Controles, acessibilidade e performance**:
+   - Suporte completo a **arrastar para orbitar**, **toque em tela**, **duplo toque/pinça para aproximação** e **botões táteis de Reset e Pausa**.
+   - **Rotação automática suave** que pausa imediatamente ao toque ou clique manual do participante e respeita `prefers-reduced-motion`.
+   - **Versão acessível sem 3D** disponível via botão com ícone e texto, exibindo todos os textos educativos e links para pessoas com leitor de tela ou dispositivos incompatíveis.
+   - **Fallback automático para WebGL**: detecta ausência de suporte gráfico e exibe fotografia industrial com os mesmos conteúdos educativos.
+   - **Botão de Tela Cheia** integrado com saída acessível no desktop e celular.
+   - Menção obrigatória preservada: **“Projeto desenvolvido por alunos do Formare”** dentro do ambiente e no rodapé técnico.
+
+4. **Validação**:
+   - `pnpm check`: 0 erros de TypeScript.
+   - `pnpm test`: 48 testes aprovados em 10 arquivos.
+   - `pnpm build`: compilação e empacotamento Vite/esbuild concluídos com sucesso.

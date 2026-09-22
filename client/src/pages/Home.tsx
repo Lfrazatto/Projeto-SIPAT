@@ -12,6 +12,7 @@ import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { RedFlagSequence } from "@/components/RedFlagSequence";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { MuralHomeSection } from "@/components/MuralHomeSection";
+import { Sipat3DExperience } from "@/components/Sipat3DExperience";
 
 const games = [
   { key: "quiz_seguranca", number: "01", title: "Quiz de Segurança", short: "Atenção, decisão e prevenção.", description: "Red Flag, EPIs, LOTO e comunicação de riscos.", time: "10–12 min", score: "Pontuação por acerto", interaction: "Toque ou teclado", tone: "red", Icon: ShieldAlert },
@@ -66,9 +67,81 @@ export default function Home() {
 
   return <div className="min-h-screen overflow-x-hidden bg-[#0b0e13] text-slate-100 selection:bg-[#da291c] selection:text-white"><Navbar />
     <main>
-      <section className="hero-control relative isolate overflow-hidden border-b border-white/10" onMouseMove={(event) => { if (reducedMotion) return; const rect = event.currentTarget.getBoundingClientRect(); setHeroPointer({ x: ((event.clientX - rect.left) / rect.width - 0.5) * 18, y: ((event.clientY - rect.top) / rect.height - 0.5) * 18 }); }} onMouseLeave={() => setHeroPointer({ x: 0, y: 0 })}><div className="hero-control-bg absolute inset-0" style={{ backgroundImage: `url(${REAL_PHOTOS.productionLine.src})`, "--pointer-x": heroPointer.x, "--pointer-y": heroPointer.y } as React.CSSProperties} aria-hidden="true" /><div className="hero-energy-lines absolute inset-0" aria-hidden="true" /><div className="hero-connectors absolute inset-0" aria-hidden="true" /><div className="hero-cursor-glow absolute h-56 w-56 rounded-full" style={{ left: `calc(50% + ${heroPointer.x * 2}%)`, top: `calc(42% + ${heroPointer.y * 2}%)` }} aria-hidden="true" /><div className="hero-control-grid absolute inset-0" aria-hidden="true" /><div className="hero-control-glow absolute inset-0" aria-hidden="true" /><div className="relative mx-auto grid max-w-[1440px] gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:px-8 lg:py-24">
-        <Reveal className="max-w-3xl"><div className="hero-enter hero-enter-1 inline-flex items-center gap-2 rounded-full border border-red-400/40 bg-red-950/80 px-3 py-1.5 text-xs font-bold text-red-200"><span className="status-dot" aria-hidden="true" /> DESAFIO 2026 • CUMMINS OSASCO</div><h1 className="hero-enter hero-enter-2 mt-6 font-industrial text-5xl uppercase leading-[.88] tracking-tight text-white sm:text-7xl lg:text-8xl">CUMMINS <span className="text-[#da291c]">SIPAT</span><br /><span className="text-slate-200">DESAFIO 2026</span></h1><p className="hero-enter hero-enter-3 mt-6 max-w-2xl font-industrial text-xl uppercase tracking-wide text-amber-200 sm:text-2xl">Segurança começa com uma escolha.</p><p className="hero-enter hero-enter-4 mt-5 max-w-2xl text-base leading-relaxed text-slate-200 sm:text-lg">Entre na central de desafios da SIPAT Cummins Osasco. Jogue, aprenda, some pontos e transforme conhecimento em atitude no chão de fábrica.</p><div className="hero-enter hero-enter-5 mt-8 flex flex-wrap gap-3"><Button type="button" onClick={handleStart} size="lg" className="nav-cta min-h-14 bg-[#da291c] px-7 text-sm font-black uppercase tracking-wider text-white shadow-lg shadow-red-950/60 hover:bg-[#b01e12]"><Zap className="mr-2 h-5 w-5" aria-hidden="true" /> Participar agora <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" /></Button><Button asChild variant="outline" size="lg" className="min-h-14 border-white/25 bg-black/20 px-6 text-sm font-bold uppercase text-white hover:bg-white/10"><Link href="/ranking"><Trophy className="mr-2 h-4 w-4 text-amber-300" aria-hidden="true" /> Ver ranking</Link></Button></div><div className="hero-enter hero-enter-6 mt-8 flex flex-wrap gap-2 text-[11px] font-mono uppercase tracking-wider text-slate-300"><span className="rounded-full border border-white/15 bg-black/30 px-3 py-1.5">4 desafios</span><span className="rounded-full border border-white/15 bg-black/30 px-3 py-1.5">Pontuação por desempenho</span><span className="rounded-full border border-white/15 bg-black/30 px-3 py-1.5">Premiação conforme regulamento</span></div></Reveal>
-        <Reveal delay={100} className="lg:justify-self-end"><div className="control-panel max-w-xl rounded-2xl border border-red-400/40 bg-[#111722]/90 p-5 shadow-2xl shadow-black/60 backdrop-blur-md sm:p-7"><div className="flex items-center justify-between border-b border-white/10 pb-4"><div className="flex items-center gap-2"><Factory className="h-5 w-5 text-red-300" aria-hidden="true" /><span className="font-industrial text-sm uppercase tracking-widest text-white">Central de missão</span></div><span className="rounded border border-emerald-400/30 bg-emerald-950/50 px-2 py-1 text-[10px] font-mono font-bold uppercase text-emerald-300">{event.status === "active" ? "Sistema ativo" : event.status === "scheduled" ? "Programado" : event.status === "closed" ? "Encerrado" : "Verificando"}</span></div><div className="mt-5 space-y-2">{games.map((game, index) => { const tone = toneClasses[game.tone]; return <Link key={game.key} href={`/jogos?game=${game.key}`} className={`group flex min-h-16 items-center gap-3 rounded-xl border bg-black/30 p-3 transition hover:-translate-y-0.5 ${tone.card}`}><span className={`font-mono text-xs font-black ${tone.number}`}>{game.number}</span><span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${tone.icon}`}><game.Icon className="h-5 w-5" aria-hidden="true" /></span><span className="min-w-0 flex-1"><strong className="block truncate text-xs uppercase text-white">{game.title}</strong><span className="mt-1 block truncate text-[11px] text-slate-400">{game.short}</span></span><ChevronRight className="h-4 w-4 text-slate-500 transition group-hover:translate-x-1 group-hover:text-white" aria-hidden="true" /></Link>; })}</div><div className="mt-5 grid grid-cols-3 gap-2 border-t border-white/10 pt-4 text-center"><div><div className="font-industrial text-2xl text-red-300">4</div><div className="text-[10px] uppercase text-slate-500">desafios</div></div><div><div className="font-industrial text-2xl text-amber-300">∞</div><div className="text-[10px] uppercase text-slate-500">aprendizado</div></div><div><div className="font-industrial text-2xl text-emerald-300">100%</div><div className="text-[10px] uppercase text-slate-500">prevenção</div></div></div></div></Reveal>
+      <section className="hero-control relative isolate overflow-hidden border-b border-white/10" onMouseMove={(event) => { if (reducedMotion) return; const rect = event.currentTarget.getBoundingClientRect(); setHeroPointer({ x: ((event.clientX - rect.left) / rect.width - 0.5) * 18, y: ((event.clientY - rect.top) / rect.height - 0.5) * 18 }); }} onMouseLeave={() => setHeroPointer({ x: 0, y: 0 })}><div className="hero-control-bg absolute inset-0" style={{ backgroundImage: `url(${REAL_PHOTOS.productionLine.src})`, "--pointer-x": heroPointer.x, "--pointer-y": heroPointer.y } as React.CSSProperties} aria-hidden="true" /><div className="hero-energy-lines absolute inset-0" aria-hidden="true" /><div className="hero-connectors absolute inset-0" aria-hidden="true" /><div className="hero-cursor-glow absolute h-56 w-56 rounded-full" style={{ left: `calc(50% + ${heroPointer.x * 2}%)`, top: `calc(42% + ${heroPointer.y * 2}%)` }} aria-hidden="true" /><div className="hero-control-grid absolute inset-0" aria-hidden="true" /><div className="hero-control-glow absolute inset-0" aria-hidden="true" /><div className="relative mx-auto grid max-w-[1520px] gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:px-8 lg:py-16">
+        <Reveal className="max-w-3xl">
+          <div className="hero-enter hero-enter-1 inline-flex items-center gap-2 rounded-full border border-red-400/40 bg-red-950/80 px-3 py-1.5 text-xs font-bold text-red-200">
+            <span className="status-dot" aria-hidden="true" /> DESAFIO 2026 • CUMMINS OSASCO
+          </div>
+          <h1 className="hero-enter hero-enter-2 mt-6 font-industrial text-5xl uppercase leading-[.88] tracking-tight text-white sm:text-7xl lg:text-8xl">
+            CUMMINS <span className="text-[#da291c]">SIPAT</span><br />
+            <span className="text-slate-200">DESAFIO 2026</span>
+          </h1>
+          <p className="hero-enter hero-enter-3 mt-6 max-w-2xl font-industrial text-xl uppercase tracking-wide text-amber-200 sm:text-2xl">
+            Segurança começa com uma escolha.
+          </p>
+          <p className="hero-enter hero-enter-4 mt-5 max-w-2xl text-base leading-relaxed text-slate-200 sm:text-lg">
+            Entre na central de desafios da SIPAT Cummins Osasco. Jogue, aprenda, some pontos e transforme conhecimento em atitude no chão de fábrica.
+          </p>
+          <div className="hero-enter hero-enter-5 mt-8 flex flex-wrap gap-3">
+            <Button
+              type="button"
+              onClick={handleStart}
+              size="lg"
+              className="nav-cta min-h-14 bg-[#da291c] px-7 text-sm font-black uppercase tracking-wider text-white shadow-lg shadow-red-950/60 hover:bg-[#b01e12]"
+            >
+              <Zap className="mr-2 h-5 w-5" aria-hidden="true" /> Participar agora <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="min-h-14 border-amber-400/40 bg-amber-950/20 px-6 text-sm font-bold uppercase text-amber-200 hover:bg-amber-900/30"
+            >
+              <Link href="/projeto-3d">
+                <Factory className="mr-2 h-4 w-4 text-amber-300" aria-hidden="true" /> Explorar em 3D
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="min-h-14 border-white/25 bg-black/40 px-5 text-sm font-bold uppercase text-slate-200 hover:bg-white/10 hover:text-white"
+            >
+              <Link href="/ranking">
+                <Trophy className="mr-2 h-4 w-4 text-amber-300" aria-hidden="true" /> Ver ranking
+              </Link>
+            </Button>
+          </div>
+          <div className="hero-enter hero-enter-6 mt-8 flex flex-wrap gap-2 text-[11px] font-mono uppercase tracking-wider text-slate-300">
+            <span className="rounded-full border border-white/15 bg-black/30 px-3 py-1.5">4 desafios</span>
+            <span className="rounded-full border border-white/15 bg-black/30 px-3 py-1.5">Pontuação por desempenho</span>
+            <span className="rounded-full border border-white/15 bg-black/30 px-3 py-1.5">Premiação conforme regulamento</span>
+          </div>
+        </Reveal>
+        <Reveal delay={100} className="w-full lg:max-w-none">
+          <div className="hero-3d-wrapper rounded-3xl border border-red-400/40 bg-[#10151f]/95 p-4 shadow-2xl shadow-black/80 backdrop-blur-md sm:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2">
+                <Factory className="h-5 w-5 text-amber-300" aria-hidden="true" />
+                <div>
+                  <span className="block font-industrial text-xs uppercase tracking-widest text-white">Projeto 3D Interativo</span>
+                  <span className="text-[11px] text-slate-400">Ambiente industrial SIPAT • Eixo MS-120</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="rounded border border-emerald-400/30 bg-emerald-950/60 px-2.5 py-1 text-[10px] font-mono font-bold uppercase text-emerald-300">
+                  Exploração ativa
+                </span>
+                <Button asChild size="sm" variant="outline" className="min-h-9 border-white/20 bg-transparent text-xs font-bold text-white hover:bg-white/10">
+                  <Link href="/projeto-3d">Tela completa <ArrowRight className="ml-1 h-3.5 w-3.5" /></Link>
+                </Button>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Sipat3DExperience heroLayout />
+            </div>
+          </div>
+        </Reveal>
       </div></section>
 
       <section className="border-b border-white/10 bg-[#0e1219] px-4 py-10 sm:px-6 lg:px-8"><div className="mx-auto max-w-[1440px]"><Reveal><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><div className="v2-kicker">{participant ? "Continue sua missão" : "Sua missão começa agora"}</div><h2 className="mt-2 font-industrial text-3xl uppercase text-white">{participant ? `Próximo desafio: ${recommended.title}` : "Identifique. Jogue. Suba no ranking."}</h2></div>{participant && <div className="rounded-xl border border-emerald-400/25 bg-emerald-950/20 px-4 py-3 text-xs text-emerald-200"><strong><AnimatedNumber value={completed} /> de 4</strong> desafios concluídos • <strong><AnimatedNumber value={pData?.totalScore || 0} suffix=" pts" /></strong></div>}</div><div className="mt-7 grid gap-3 md:grid-cols-3">{[{ n: "01", title: "Identifique-se", text: "Escolha seu perfil e entre na missão.", Icon: Users, done: Boolean(participant) }, { n: "02", title: "Desafie seus conhecimentos", text: "Complete os quatro jogos da SIPAT.", Icon: Target, done: completed > 0 }, { n: "03", title: "Suba no ranking", text: "Melhore sua pontuação e acompanhe sua posição.", Icon: Trophy, done: completed === 4 }].map((step, index) => <button type="button" key={step.n} onClick={() => setActiveMission(index)} aria-pressed={activeMission === index} className={`mission-step v2-surface rounded-2xl p-5 text-left ${step.done ? "mission-step-done" : ""} ${activeMission === index ? "mission-step-active" : ""}`} style={{ "--reveal-delay": `${index * 80}ms` } as React.CSSProperties}><div className="flex items-center justify-between"><span className={`mission-step-number font-industrial text-4xl ${activeMission === index ? "text-amber-300" : "text-red-300"}`}>{step.n}</span><span className={`flex h-10 w-10 items-center justify-center rounded-full ${step.done ? "bg-emerald-500/20 text-emerald-300" : "bg-white/5 text-slate-300"}`}>{step.done ? <CheckCircle2 className="h-5 w-5" aria-label="Etapa concluída" /> : <step.Icon className="h-5 w-5" aria-hidden="true" />}</span></div><h3 className="mt-5 font-industrial text-lg uppercase text-white">{step.title}</h3><p className="mt-2 text-sm leading-relaxed text-slate-400">{step.text}</p>{activeMission === index && <span className="mt-3 block text-xs font-bold text-amber-200">Próximo passo destacado: {index === 0 ? "identifique-se para começar" : index === 1 ? "escolha um desafio e jogue" : "acompanhe sua posição no ranking"}.</span>}</button>)}</div></Reveal></div></section>
