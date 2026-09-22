@@ -17,6 +17,7 @@ const creators = [
   { name: "Ryan Neiva", role: "Idealização e desenvolvimento", email: "ryanneiva80@gmail.com", linkedin: "https://www.linkedin.com/in/ryan-neiva" },
   { name: "Leonardo Frazatto", role: "Idealização e desenvolvimento", email: "lmpfrazatto@gmail.com", linkedin: "https://www.linkedin.com/in/leonardo-machado-pereira-fraza" },
   { name: "Matheus Felipe", role: "Idealização e desenvolvimento", email: "matheusfelipedasferreira@gmail.com" },
+  { name: "Kauã Gonçalves", role: "Idealização e desenvolvimento", email: "kauagc20@gmail.com" },
 ];
 
 const process = [
@@ -42,8 +43,36 @@ export default function NossoProjeto() {
 
     <section className="border-b border-white/10 bg-[#0f1218] px-4 py-16 sm:px-6 lg:px-8"><div className="mx-auto max-w-7xl"><InstitutionalGallery compact /></div></section>
 
-    <section className="border-b border-white/10 bg-[#10131a] px-4 py-14 sm:px-6 lg:px-8"><div className="mx-auto max-w-7xl"><div className="v2-kicker flex items-center gap-2"><Users className="h-3.5 w-3.5" aria-hidden="true" /> Principais criadores</div><p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">A idealização, organização e construção do projeto foram conduzidas por alunos do Formare, com colaboração da turma e apoio das pessoas envolvidas na formação.</p><div className="mt-7 grid gap-4 md:grid-cols-3">{creators.map((creator, index) => <article key={creator.name} className="relative overflow-hidden rounded-xl border border-white/10 bg-[#171b24] p-6 transition hover:-translate-y-1 hover:border-red-500/50"><span className="absolute right-4 top-4 font-mono text-xs text-red-400/70">0{index + 1}</span><div className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-950/50 text-[#da291c]"><Users className="h-5 w-5" aria-hidden="true" /></div><h3 className="mt-8 font-industrial text-2xl uppercase text-white">{creator.name}</h3><div className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-xs"><a href={`mailto:${creator.email}`} aria-label={`Enviar e-mail para ${creator.name}`} className="inline-flex min-w-0 items-center gap-1.5 text-slate-300 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400"><Mail className="h-3.5 w-3.5 shrink-0 text-red-400" aria-hidden="true" /><span className="break-all">{creator.email}</span></a>{creator.linkedin && <a href={creator.linkedin} target="_blank" rel="noreferrer" aria-label={`Abrir LinkedIn de ${creator.name}`} className="inline-flex min-h-11 items-center gap-1.5 text-slate-300 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"><Linkedin className="h-3.5 w-3.5 shrink-0 text-[#6fa8dc]" aria-hidden="true" /> LinkedIn <ExternalLink className="h-3 w-3" aria-hidden="true" /></a>}</div><p className="mt-3 text-xs uppercase tracking-widest text-slate-500">Aluno do Formare</p><p className="mt-4 text-xs leading-relaxed text-slate-400">{creator.role}</p></article>)}</div></div></section>
+    <section className="border-b border-white/10 bg-gradient-to-b from-[#161a24] via-[#10131a] to-[#0d0f13] px-4 py-16 sm:px-6 lg:px-8" aria-labelledby="principais-criadores-title">
+      <div className="mx-auto max-w-7xl">
+        <div className="max-w-4xl">
+          <div className="v2-kicker flex items-center gap-2 text-amber-200"><Users className="h-4 w-4" aria-hidden="true" /> Equipe principal do projeto</div>
+          <h2 id="principais-criadores-title" className="mt-3 font-industrial text-5xl uppercase leading-none text-white sm:text-7xl">Quem criou este <span className="text-[#da291c]">projeto?</span></h2>
+          <p className="mt-5 text-base leading-relaxed text-slate-200">Conheça os quatro principais criadores responsáveis pela idealização, organização e desenvolvimento da experiência SIPAT Cummins Osasco.</p>
+        </div>
+        <div className="mt-9 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {creators.map((creator, index) => (
+            <article key={creator.name} className="group relative overflow-hidden rounded-2xl border border-[#da291c]/35 bg-gradient-to-br from-[#21171c] via-[#171b24] to-[#12151d] p-6 shadow-xl shadow-black/20 transition duration-200 hover:-translate-y-1 hover:border-[#da291c] hover:shadow-red-950/30">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#da291c] via-amber-300 to-transparent" aria-hidden="true" />
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-red-300/30 bg-red-950/60 text-[#ff6b5f] shadow-lg shadow-red-950/30"><Users className="h-7 w-7" aria-hidden="true" /></div>
+                <span className="rounded-full border border-amber-300/30 bg-amber-950/30 px-2.5 py-1 font-mono text-[10px] font-bold tracking-widest text-amber-200">CRIADOR 0{index + 1}</span>
+              </div>
+              <p className="mt-6 text-[10px] font-black uppercase tracking-[.2em] text-amber-300">Núcleo principal</p>
+              <h3 className="mt-2 font-industrial text-2xl uppercase leading-tight text-white sm:text-3xl">{creator.name}</h3>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-200">{creator.role}</p>
+              <div className="mt-5 border-t border-white/10 pt-4">
+                <a href={`mailto:${creator.email}`} aria-label={`Enviar e-mail para ${creator.name}`} className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-xs text-slate-200 transition hover:border-red-300/60 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-400">
+                  <Mail className="h-4 w-4 shrink-0 text-red-400" aria-hidden="true" /><span className="break-all">{creator.email}</span>
+                </a>
+                {creator.linkedin && <a href={creator.linkedin} target="_blank" rel="noreferrer" aria-label={`Abrir LinkedIn de ${creator.name}`} className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-300 transition hover:border-blue-300/60 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400"><Linkedin className="h-4 w-4 shrink-0 text-[#6fa8dc]" aria-hidden="true" /> LinkedIn <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" /></a>}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
 
-    <section className="px-4 py-10 text-center sm:px-6 lg:px-8"><p className="mx-auto max-w-3xl text-xs leading-relaxed text-slate-500">As informações sobre o Formare e o projeto devem ser revisadas pelos responsáveis oficiais antes de uso institucional formal. Não foram incluídos depoimentos fictícios.</p></section>
+    <section className="px-4 py-12 pb-28 text-center sm:px-6 sm:pb-20 lg:px-8"><p className="mx-auto max-w-3xl text-xs leading-relaxed text-slate-500">As informações sobre o Formare e o projeto devem ser revisadas pelos responsáveis oficiais antes de uso institucional formal. Não foram incluídos depoimentos fictícios.</p></section>
   </main></div>;
 }

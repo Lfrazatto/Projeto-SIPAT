@@ -286,3 +286,23 @@ Conforme a solicitação do usuário, a apresentação do modelo 3D foi completa
    - `pnpm check`: 0 erros de TypeScript.
    - `pnpm test`: 48 testes aprovados em 10 arquivos.
    - `pnpm build`: compilação e empacotamento concluídos com sucesso.
+
+
+## Atualização — Destaque dos Principais Criadores e Inclusão de Kauã Gonçalves (22/09/2026)
+
+Atendendo à solicitação do usuário, a seção de criadores do projeto na página `/nosso-projeto` foi atualizada:
+
+1. **Inclusão do criador**:
+   - Adicionado **Kauã Gonçalves** com o cargo *Idealização e desenvolvimento* e o e-mail de contato `kauagc20@gmail.com`.
+   - A equipe principal agora conta com quatro membros: **Ryan Neiva**, **Leonardo Frazatto**, **Matheus Felipe** e **Kauã Gonçalves**.
+
+2. **Destaque visual aprimorado**:
+   - Título impactante em tipografia industrial: *"QUEM CRIOU ESTE PROJETO?"*.
+   - Cards ampliados com bordas temáticas Cummins (`#da291c`), gradiente de destaque no topo, selo de *Núcleo principal* e numeração destacada (`CRIADOR 01` a `04`).
+   - Botões de contato por e-mail e LinkedIn padronizados e com contraste elevado, alinhados com foco acessível e sem quebras de layout em telas móveis e desktop.
+   - Espaçamento inferior ampliado para garantir que a barra persistente de acessibilidade/CTA não sobreponha as informações de contato.
+
+3. **Validação**:
+   - `pnpm check`: sem erros de TypeScript.
+   - `pnpm test`: 48 testes passando em 10 arquivos.
+   - `pnpm build`: compilação e empacotamento concluídos com sucesso.
