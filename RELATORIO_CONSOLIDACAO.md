@@ -223,3 +223,10 @@ Implementamos dentro da aplicação da SIPAT Cummins Osasco o espaço emocional,
    - Criada a suíte `server/mural.test.ts` com 5 testes de integração cobrindo sanitização, submissão pendente, consulta pública restrita a aprovadas e proteção da rota admin.
    - **47 testes automatizados aprovados** no Vitest (`10/10 test files`).
    - TypeScript verificado sem erros (`pnpm check`) e build de produção compilado com sucesso (`pnpm build`).
+
+
+## Atualização — Saída obrigatória no último desafio do Ache o Erro (22/09/2026)
+
+O último cenário do Ache o Erro agora encerra obrigatoriamente a experiência do jogo. Ao finalizar essa fase, o resultado exibe a mensagem **“Último desafio do Ache o Erro concluído”** e um único botão de ação: **“Sair do Ache o Erro e escolher outro jogo”**. Nesse estado, os comandos “Repetir”, “Próxima” e “Ranking” não são exibidos, evitando que o participante permaneça ou avance circularmente dentro do Ache o Erro. O catálogo mantém a navegação entre os cenários anteriores, mas o último cenário direciona a pessoa de volta à Central de Desafios para continuar a SIPAT em outro jogo.
+
+A regra foi extraída para a função testável `isLastScenarioInCatalog`. A suíte passou com **48 testes**, `pnpm check` sem erros e build de produção concluído com sucesso.

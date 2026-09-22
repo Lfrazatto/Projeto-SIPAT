@@ -190,6 +190,13 @@ const formatTime = (seconds: number) => {
   return `${m}:${s}`;
 };
 
+export function isLastScenarioInCatalog(
+  catalog: ReadonlyArray<{ key: string }>,
+  scenarioKey: string
+): boolean {
+  return catalog.length > 0 && catalog[catalog.length - 1]?.key === scenarioKey;
+}
+
 /** Hash estável para embaralhar sempre igual dentro da mesma fase/rodada. */
 function hashSeed(input: string): number {
   let hash = 2166136261;
@@ -1045,6 +1052,7 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
   const required = targets.length;
   const progress = required ? Math.round((found.length / required) * 100) : 0;
   const nextInOrder = targets.find((hazard) => !found.includes(hazard.id));
+  const isLastScenario = isLastScenarioInCatalog(catalog, scenarioKey);
 
   /* --- Pré-carregamento das cenas --- */
   const errorImage = scenario?.image ?? "";
@@ -1400,7 +1408,7 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
   };
 
   const goToNextScenario = () => {
-    if (!catalog.length) return;
+    if (!catalog.length || isLastScenario) return;
     const index = catalog.findIndex((item) => item.key === scenarioKey);
     const next = catalog[(index + 1) % catalog.length];
     if (next) changeScenario(next.key);
@@ -2222,38 +2230,59 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
                 </div>
               )}
 
-              <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <button
-                  type="button"
-                  onClick={playAgain}
-                  className="seg-focus inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/15 px-3 py-2.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/5"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  Repetir
-                </button>
-                <button
-                  type="button"
-                  onClick={goToNextScenario}
-                  className="seg-focus inline-flex items-center justify-center gap-1.5 rounded-xl border border-cyan-400/30 bg-cyan-950/30 px-3 py-2.5 text-xs font-semibold text-cyan-100 transition-colors hover:bg-cyan-900/30"
-                >
-                  Próxima
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <a
-                  href="/ranking"
-                  className="seg-focus inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2.5 text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-900/30"
-                >
-                  <Trophy className="h-4 w-4 text-amber-300" />
-                  Ranking
-                </a>
-                <button
-                  type="button"
-                  onClick={onBackToGames}
-                  className="seg-focus inline-flex items-center justify-center rounded-xl bg-red-600 px-3 py-2.5 text-xs font-bold text-white transition-colors hover:bg-red-500"
-                >
-                  Voltar aos jogos
-                </button>
-              </div>
+              {isLastScenario ? (
+                <div className="mt-5 space-y-3">
+                  <div className="rounded-xl border-2 border-amber-400/50 bg-amber-950/30 p-4 text-center">
+                    <p className="text-sm font-bold uppercase tracking-wide text-amber-200">
+                      Último desafio do Ache o Erro concluído
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-slate-300">
+                      Para continuar a SIPAT, saia deste jogo e escolha outro desafio na central.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onBackToGames}
+                    className="seg-focus inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-black uppercase tracking-wide text-white shadow-lg shadow-red-950/40 transition-colors hover:bg-red-500"
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                    Sair do Ache o Erro e escolher outro jogo
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <button
+                    type="button"
+                    onClick={playAgain}
+                    className="seg-focus inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/15 px-3 py-2.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/5"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Repetir
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goToNextScenario}
+                    className="seg-focus inline-flex items-center justify-center gap-1.5 rounded-xl border border-cyan-400/30 bg-cyan-950/30 px-3 py-2.5 text-xs font-semibold text-cyan-100 transition-colors hover:bg-cyan-900/30"
+                  >
+                    Próxima
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                  <a
+                    href="/ranking"
+                    className="seg-focus inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2.5 text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-900/30"
+                  >
+                    <Trophy className="h-4 w-4 text-amber-300" />
+                    Ranking
+                  </a>
+                  <button
+                    type="button"
+                    onClick={onBackToGames}
+                    className="seg-focus inline-flex items-center justify-center rounded-xl bg-red-600 px-3 py-2.5 text-xs font-bold text-white transition-colors hover:bg-red-500"
+                  >
+                    Voltar aos jogos
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isPointInHazard, type Hazard } from "../client/src/components/SpotErrorGame";
+import {
+  isLastScenarioInCatalog,
+  isPointInHazard,
+  type Hazard,
+} from "../client/src/components/SpotErrorGame";
 
 const base = (overrides: Partial<Hazard>): Hazard => ({
   id: "test",
@@ -18,6 +22,13 @@ const base = (overrides: Partial<Hazard>): Hazard => ({
 });
 
 describe("geometria dos hotspots do Ache o Erro", () => {
+  it("reconhece o último cenário para exigir a saída para outro jogo", () => {
+    const catalog = [{ key: "montagem" }, { key: "logistica" }, { key: "producao" }];
+    expect(isLastScenarioInCatalog(catalog, "producao")).toBe(true);
+    expect(isLastScenarioInCatalog(catalog, "logistica")).toBe(false);
+    expect(isLastScenarioInCatalog([], "producao")).toBe(false);
+  });
+
   it("aceita o centro e rejeita o fundo em um retângulo preciso", () => {
     const hazard = base({ x: 30, y: 40, width: 8, height: 6, tolerance: 1 });
     expect(isPointInHazard(30, 40, hazard)).toBe(true);
