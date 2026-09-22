@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ExternalLink, Image as ImageIcon, X } from "lucide-react";
 import { REAL_PHOTOS } from "@/data/realPhotos";
 
@@ -62,18 +62,33 @@ export function InstitutionalGallery({ compact = false }: { compact?: boolean })
   const [category, setCategory] = useState("Todas");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const titleId = useId();
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const filtered = category === "Todas" ? GALLERY_ITEMS : GALLERY_ITEMS.filter((item) => item.category === category);
   const selected = selectedIndex === null ? null : filtered[selectedIndex] ?? null;
 
   useEffect(() => {
-    if (!selected) return;
+    if (!selected) {
+      previouslyFocusedRef.current?.focus();
+      previouslyFocusedRef.current = null;
+      return;
+    }
+    previouslyFocusedRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSelectedIndex(null);
       if (event.key === "ArrowRight") setSelectedIndex((index) => index === null ? 0 : (index + 1) % filtered.length);
       if (event.key === "ArrowLeft") setSelectedIndex((index) => index === null ? 0 : (index - 1 + filtered.length) % filtered.length);
+      if (event.key === "Tab") {
+        const focusables = Array.from(modalRef.current?.querySelectorAll<HTMLElement>("button, a, [tabindex='0']") || []).filter((element) => !element.hasAttribute("disabled"));
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (first && last && event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (first && last && !event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
     };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKeyDown);
+    window.setTimeout(() => modalRef.current?.focus(), 0);
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKeyDown);
@@ -109,7 +124,7 @@ export function InstitutionalGallery({ compact = false }: { compact?: boolean })
 
       {selected && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby={`${titleId}-modal-title`} onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedIndex(null); }}>
-          <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-5xl overflow-auto rounded-2xl border border-white/15 bg-[#141822] shadow-2xl">
+          <div ref={modalRef} tabIndex={-1} className="relative max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-auto rounded-2xl border border-white/15 bg-[#141822] shadow-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300">
             <div className="flex items-center justify-between gap-4 border-b border-white/10 p-4"><div><div className="text-[10px] font-mono uppercase tracking-wider text-amber-300">{selected.category}</div><h2 id={`${titleId}-modal-title`} className="mt-1 font-industrial text-xl uppercase text-white">{selected.title}</h2></div><button type="button" onClick={() => setSelectedIndex(null)} aria-label="Fechar galeria" className="min-h-11 min-w-11 rounded-lg p-2 text-slate-300 hover:bg-white/10 hover:text-white"><X className="mx-auto h-5 w-5" aria-hidden="true" /></button></div>
             <div className="relative bg-black"><img src={selected.src} alt={selected.alt} width="1280" height="720" className="max-h-[65vh] w-full object-contain" /><button type="button" aria-label="Imagem anterior" onClick={() => setSelectedIndex((index) => index === null ? 0 : (index - 1 + filtered.length) % filtered.length)} className="absolute left-3 top-1/2 min-h-11 min-w-11 -translate-y-1/2 rounded-full border border-white/20 bg-black/70 p-2 text-white hover:bg-black"><ChevronLeft className="mx-auto h-6 w-6" /></button><button type="button" aria-label="Próxima imagem" onClick={() => setSelectedIndex((index) => index === null ? 0 : (index + 1) % filtered.length)} className="absolute right-3 top-1/2 min-h-11 min-w-11 -translate-y-1/2 rounded-full border border-white/20 bg-black/70 p-2 text-white hover:bg-black"><ChevronRight className="mx-auto h-6 w-6" /></button></div>
             <div className="space-y-2 p-4 text-sm text-slate-300"><p>{selected.caption}</p><p className="text-xs text-slate-500">Crédito: {selected.credit}{selected.date ? ` • ${selected.date}` : ""}</p>{selected.sourceUrl ? <a href={selected.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-2 text-xs font-bold text-amber-300 hover:text-white">Ver fonte da imagem <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" /></a> : <p className="text-xs text-amber-200/80">Imagem enviada pela equipe do projeto; confirmar autorização de uso antes de publicação externa.</p>}</div>

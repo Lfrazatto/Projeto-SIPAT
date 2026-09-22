@@ -63,7 +63,7 @@ export function IdentifyModal({ open, onOpenChange, onSuccess, title = "Identifi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto border border-white/15 bg-[#11151d] text-slate-100 shadow-2xl sm:max-w-2xl">
+      <DialogContent className="max-h-[calc(100dvh-1rem)] overflow-y-auto border border-white/15 bg-[#11151d] p-4 text-slate-100 shadow-2xl sm:max-h-[90vh] sm:p-6 sm:max-w-2xl">
         <DialogHeader>
           <div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-lg border border-red-400/40 bg-red-950/50"><ShieldCheck className="h-6 w-6 text-red-300" aria-hidden="true" /></span><span className="v2-kicker">Etapa 1 de 2</span></div>
           <DialogTitle className="font-industrial text-xl font-bold uppercase tracking-wide text-white">{title}</DialogTitle>
@@ -88,13 +88,13 @@ export function IdentifyModal({ open, onOpenChange, onSuccess, title = "Identifi
             <Input id="participant-full-name" name="name" autoComplete="name" required minLength={2} value={name} onChange={(event) => setName(event.target.value)} aria-invalid={Boolean(errorMsg && name.trim().length < 2)} aria-describedby={errorMsg ? errorId : helpId} placeholder="Ex.: Ana Souza" className="min-h-11 border-white/20 bg-black/40 text-base text-white placeholder:text-slate-500" />
           </div>
 
-          {!isVisitor && <div className="space-y-2"><Label htmlFor="participant-identifier" className="text-sm font-semibold text-white">{identifierLabel} <span aria-hidden="true">*</span></Label><Input id="participant-identifier" name="identifier" autoComplete="off" required value={identifier} onChange={(event) => setIdentifier(event.target.value.toUpperCase())} aria-invalid={Boolean(errorMsg && !identifier.trim())} aria-describedby={errorMsg ? errorId : helpId} placeholder={participantType === "terceiro" ? "Ex.: 123456" : "Ex.: AB12345"} className="min-h-11 border-white/20 bg-black/40 font-mono text-base uppercase text-white placeholder:text-slate-500" /></div>}
+          {!isVisitor && <div className="space-y-2"><Label htmlFor="participant-identifier" className="text-sm font-semibold text-white">{identifierLabel} <span aria-hidden="true">*</span></Label><Input id="participant-identifier" name="identifier" inputMode={participantType === "terceiro" ? "numeric" : "text"} autoComplete={participantType === "terceiro" ? "off" : "username"} required value={identifier} onChange={(event) => setIdentifier(event.target.value.toUpperCase())} aria-invalid={Boolean(errorMsg && !identifier.trim())} aria-describedby={errorMsg ? errorId : helpId} placeholder={participantType === "terceiro" ? "Ex.: 123456" : "Ex.: AB12345"} className="min-h-12 border-white/20 bg-black/40 font-mono text-base uppercase text-white placeholder:text-slate-500" /></div>}
 
           <p id={helpId} className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs leading-relaxed text-slate-300">{isVisitor ? "Visitantes informam somente o nome. Para evitar expor dados, a identificação fica armazenada apenas durante esta sessão do navegador." : `Use ${participantType === "terceiro" ? "a chapa fornecida pela empresa contratada" : "seu WWID corporativo"}. A identificação fica armazenada apenas durante esta sessão do navegador.`}</p>
 
           <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="min-h-11 border-white/20 text-white hover:bg-white/10">Cancelar</Button>
-            <Button type="submit" disabled={identifyMutation.isPending} className="min-h-11 bg-[#da291c] font-bold text-white hover:bg-[#b52216]">{identifyMutation.isPending ? "Validando…" : "Confirmar e continuar"}<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="min-h-12 border-white/20 text-white hover:bg-white/10">Cancelar</Button>
+            <Button type="submit" disabled={identifyMutation.isPending} className="min-h-12 bg-[#da291c] font-bold text-white hover:bg-[#b52216]">{identifyMutation.isPending ? "Validando…" : "Confirmar e continuar"}<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Button>
           </div>
         </form>
       </DialogContent>

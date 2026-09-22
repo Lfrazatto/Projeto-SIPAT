@@ -20,6 +20,7 @@ import MeuProgresso from "./pages/MeuProgresso";
 const Admin = lazy(() => import("./pages/Admin"));
 const Projeto3D = lazy(() => import("./pages/Projeto3D"));
 import { SiteFooter } from "./components/SiteFooter";
+import { MobileStartBar } from "./components/MobileStartBar";
 
 const pageTitles: Record<string, string> = {
   "/": "Início",
@@ -90,6 +91,7 @@ export default function App() {
                 <Suspense fallback={<RouteLoading />}><Router /></Suspense>
               </div>
               <SiteFooter />
+              <MobileStartBar />
               <AccessibilityToolbar />
             </TooltipProvider>
           </ParticipantProvider>

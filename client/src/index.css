@@ -320,3 +320,59 @@ button:active, [data-slot="button"]:active { transform: scale(.975); }
   .hero-energy-lines { opacity: .2; }
   .hero-connectors { display: none; }
 }
+
+
+/* Mobile-first finishing layer: safe areas, fixed CTA and comfortable touch targets. */
+.mobile-start-bar {
+  position: fixed;
+  z-index: 45;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .5rem;
+  padding: .65rem max(.75rem, env(safe-area-inset-left)) max(.65rem, env(safe-area-inset-bottom)) max(.75rem, env(safe-area-inset-right));
+  background: rgba(8, 10, 14, .94);
+  border-top: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 -12px 34px rgba(0,0,0,.28);
+  backdrop-filter: blur(16px);
+}
+.mobile-start-ranking { display: inline-flex; align-items: center; justify-content: center; }
+
+@media (max-width: 640px) {
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  .hero-control-bg { opacity: .18; animation: none; }
+  .hero-control-glow { background: linear-gradient(90deg, rgba(9,12,18,.97), rgba(9,12,18,.76)); }
+  .hero-control-grid { opacity: .18; background-size: 32px 32px; }
+  .hero-control .hero-enter-2 { font-size: clamp(2.65rem, 14vw, 4.5rem); line-height: .9; }
+  .hero-control .hero-enter-3 { font-size: 1.05rem; line-height: 1.15; }
+  .hero-control .hero-enter-4 { font-size: .95rem; }
+  .hero-control .hero-enter-5 { display: grid; grid-template-columns: 1fr; }
+  .hero-control .hero-enter-5 > * { width: 100%; }
+  .hero-control .hero-enter-6 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero-control .hero-enter-6 span { text-align: center; }
+  .control-panel { padding: .9rem; }
+  .control-panel .font-industrial { font-size: .75rem; letter-spacing: .08em; }
+  .control-panel .grid.grid-cols-3 { gap: .25rem; }
+  .control-panel .grid.grid-cols-3 .font-industrial { font-size: 1.35rem; }
+  .game-center-hero { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+  .game-center-hero h1 { font-size: clamp(2rem, 10vw, 3.1rem); line-height: .95; }
+  .game-center-hero .p-3 { width: 100%; }
+  .game-card { padding: 1rem; }
+  .game-card h2 { font-size: 1.35rem; line-height: 1; }
+  .game-card button { min-height: 3.25rem; }
+  .mobile-menu-panel { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
+  [role="dialog"] { max-height: calc(100dvh - 1rem); }
+  input, select, textarea { font-size: 16px !important; }
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .hero-control .hero-enter-2 { font-size: clamp(3.5rem, 9vw, 6rem); }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .mobile-start-bar { padding-top: .35rem; padding-bottom: .35rem; }
+  .hero-control .relative.mx-auto { padding-top: 2rem; padding-bottom: 2rem; }
+  .mobile-menu-panel { max-height: calc(100dvh - 3.8rem); }
+}

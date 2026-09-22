@@ -63,7 +63,7 @@ export function AccessibilityToolbar() {
   const scaleLabel = textScale === "normal" ? "Padrão" : textScale === "large" ? "Grande" : "Extra grande";
 
   return (
-    <aside className="fixed bottom-4 right-4 z-[80] flex max-w-[calc(100vw-2rem)] flex-col items-end gap-3">
+    <aside className="fixed bottom-[5.25rem] right-3 z-[80] flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-3 md:bottom-4 md:right-4 md:max-w-[calc(100vw-2rem)]">
       {open && (
         <div
           ref={panelRef}

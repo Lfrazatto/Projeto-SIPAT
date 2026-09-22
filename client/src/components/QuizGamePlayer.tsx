@@ -265,10 +265,10 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
   const potentialPointsNow = Math.round(basePointsPerQuestion * (remainingSeconds / secondsPerQuestion));
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6">
+      <div className="mx-auto max-w-4xl px-3 py-4 pb-8 sm:px-6 sm:py-8">
       {/* Quiz Top Bar */}
-      <div className="p-4 rounded-xl bg-[#141822] border border-white/10 shadow-xl mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-white/10 bg-[#141822] p-3 shadow-xl sm:mb-6 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:p-4">
+        <div className="col-span-2 flex min-w-0 items-center gap-3 sm:col-span-1">
           <div className="p-2.5 rounded-lg bg-red-950/80 border border-red-500/40 text-[#da291c]">
             {gameType === "quiz_seguranca" ? (
               <ShieldAlert className="w-6 h-6" />
@@ -292,7 +292,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
         </div>
 
         {/* Dynamic Live Timer: 60s - Prominent as requested */}
-        <div className="flex items-center gap-4">
+        <div className="col-span-2 grid grid-cols-2 items-stretch gap-2 sm:flex sm:items-center sm:gap-4">
           <div role="timer" aria-label={`${remainingSeconds} segundos restantes`} className="px-4 py-2 rounded-lg bg-black/60 border border-white/15 flex items-center gap-2">
             <Clock
               className={`w-5 h-5 ${
@@ -311,12 +311,12 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
             </div>
           </div>
 
-          <Button type="button" variant="outline" onClick={() => setIsPaused(true)} aria-pressed={isPaused} disabled={isAnswered || isFinished || isPaused} className="min-h-11 border-white/20 text-white">
+          <Button type="button" variant="outline" onClick={() => setIsPaused(true)} aria-pressed={isPaused} disabled={isAnswered || isFinished || isPaused} className="min-h-12 border-white/20 px-3 text-white">
             {isPaused ? <Play className="mr-2 h-4 w-4" aria-hidden="true" /> : <Pause className="mr-2 h-4 w-4" aria-hidden="true" />}
             {isPaused ? "Continuar" : "Pausar"}
           </Button>
 
-          <div className="text-right">
+          <div className="rounded-lg border border-white/10 bg-black/20 px-2 py-2 text-right">
             <span className="text-[10px] text-slate-400 font-mono">PONTUAÇÃO ATUAL</span>
             <div className="text-2xl font-black font-industrial text-[#da291c]">{totalScore} pts</div>
           </div>
@@ -325,7 +325,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
 
       {/* Progress Bar */}
       <div className="mb-6 space-y-2">
-        <div className="flex justify-between items-center text-xs text-slate-400">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
           <span>
             Questão <strong className="text-white">{currentIndex + 1}</strong> de{" "}
             <strong>{questions.length}</strong>
@@ -339,7 +339,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
 
       {/* Question Card */}
       {currentQuestion && (
-        <div className="rounded-2xl bg-[#161a24] border border-white/10 p-6 sm:p-8 shadow-2xl space-y-6">
+        <div className="space-y-5 rounded-2xl border border-white/10 bg-[#161a24] p-4 shadow-2xl sm:space-y-6 sm:p-8">
           <div className="flex items-center justify-between">
             <span className="px-3 py-1 rounded text-xs font-mono font-semibold bg-white/5 border border-white/10 text-slate-300">
               Tema: {currentQuestion.theme}
@@ -376,7 +376,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
                   type="button"
                   disabled={isAnswered || isPaused}
                   onClick={() => handleSelectOption(opt.key)}
-                  className={`p-4 rounded-xl border text-left flex items-start gap-3 transition-all duration-150 ${btnStyle}`}
+                  className={`min-h-16 rounded-xl border p-4 text-left flex items-start gap-3 transition-all duration-150 ${btnStyle}`}
                 >
                   <span
                     className={`w-7 h-7 rounded flex items-center justify-center font-bold text-xs shrink-0 font-industrial ${

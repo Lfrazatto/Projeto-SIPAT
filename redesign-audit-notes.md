@@ -43,3 +43,12 @@ Executar novamente `pnpm check`, `pnpm test`, `pnpm build`, capturas nos viewpor
 - Nosso projeto revisado em desktop e mobile: foto da equipe, processo do Formare, timeline “Da ideia à entrega”, galeria e cartões de criadores.
 - Console do navegador sem mensagens de erro durante a navegação da Home.
 - `pnpm check`, `pnpm test` e `pnpm build` concluídos com sucesso; 42 testes passaram.
+
+
+## Auditoria Mobile — melhoria dedicada — 21/09/2026
+
+Foram capturadas as rotas Home, Jogos, Organize a Fábrica, Ranking, Meu progresso, Formare e Galeria em viewport de **375 × 812 px**. O cabeçalho permanece compacto, a barra fixa **Começar desafio / Ranking** aparece sem cobrir o conteúdo principal, os cards de jogos ficam empilhados e os botões principais ocupam largura adequada. Ranking, Meu progresso e Formare mantêm hierarquia legível sem overflow horizontal visível.
+
+As correções desta rodada incluem: CTA móvel persistente fora das partidas; safe area inferior para dispositivos com gesto; formulário de identificação com `inputMode`, autocomplete semântico e campos maiores; ranking com filtros roláveis horizontalmente e controles de no mínimo 44px; modal da galeria com foco, Escape, setas e foco cíclico; resultados do quiz em fluxo vertical no celular; alvos touch ampliados no Ache o Erro; e ajustes de densidade para a Home, central de jogos e telas em orientação paisagem.
+
+A verificação automatizada executou `pnpm check`, `pnpm test` e `pnpm build`: **42 testes passaram**, typecheck sem erros e build concluído. A medição DOM disponível no navegador confirmou **overflow horizontal zero** e a barra móvel ativa; a captura dedicada é a fonte principal para os breakpoints móveis, pois o navegador persistente permaneceu em viewport desktop durante a avaliação DOM.

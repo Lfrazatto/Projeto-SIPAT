@@ -267,11 +267,14 @@ function distanceToSegment(point: Point, start: Point, end: Point): number {
  * largura/altura/tolerância, a versão anterior virava um ponto matemático e o
  * risco ficava impossível de acertar.
  */
-export function isPointInHazard(x: number, y: number, hazard: Hazard): boolean {
+export function isPointInHazard(x: number, y: number, hazard: Hazard, expanded = false): boolean {
   const width = Math.max(hazard.width || 0, 0.1);
   const height = Math.max(hazard.height || 0, 0.1);
   // Tolerance is a small percentage of the actual hotspot, never a global radius.
-  const tolerance = Math.min(Math.max(hazard.tolerance || 0, 0), Math.min(width, height) * 0.02);
+  const baseTolerance = Math.min(Math.max(hazard.tolerance || 0, 0), Math.min(width, height) * 0.02);
+  const tolerance = expanded
+    ? Math.max(baseTolerance, Math.min(6, Math.max(width, height) * 0.12), 2)
+    : baseTolerance;
 
   if (hazard.shape === "poligono" && hazard.points && hazard.points.length >= 3) {
     const polygon = hazard.points;
@@ -1300,8 +1303,10 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
   const handleTap = (x: number, y: number) => {
     if (phase !== "playing") return;
 
+    const touchFriendly = typeof navigator !== "undefined" && navigator.maxTouchPoints > 0;
+
     const hazard = targets.find(
-      (candidate) => !found.includes(candidate.id) && isPointInHazard(x, y, candidate)
+      (candidate) => !found.includes(candidate.id) && isPointInHazard(x, y, candidate, touchFriendly)
     );
 
     if (!hazard) {

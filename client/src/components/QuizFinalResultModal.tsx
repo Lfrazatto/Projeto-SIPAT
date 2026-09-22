@@ -61,7 +61,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl bg-[#151923] border border-white/15 text-slate-100 shadow-2xl p-6 sm:p-8">
+      <DialogContent className="max-h-[calc(100dvh-1rem)] overflow-y-auto bg-[#151923] border border-white/15 p-4 text-slate-100 shadow-2xl sm:max-h-[90vh] sm:max-w-xl sm:p-8">
         <DialogHeader className="text-center space-y-2">
           <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-tr from-[#da291c] to-amber-500 flex items-center justify-center shadow-lg shadow-red-900/50 mb-1 border-2 border-amber-300">
             <Trophy className="w-8 h-8 text-white" />
@@ -83,7 +83,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
         )}
 
         {/* Participant Identification Bar */}
-        <div className="p-3 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between text-xs">
+        <div className="flex flex-col gap-1 rounded-lg border border-white/10 bg-black/40 p-3 text-xs sm:flex-row sm:items-center sm:justify-between">
           <div>
             <span className="text-slate-400">Colaborador:</span>{" "}
             <span className="font-bold text-white">{playerName}</span>
@@ -95,7 +95,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
         </div>
 
         {/* Key Metrics Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-1 text-center">
+        <div className="grid grid-cols-2 gap-2 py-1 text-center sm:grid-cols-4 sm:gap-3">
           <div className="p-3 rounded-lg bg-black/40 border border-white/10">
             <div className="text-xs text-slate-400 uppercase font-semibold">Pontuação</div>
             <div className="text-2xl font-black font-industrial text-[#da291c]">{score}</div>
@@ -140,12 +140,12 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
         </div>
 
         {/* Required Navigation Buttons */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
+        <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-4">
           <Button
             onClick={onPlayAgain}
             variant="outline"
             size="sm"
-            className="border-white/20 text-slate-200 hover:bg-white/10 text-xs font-bold uppercase flex items-center justify-center gap-1"
+            className="min-h-12 border-white/20 text-slate-200 hover:bg-white/10 text-xs font-bold uppercase flex items-center justify-center gap-1"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             Jogar Novamente
@@ -154,7 +154,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
           <Button
             onClick={onOtherChallenge}
             size="sm"
-            className="bg-[#da291c] hover:bg-[#b01e12] text-white text-xs font-bold uppercase flex items-center justify-center gap-1"
+            className="min-h-12 bg-[#da291c] hover:bg-[#b01e12] text-white text-xs font-bold uppercase flex items-center justify-center gap-1"
           >
             <ArrowRight className="w-3.5 h-3.5" />
             Outro Desafio
@@ -164,7 +164,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
               asChild
               variant="outline"
               size="sm"
-              className="w-full border-amber-500/40 text-amber-300 hover:bg-amber-500/10 text-xs font-bold uppercase flex items-center justify-center gap-1"
+              className="min-h-12 w-full border-amber-500/40 text-amber-300 hover:bg-amber-500/10 text-xs font-bold uppercase flex items-center justify-center gap-1"
             >
               <Link href="/ranking" className="w-full"><Trophy className="w-3.5 h-3.5 text-amber-400" />Ver Ranking</Link>
             </Button>
@@ -173,7 +173,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
               asChild
               variant="outline"
               size="sm"
-              className="w-full border-blue-500/40 text-blue-300 hover:bg-blue-500/10 text-xs font-bold uppercase flex items-center justify-center gap-1"
+              className="min-h-12 w-full border-blue-500/40 text-blue-300 hover:bg-blue-500/10 text-xs font-bold uppercase flex items-center justify-center gap-1"
             >
               <Link href="/meu-progresso" className="w-full"><BarChart3 className="w-3.5 h-3.5 text-blue-400" />Meu Progresso</Link>
             </Button>

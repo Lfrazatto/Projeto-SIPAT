@@ -170,20 +170,20 @@ export default function Ranking() {
             <Search className="w-4 h-4 text-[#da291c]" />
             “Digite seu nome ou WWID”
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Input
               id="ranking-search"
               placeholder="Pesquisar por Nome Completo, parte do nome ou WWID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-black/50 border-white/15 text-white placeholder:text-slate-600 text-sm focus:border-[#da291c]"
+                className="min-h-11 bg-black/50 border-white/15 text-white placeholder:text-slate-600 text-sm focus:border-[#da291c]"
             />
             {searchTerm && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSearchTerm("")}
-                className="text-xs text-slate-400 border-white/15"
+                className="min-h-11 text-xs text-slate-400 border-white/15"
               >
                 Limpar
               </Button>
@@ -234,9 +234,9 @@ export default function Ranking() {
 
         {/* Filter and Sorting Tabs */}
         <div className="flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col gap-4">
           {/* Game filters */}
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="-mx-1 flex flex-nowrap items-center gap-2 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Filtrar por desafio">
             {[
               { id: "geral", label: "Ranking Geral" },
               { id: "quiz_seguranca", label: "Quiz Segurança" },
@@ -249,7 +249,7 @@ export default function Ranking() {
                 type="button"
                 aria-pressed={gameFilter === f.id}
                 onClick={() => setGameFilter(f.id as any)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-xs font-bold transition-all ${
                   gameFilter === f.id
                     ? "bg-[#da291c] text-white shadow-md shadow-red-950/60"
                     : "bg-white/5 text-slate-300 hover:bg-white/10"
@@ -261,7 +261,7 @@ export default function Ranking() {
           </div>
 
           {/* Sort selection */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
             <span className="text-xs text-slate-400 flex items-center gap-1">
               <ArrowUpDown className="w-3.5 h-3.5 text-[#da291c]" /> Ordenar:
             </span>
@@ -269,7 +269,7 @@ export default function Ranking() {
               aria-label="Ordenar ranking"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-black/50 border border-white/15 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#da291c]"
+              className="min-h-11 bg-black/50 border border-white/15 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#da291c]"
             >
               <option value="highest">Maior pontuação</option>
               <option value="lowest">Menor pontuação</option>
@@ -277,12 +277,12 @@ export default function Ranking() {
             </select>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2" aria-label="Filtrar ranking por perfil">
-          <span className="text-xs font-mono uppercase text-slate-400">Participantes:</span>
-          <button type="button" aria-pressed={participantType === "todos"} onClick={() => setParticipantType("todos")} className={`min-h-11 rounded-lg border px-3 py-2 text-xs font-bold transition ${participantType === "todos" ? "border-amber-400/60 bg-amber-500/20 text-amber-200" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}>Todos</button>
-          <button type="button" aria-pressed={participantType === "cummins"} onClick={() => setParticipantType("cummins")} className={`min-h-11 rounded-lg border px-3 py-2 text-xs font-bold transition ${participantType === "cummins" ? "border-amber-400/60 bg-amber-500/20 text-amber-200" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}>Funcionários Cummins</button>
-          <button type="button" aria-pressed={participantType === "terceiro"} onClick={() => setParticipantType("terceiro")} className={`min-h-11 rounded-lg border px-3 py-2 text-xs font-bold transition ${participantType === "terceiro" ? "border-amber-400/60 bg-amber-500/20 text-amber-200" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}>Terceiros</button>
-          <button type="button" aria-pressed={participantType === "visitante"} onClick={() => setParticipantType("visitante")} className={`min-h-11 rounded-lg border px-3 py-2 text-xs font-bold transition ${participantType === "visitante" ? "border-amber-400/60 bg-amber-500/20 text-amber-200" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}>Visitantes</button>
+        <div className="-mx-1 flex flex-nowrap items-center gap-2 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Filtrar ranking por perfil">
+          <span className="shrink-0 text-xs font-mono uppercase text-slate-400">Participantes:</span>
+          <button type="button" aria-pressed={participantType === "todos"} onClick={() => setParticipantType("todos")} className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg border px-3 py-2 text-xs font-bold transition ${participantType === "todos" ? "border-amber-400/60 bg-amber-500/20 text-amber-200" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}>Todos</button>
+          <button type="button" aria-pressed={participantType === "cummins"} onClick={() => setParticipantType("cummins")} className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg border px-3 py-2 text-xs font-bold transition ${participantType === "cummins" ? "border-amber-400/60 bg-amber-500/20 text-amber-200" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}>Funcionários Cummins</button>
+          <button type="button" aria-pressed={participantType === "terceiro"} onClick={() => setParticipantType("terceiro")} className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg border px-3 py-2 text-xs font-bold transition ${participantType === "terceiro" ? "border-amber-400/60 bg-amber-500/20 text-amber-200" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}>Terceiros</button>
+          <button type="button" aria-pressed={participantType === "visitante"} onClick={() => setParticipantType("visitante")} className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg border px-3 py-2 text-xs font-bold transition ${participantType === "visitante" ? "border-amber-400/60 bg-amber-500/20 text-amber-200" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}>Visitantes</button>
         </div>
         </div>
 

@@ -142,3 +142,14 @@ A validação funcional foi feita no navegador com um encaixe individual, os cin
 O Organize a Fábrica recebeu uma camada adicional de clareza e ritmo. O cabeçalho agora exibe a porcentagem concluída com barra de progresso, identifica visualmente a etapa atual e mantém o contador de tarefas. Quando um item é selecionado por toque, uma orientação persistente informa qual ação deve ser feita em seguida, enquanto cada cartão mostra a estação de destino sem entregar o encaixe exato. Na etapa Lean, o próximo foco do ciclo 5S fica destacado para reduzir dúvidas sem eliminar a necessidade de ordenar o processo.
 
 Em telas pequenas, foram ajustados espaçamentos, alturas mínimas, áreas de toque, densidade de cartões, cabeçalho com timer e grade da sequência Lean. A validação no navegador confirmou seleção, orientação contextual e encaixe correto; `pnpm check`, `pnpm test` com 42 testes e `pnpm build` foram aprovados.
+
+
+## Melhoria Mobile Abrangente — 21/09/2026
+
+A experiência móvel foi revisada de forma transversal, com foco em uso real por toque, teclado virtual, leitores de tela e dispositivos com safe area. Foi criado um CTA móvel persistente para iniciar os desafios e acessar o ranking, ocultado durante partidas para não cobrir controles. O menu móvel passou a restaurar foco, anunciar corretamente o diálogo e fechar por toque externo usando Pointer Events.
+
+O formulário de identificação ganhou `inputMode`, autocomplete semântico, modal com altura baseada em `dvh`, campos maiores e ações de confirmação/cancelamento com alvos confortáveis. O Ranking passou a usar filtros horizontais roláveis, busca e ordenação empilhadas no celular e botões com altura mínima adequada. O quiz recebeu cabeçalho refluído, alternativas maiores, resultado vertical e modal rolável; a galeria passou a conter o foco, restaurá-lo ao fechar e suportar Escape, setas e Tab sem fuga de foco.
+
+O Ache o Erro amplia alvos de toque em dispositivos touch sem alterar a função geométrica usada pelos testes de precisão. A página da equipe mantém dimensões explícitas e carregamento preguiçoso abaixo da primeira dobra. CSS adicional trata safe areas, orientação paisagem curta, viewport dinâmica, prevenção de zoom involuntário em inputs e redução de densidade visual em telas estreitas.
+
+A auditoria visual cobriu 375 × 812 px nas rotas Home, Jogos, Organize a Fábrica, Ranking, Meu progresso, Formare e Galeria. A avaliação DOM confirmou overflow horizontal zero na sessão disponível. `pnpm check`, `pnpm test` e `pnpm build` foram executados com sucesso; **42 testes passaram**.
