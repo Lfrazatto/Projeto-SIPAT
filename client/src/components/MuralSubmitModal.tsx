@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HeartHandshake, Send, Sparkles, Shield, User, HelpCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { MURAL_PROMPTS } from "@shared/muralData";
+import { MURAL_PROMPTS, MURAL_WRITING_EXAMPLES } from "@shared/muralData";
 import { useParticipant } from "@/contexts/ParticipantContext";
 import { toast } from "sonner";
 
@@ -180,6 +180,18 @@ export function MuralSubmitModal({ open, onOpenChange, onSubmitted }: MuralSubmi
                     : "border-white/20 focus:border-amber-400 focus:ring-amber-400"
                 }`}
               />
+              <div className="rounded-lg border border-cyan-400/20 bg-cyan-950/20 p-3" aria-label="Exemplos de inspiração para escrever">
+                <p className="text-[10px] font-mono font-bold uppercase tracking-wide text-cyan-200">
+                  Exemplos para inspirar — não serão publicados
+                </p>
+                <ul className="mt-1.5 space-y-1 text-[11px] leading-snug text-slate-300">
+                  {MURAL_WRITING_EXAMPLES.slice(0, 3).map((example) => (
+                    <li key={example} className="before:mr-1.5 before:text-cyan-300 before:content-['•']">
+                      {example}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             {/* 3. Privacidade e identificação */}

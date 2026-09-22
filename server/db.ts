@@ -175,25 +175,6 @@ export async function ensureInitialSeeds(): Promise<void> {
     else await db.insert(scenarioImages).values({ scenarioKey: scenario.key, ...imageData });
   }
 
-  const countMural = await db.select({ count: sql<number>`count(*)` }).from(muralMessages);
-  if (Number(countMural[0]?.count ?? 0) === 0) {
-    const { INITIAL_APPROVED_MURAL_MESSAGES } = await import("../shared/muralData");
-    for (const msg of INITIAL_APPROVED_MURAL_MESSAGES) {
-      await db.insert(muralMessages).values({
-        promptKey: msg.promptKey,
-        promptText: msg.promptText,
-        message: msg.message,
-        publicName: msg.publicName,
-        isAnonymous: msg.isAnonymous,
-        consent: true,
-        status: msg.status,
-        isFeatured: msg.isFeatured,
-        flagged: false,
-        moderatedAt: new Date(),
-        moderatedBy: "Sistema SIPAT",
-      });
-    }
-  }
 }
 
 export async function listScenarioImages(activeOnly = true) {

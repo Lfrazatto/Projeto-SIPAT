@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 import { analyzeMuralSafety } from "../shared/muralData";
-import { ENV } from "./_core/env";
 
 function createMockContext(admin = false): TrpcContext {
   return {
@@ -52,20 +51,27 @@ describe("Mural Voltar Seguro para Casa - Testes de Regra e Moderação", () => 
     expect(emailAnalysis.reasons.some((r) => r.includes("e-mail"))).toBe(true);
   });
 
-  it("permite submeter uma nova mensagem que entra inicialmente como pendente", async () => {
+  it("exige consentimento e valida o limite antes de gravar uma mensagem", async () => {
     const caller = appRouter.createCaller(createMockContext(false));
 
-    const result = await caller.mural.submitMessage({
-      promptKey: "eu_me_cuido",
-      message: "Eu me cuido porque a minha família é o meu maior patrimônio e espera por mim.",
-      publicName: "Operador de Teste",
-      isAnonymous: false,
-      consent: true,
-    });
+    await expect(
+      caller.mural.submitMessage({
+        promptKey: "eu_me_cuido",
+        message: "Uma frase válida que não deve ser gravada sem autorização.",
+        publicName: "Operador de Teste",
+        isAnonymous: false,
+        consent: false,
+      })
+    ).rejects.toThrow();
 
-    expect(result.success).toBe(true);
-    expect(result.status).toBe("pendente");
-    expect(result.message).toContain("revisada pela moderação");
+    await expect(
+      caller.mural.submitMessage({
+        promptKey: "eu_me_cuido",
+        message: "x".repeat(281),
+        isAnonymous: true,
+        consent: true,
+      })
+    ).rejects.toThrow();
   });
 
   it("retorna apenas mensagens aprovadas na consulta pública do mural", async () => {
@@ -73,12 +79,13 @@ describe("Mural Voltar Seguro para Casa - Testes de Regra e Moderação", () => 
     const approved = await caller.mural.listApproved();
 
     expect(Array.isArray(approved)).toBe(true);
-    expect(approved.length).toBeGreaterThan(0);
-
-    // Nenhuma mensagem pública pode estar com status diferente de aprovada
+    // A consulta pública pode estar vazia até a primeira aprovação do moderador.
+    // Quando houver conteúdo, cada item deve conter somente campos públicos.
     for (const msg of approved) {
       expect(msg.message.length).toBeGreaterThanOrEqual(5);
       expect(msg.promptText).toBeDefined();
+      expect(msg).not.toHaveProperty("participantId");
+      expect(msg).not.toHaveProperty("flagReasons");
     }
   });
 

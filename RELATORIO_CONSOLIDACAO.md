@@ -184,7 +184,7 @@ Nesta etapa, a navegação mobile e os três jogos editáveis da SIPAT Cummins 2
    TypeScript 100% aprovado sem erros (`pnpm check`), Vitest com 42 testes passando em 9 arquivos (`pnpm test`) e build de produção compilado com sucesso (`pnpm build`).
 
 
-## Atualização — Mural Interativo “Voltar Seguro para Casa” (22/09/2026)
+## Atualização — Mural “Voltar Seguro para Casa” e Limpeza de Mensagens Demonstrativas (22/09/2026)
 
 Implementamos dentro da aplicação da SIPAT Cummins Osasco o espaço emocional, acolhedor e seguro solicitado no briefing:
 
@@ -209,6 +209,8 @@ Implementamos dentro da aplicação da SIPAT Cummins Osasco o espaço emocional,
 
 3. **Moderação e Proteção de Dados (Privacidade por Padrão)**:
    - Nenhuma mensagem enviada por participante aparece imediatamente na área pública. Todas entram com o status inicial `pendente`.
+   - **Todas as frases demonstrativas e de teste geradas durante o desenvolvimento foram excluídas definitivamente do banco de dados e do código de inicialização.**
+   - Os exemplos de frases foram mantidos exclusivamente como **guia de inspiração dentro da caixa de envio do participante**, sem qualquer publicação no mural.
    - Algoritmo de filtragem automática (`analyzeMuralSafety`) que analisa números de telefone, endereços de e-mail, links externos, documentos (CPF/CNPJ) e termos inadequados, sinalizando para o moderador.
    - Nunca são divulgados publicamente dados confidenciais como chapa, WWID ou e-mail.
 
