@@ -30,7 +30,16 @@ export default function Jogos() {
   const [difficultyModalOpen, setDifficultyModalOpen] = useState(false);
   const [selectedGameForLaunch, setSelectedGameForLaunch] = useState<ActiveGameMode>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>("facil");
-  const [activeRunningGame, setActiveRunningGame] = useState<ActiveGameMode>(null);
+  const [activeRunningGame, setActiveRunningGame] = useState<ActiveGameMode>(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const play = params.get("play") || params.get("game");
+      if (play === "quiz_seguranca" || play === "quiz_ergonomia" || play === "ache_o_erro" || play === "organize_a_fabrica") {
+        return play;
+      }
+    }
+    return null;
+  });
   const gameSettingsQuery = trpc.games.getSettings.useQuery();
 
   // Fetch participant progress if identified to show badges

@@ -34,3 +34,16 @@
 - [x] Validar seleção e encaixe correto no navegador
 - [x] Passar typecheck, 42 testes e build
 - [x] Salvar checkpoint e atualizar pacote ZIP
+
+## Melhorias de Legibilidade para Pessoas Mais Velhas — 21/09/2026
+
+- [x] Auditar requisitos de visualização, escala e facilidade de localização nos quatro jogos
+- [x] Aumentar a escala tipográfica dos enunciados, opções, timers e resultados nos Quizzes de Segurança e Ergonomia
+- [x] Reforçar contraste, bordas (2px) e alvos de toque/clique (>= 44px a 56px) nas alternativas e controles
+- [x] Adaptar o Ache o Erro para manter cenas com tamanho grande e detalhado em tablets e celulares via alternância de abas até 1023px
+- [x] Aumentar os rótulos de cena ("Inspeção" / "Referência segura"), marcadores de acerto e anel de dicas
+- [x] Otimizar o Organize a Fábrica com fontes legíveis (1rem), cartões de itens mais altos (>= 6.25rem) e bancadas de encaixe claras
+- [x] Executar testes de tipo (`pnpm check`), testes unitários/integração (`pnpm test` - 42 testes) e build de produção (`pnpm build`)
+- [x] Auditar capturas de tela em 375x812 e 768x1024 para validar legibilidade real
+- [x] Salvar novo checkpoint versionado
+- [x] Gerar pacote ZIP atualizado da aplicação

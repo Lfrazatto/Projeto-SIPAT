@@ -604,7 +604,7 @@ function StatTile({
 
   return (
     <div
-      className={`rounded-xl border px-3 py-2 transition-colors ${
+      className={`older-stat-tile rounded-xl border px-3 py-2 transition-colors ${
         alert ? "border-red-500/60 bg-red-950/40" : "border-white/10 bg-black/30"
       }`}
     >
@@ -638,7 +638,7 @@ function IconButton({
       disabled={disabled}
       title={title}
       aria-label={title}
-      className="seg-focus rounded-lg p-2 text-slate-300 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+      className="older-icon-control seg-focus rounded-lg p-2 text-slate-300 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
     >
       {children}
     </button>
@@ -819,7 +819,7 @@ function Stage({
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
       onWheel={handleWheel}
-      className="relative w-full touch-none overflow-hidden bg-black"
+      className="older-stage relative w-full touch-none overflow-hidden bg-black"
       style={{
         aspectRatio: String(ratio),
         maxHeight: "70vh",
@@ -863,7 +863,7 @@ function Stage({
         </div>
       </div>
 
-      <div className="pointer-events-none absolute left-3 top-3 rounded-md bg-black/75 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+      <div className="older-caption pointer-events-none absolute left-3 top-3 rounded-md bg-black/80 px-3 py-2 text-sm font-bold text-white backdrop-blur-sm">
         {caption}
       </div>
     </div>
@@ -937,7 +937,13 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
   const sequential = scenario?.phaseMode === "sequenciais";
 
   /* --- Estado de jogo --- */
-  const [phase, setPhase] = useState<Phase>("briefing");
+  const [phase, setPhase] = useState<Phase>(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search).get("spotPhase");
+      if (p === "playing") return "playing";
+    }
+    return "briefing";
+  });
   const [countdown, setCountdown] = useState(COUNTDOWN_FROM);
   const [remaining, setRemaining] = useState(stageTime);
   const [found, setFound] = useState<string[]>([]);
@@ -1585,7 +1591,7 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
     const imagesFailed = preload.status === "error";
 
     return (
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
+      <div className="game-legibility mx-auto max-w-6xl px-4 py-8 sm:py-12">
         <div className="seg-pop overflow-hidden rounded-3xl border border-red-500/25 bg-[#11151e] shadow-2xl">
           <div className="relative border-b border-white/10 bg-[radial-gradient(circle_at_80%_0%,rgba(218,41,28,.28),transparent_48%)] p-6 sm:p-10">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1747,7 +1753,7 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
   ).toFixed(2);
 
   return (
-    <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8">
+    <div className="game-legibility mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8">
       {/* ---------- Barra de status ---------- */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#141822] p-3 sm:p-4">
         <div className="flex min-w-0 items-center gap-3">
@@ -1948,10 +1954,10 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
           </div>
         </section>
       ) : (
-      <div className="relative grid gap-3 md:grid-cols-2">
+      <div className="relative grid gap-3 lg:grid-cols-2">
         <div
           className={`${
-            mobileTab === "errors" ? "hidden md:block" : "block"
+            mobileTab === "errors" ? "hidden lg:block" : "block"
           } overflow-hidden rounded-2xl border border-white/15 bg-black shadow-2xl`}
         >
           <div className="border-b border-white/10 bg-[#141822] px-4 py-3">
@@ -1973,7 +1979,7 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
 
         <div
           className={`${
-            mobileTab === "safe" ? "hidden md:block" : "block"
+            mobileTab === "safe" ? "hidden lg:block" : "block"
           } overflow-hidden rounded-2xl border border-red-500/35 bg-black shadow-2xl`}
         >
           <div className="flex items-center justify-between border-b border-red-500/20 bg-[#24151a] px-4 py-3">

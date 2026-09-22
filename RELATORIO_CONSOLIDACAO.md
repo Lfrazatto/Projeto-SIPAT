@@ -153,3 +153,11 @@ O formulário de identificação ganhou `inputMode`, autocomplete semântico, mo
 O Ache o Erro amplia alvos de toque em dispositivos touch sem alterar a função geométrica usada pelos testes de precisão. A página da equipe mantém dimensões explícitas e carregamento preguiçoso abaixo da primeira dobra. CSS adicional trata safe areas, orientação paisagem curta, viewport dinâmica, prevenção de zoom involuntário em inputs e redução de densidade visual em telas estreitas.
 
 A auditoria visual cobriu 375 × 812 px nas rotas Home, Jogos, Organize a Fábrica, Ranking, Meu progresso, Formare e Galeria. A avaliação DOM confirmou overflow horizontal zero na sessão disponível. `pnpm check`, `pnpm test` e `pnpm build` foram executados com sucesso; **42 testes passaram**.
+
+## Atualização - Rodada de Legibilidade e Visualização para Pessoas Mais Velhas
+- Implementadas melhorias visuais abrangentes sem alterar as regras e sem revelar antecipadamente os riscos/respostas:
+  - Escala de tipografia aumentada em perguntas, opções, timers, instruções e painéis de jogo.
+  - Alternativas de quiz agora ocupam blocos generosos de pelo menos 5.25rem de altura com destaque de foco e hover em amarelo ouro industrial.
+  - No jogo Ache o Erro, imagens em smartphones e tablets de até 1023px são apresentadas em tamanho expandido por abas alternadas com rótulos contrastantes ("Inspeção" e "Referência segura"), impedindo o encolhimento de detalhes visuais que ocorria no modo lado a lado simultâneo.
+  - No jogo Organize a Fábrica, cartões de ferramentas e bancadas de 5S/Lean ganharam tipografia de 1rem, altura ampliada para toque confortável (6.25rem a 7rem) e alto contraste.
+  - Todos os 42 testes automatizados continuam passando e o build de produção Vite + esbuild foi concluído sem inconsistências.

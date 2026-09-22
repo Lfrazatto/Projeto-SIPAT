@@ -376,3 +376,203 @@ button:active, [data-slot="button"]:active { transform: scale(.975); }
   .hero-control .relative.mx-auto { padding-top: 2rem; padding-bottom: 2rem; }
   .mobile-menu-panel { max-height: calc(100dvh - 3.8rem); }
 }
+
+
+/* Legibilidade ampliada para participantes com baixa acuidade visual ou pouca familiaridade digital. */
+.game-legibility {
+  --older-text: #f8fafc;
+  --older-muted: #d5deea;
+  --older-border: rgba(255,255,255,.24);
+}
+.game-legibility .older-help {
+  color: var(--older-muted) !important;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+.game-legibility .older-kicker {
+  font-size: .78rem;
+  letter-spacing: .1em;
+}
+.game-legibility .older-title,
+.game-legibility .older-question,
+.game-legibility .older-panel-title {
+  color: var(--older-text);
+}
+.game-legibility .older-question {
+  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  line-height: 1.4;
+}
+.game-legibility .older-meta,
+.game-legibility .older-label {
+  color: #d5deea !important;
+  font-size: .78rem;
+  line-height: 1.4;
+}
+.game-legibility .older-tag {
+  border-color: var(--older-border);
+  color: #e5edf7;
+  font-size: .85rem;
+}
+.game-legibility .older-stat-tile {
+  border-color: var(--older-border);
+}
+.game-legibility .older-stat-tile strong {
+  font-size: 1.45rem;
+}
+.game-legibility .older-progress [role="progressbar"] {
+  min-height: .7rem;
+}
+.game-legibility .older-option {
+  min-height: 5.25rem;
+  border-width: 2px;
+  border-color: var(--older-border);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+.game-legibility .older-option:hover:not(:disabled),
+.game-legibility .older-option:focus-visible {
+  border-color: #ffc72c;
+  background-color: rgba(255,199,44,.12);
+}
+.game-legibility .older-option-letter {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1rem;
+}
+.game-legibility .older-option-text {
+  color: #f1f5f9;
+}
+.game-legibility .older-feedback {
+  border-width: 2px;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+.game-legibility .older-feedback-text {
+  color: #e5edf7 !important;
+  font-size: .98rem;
+  line-height: 1.65;
+}
+.game-legibility .older-control {
+  min-height: 3.25rem;
+  font-size: 1rem;
+}
+.game-legibility .older-icon-control {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.game-legibility .older-stage {
+  border: 2px solid rgba(255,255,255,.2);
+  box-shadow: 0 12px 36px rgba(0,0,0,.35);
+}
+.game-legibility .older-caption {
+  font-size: .95rem;
+  line-height: 1.25;
+  border: 1px solid rgba(255,255,255,.28);
+}
+.game-legibility .older-item,
+.game-legibility .older-slot {
+  border-width: 2px;
+}
+.game-legibility-organize .older-item,
+.game-legibility-organize .older-slot {
+  font-size: 1rem;
+}
+
+@media (max-width: 1023px) {
+  .game-legibility .older-stage {
+    max-height: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .game-legibility {
+    font-size: 1rem;
+  }
+  .game-legibility .older-control {
+    min-height: 3.5rem;
+  }
+  .game-legibility .older-option {
+    min-height: 5.5rem;
+    padding: 1rem;
+    font-size: 1rem;
+  }
+  .game-legibility .older-help {
+    font-size: .98rem;
+  }
+  .game-legibility .older-caption {
+    left: .6rem;
+    top: .6rem;
+    font-size: .9rem;
+  }
+  .game-legibility-organize .older-item,
+  .game-legibility-organize .older-slot {
+    min-height: 6.5rem;
+  }
+}
+
+html[data-contrast="high"] .game-legibility .older-option,
+html[data-contrast="high"] .game-legibility .older-item,
+html[data-contrast="high"] .game-legibility .older-slot,
+html[data-contrast="high"] .game-legibility .older-stage {
+  border-color: #fff !important;
+}
+
+
+/* Ajustes específicos do desafio de organização para leitura de primeira passada. */
+.game-legibility-organize h2 { font-size: clamp(1.35rem, 3vw, 1.75rem) !important; }
+.game-legibility-organize h3,
+.game-legibility-organize h4 { font-size: 1rem !important; line-height: 1.35; }
+.game-legibility-organize section button { min-height: 6.25rem; }
+.game-legibility-organize section button strong { font-size: 1rem !important; line-height: 1.35; }
+.game-legibility-organize section button > div span:not([class*="bg-"]) { line-height: 1.45; }
+.game-legibility-organize section button .text-\[10px\],
+.game-legibility-organize section button .text-\[11px\],
+.game-legibility-organize section button .text-xs { font-size: .9rem !important; }
+.game-legibility-organize section button .font-mono { font-size: .78rem !important; }
+.game-legibility-organize > div:first-child button { min-height: 3.5rem; }
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  .game-legibility-organize section button { min-height: 7rem; }
+}
+
+/* Ache o Erro: instruções e controles maiores sem esconder as diferenças da cena. */
+.game-legibility:not(.game-legibility-organize) .text-xs {
+  font-size: .9rem !important;
+  line-height: 1.5;
+}
+.game-legibility:not(.game-legibility-organize) .text-sm {
+  font-size: 1rem !important;
+  line-height: 1.55;
+}
+.game-legibility:not(.game-legibility-organize) button {
+  min-height: 3.25rem;
+}
+.game-legibility:not(.game-legibility-organize) [role="timer"] {
+  min-height: 4rem;
+}
+.game-legibility:not(.game-legibility-organize) [role="progressbar"] {
+  min-height: .8rem;
+}
+.game-legibility:not(.game-legibility-organize) .seg-stamp > span {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+.game-legibility:not(.game-legibility-organize) .seg-stamp svg {
+  width: 1.65rem;
+  height: 1.65rem;
+}
+.game-legibility:not(.game-legibility-organize) .seg-hint {
+  border-width: 3px;
+}
+
+@media (max-width: 640px) {
+  .game-legibility:not(.game-legibility-organize) .text-sm {
+    font-size: .98rem !important;
+  }
+  .game-legibility:not(.game-legibility-organize) button {
+    min-height: 3.5rem;
+  }
+}

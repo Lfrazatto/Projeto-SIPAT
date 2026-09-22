@@ -52,3 +52,25 @@ Foram capturadas as rotas Home, Jogos, Organize a Fábrica, Ranking, Meu progres
 As correções desta rodada incluem: CTA móvel persistente fora das partidas; safe area inferior para dispositivos com gesto; formulário de identificação com `inputMode`, autocomplete semântico e campos maiores; ranking com filtros roláveis horizontalmente e controles de no mínimo 44px; modal da galeria com foco, Escape, setas e foco cíclico; resultados do quiz em fluxo vertical no celular; alvos touch ampliados no Ache o Erro; e ajustes de densidade para a Home, central de jogos e telas em orientação paisagem.
 
 A verificação automatizada executou `pnpm check`, `pnpm test` e `pnpm build`: **42 testes passaram**, typecheck sem erros e build concluído. A medição DOM disponível no navegador confirmou **overflow horizontal zero** e a barra móvel ativa; a captura dedicada é a fonte principal para os breakpoints móveis, pois o navegador persistente permaneceu em viewport desktop durante a avaliação DOM.
+
+## Auditoria de Legibilidade e Visualização para Pessoas Mais Velhas (Rodada v4.1)
+- **Quiz de Segurança & Quiz de Ergonomia**:
+  - Enunciados das perguntas receberam `older-question` (clamp 1.3rem a 1.8rem, line-height 1.4), garantindo leitura sem esforço mesmo com celulares menores (375px/390px).
+  - Cronômetro e pontuação em caixas pretas semitransparentes com bordas nítidas de 2px e números ampliados (1.45rem+).
+  - Letras das alternativas em blocos circulares/quadrados de 2.5rem (40px) com contraste branco sobre fundo escuro.
+  - Alternativas com altura mínima de 5.25rem a 5.5rem, texto aumentado (1.05rem) e foco/hover em amarelo ouro Cummins (#ffc72c) com fundo clareado.
+  - Explicações pós-resposta aumentadas para 1rem com entrelinha 1.65 e contraste reforçado.
+- **Ache o Erro**:
+  - Título e instruções de cena aumentados e com marcadores numerados contrastantes.
+  - No celular e no tablet (até 1023px), as cenas usam modo de alternância com abas grandes (min-height 3.5rem) e rótulos fixos de alto contraste ("Inspeção", "Referência segura"), evitando que duas imagens fiquem pequenas demais lado a lado.
+  - A comparação lado a lado agora é reservada exclusivamente para telas desktop (>= 1024px).
+  - Controles de zoom (- / 100% / + / tela cheia), Dica (com quantidade nítida), Pausar e Modo Textual com áreas de toque ampliadas (>= 44px).
+  - Selos de acerto com diâmetro ampliado de 3.5rem e anel de dica com borda de 3px para localização imediata após o clique correto.
+- **Organize a Fábrica**:
+  - Título, subetapas e instruções de fluxo 5S aumentadas com tipografia limpa.
+  - Cartões de itens arrastáveis/tocáveis com altura mínima de 6.25rem a 7rem, ícone descritivo e texto de instrução em contraste reforçado.
+  - Slots de destino e esteira Lean com bordas de 2px e tipografia de 1rem para leitura instantânea de cada etapa da oficina.
+- **Validação Técnica**:
+  - Suíte de testes: 42 testes aprovados em 9 arquivos vitest.
+  - TypeScript: 0 erros (`tsc --noEmit`).
+  - Build de produção: Vite + esbuild finalizado sem falhas.

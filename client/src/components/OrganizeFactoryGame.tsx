@@ -335,7 +335,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-3 py-5 sm:px-6 sm:py-8">
+    <div className="game-legibility game-legibility-organize mx-auto w-full max-w-6xl px-3 py-5 sm:px-6 sm:py-8">
       <div className="mb-4 flex flex-col gap-3 rounded-xl border border-white/10 bg-[#141822] p-3 shadow-xl sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:p-4">
         <div className="flex items-center gap-3">
           <div className="rounded-lg border border-cyan-500/40 bg-cyan-950/80 p-2 text-cyan-400 sm:p-2.5">

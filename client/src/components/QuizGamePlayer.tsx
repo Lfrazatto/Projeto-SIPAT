@@ -265,7 +265,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
   const potentialPointsNow = Math.round(basePointsPerQuestion * (remainingSeconds / secondsPerQuestion));
 
   return (
-      <div className="mx-auto max-w-4xl px-3 py-4 pb-8 sm:px-6 sm:py-8">
+      <div className="game-legibility mx-auto max-w-4xl px-3 py-4 pb-8 sm:px-6 sm:py-8">
       {/* Quiz Top Bar */}
       <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-white/10 bg-[#141822] p-3 shadow-xl sm:mb-6 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:p-4">
         <div className="col-span-2 flex min-w-0 items-center gap-3 sm:col-span-1">
@@ -277,14 +277,14 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
             )}
           </div>
           <div>
-            <span className="text-[10px] font-mono font-bold tracking-widest text-[#da291c] uppercase">
+            <span className="older-kicker text-[10px] font-mono font-bold tracking-widest text-[#da291c] uppercase">
               DESAFIO OFICIAL SIPAT
             </span>
-            <h2 className="text-lg sm:text-xl font-bold font-industrial uppercase text-white">
+            <h2 className="older-title text-xl sm:text-2xl font-bold font-industrial uppercase text-white">
               {gameType === "quiz_seguranca" ? "Quiz de Segurança" : "Quiz de Ergonomia"}
             </h2>
             {participant && dailyAttemptsQuery.data && (
-              <span className="text-[11px] font-mono text-slate-400">
+              <span className="older-meta text-[11px] font-mono text-slate-400">
                 Tentativas hoje: <strong className="text-white">{dailyAttemptsQuery.data.attemptsToday}</strong> / {dailyAttemptsQuery.data.maxDailyAttempts}
               </span>
             )}
@@ -293,14 +293,14 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
 
         {/* Dynamic Live Timer: 60s - Prominent as requested */}
         <div className="col-span-2 grid grid-cols-2 items-stretch gap-2 sm:flex sm:items-center sm:gap-4">
-          <div role="timer" aria-label={`${remainingSeconds} segundos restantes`} className="px-4 py-2 rounded-lg bg-black/60 border border-white/15 flex items-center gap-2">
+          <div role="timer" aria-label={`${remainingSeconds} segundos restantes`} className="older-stat-tile px-4 py-2 rounded-lg bg-black/60 border border-white/15 flex items-center gap-2">
             <Clock
               className={`w-5 h-5 ${
                 remainingSeconds <= 15 ? "text-red-500 animate-pulse" : "text-amber-400"
               }`}
             />
             <div className="flex flex-col">
-              <span className="text-[10px] text-slate-400 font-mono leading-none">TEMPO</span>
+              <span className="older-label text-[10px] text-slate-400 font-mono leading-none">TEMPO</span>
               <span
                 className={`text-xl sm:text-2xl font-black font-industrial tracking-wider leading-none ${
                   remainingSeconds <= 15 ? "text-red-400" : "text-white"
@@ -311,20 +311,20 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
             </div>
           </div>
 
-          <Button type="button" variant="outline" onClick={() => setIsPaused(true)} aria-pressed={isPaused} disabled={isAnswered || isFinished || isPaused} className="min-h-12 border-white/20 px-3 text-white">
+          <Button type="button" variant="outline" onClick={() => setIsPaused(true)} aria-pressed={isPaused} disabled={isAnswered || isFinished || isPaused} className="older-control min-h-12 border-white/20 px-3 text-white">
             {isPaused ? <Play className="mr-2 h-4 w-4" aria-hidden="true" /> : <Pause className="mr-2 h-4 w-4" aria-hidden="true" />}
             {isPaused ? "Continuar" : "Pausar"}
           </Button>
 
           <div className="rounded-lg border border-white/10 bg-black/20 px-2 py-2 text-right">
-            <span className="text-[10px] text-slate-400 font-mono">PONTUAÇÃO ATUAL</span>
+            <span className="older-label text-[10px] text-slate-400 font-mono">PONTUAÇÃO ATUAL</span>
             <div className="text-2xl font-black font-industrial text-[#da291c]">{totalScore} pts</div>
           </div>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="mb-6 space-y-2">
+      <div className="older-progress mb-6 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
           <span>
             Questão <strong className="text-white">{currentIndex + 1}</strong> de{" "}
@@ -339,17 +339,17 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
 
       {/* Question Card */}
       {currentQuestion && (
-        <div className="space-y-5 rounded-2xl border border-white/10 bg-[#161a24] p-4 shadow-2xl sm:space-y-6 sm:p-8">
+        <div className="older-panel space-y-5 rounded-2xl border border-white/10 bg-[#161a24] p-4 shadow-2xl sm:space-y-6 sm:p-8">
           <div className="flex items-center justify-between">
-            <span className="px-3 py-1 rounded text-xs font-mono font-semibold bg-white/5 border border-white/10 text-slate-300">
+            <span className="older-tag px-3 py-1 rounded text-xs font-mono font-semibold bg-white/5 border border-white/10 text-slate-300">
               Tema: {currentQuestion.theme}
             </span>
-            <span className="text-xs font-mono text-slate-400">
+            <span className="older-meta text-xs font-mono text-slate-400">
               Potencial nesta questão: <strong className="text-emerald-400">{potentialPointsNow} pts</strong>
             </span>
           </div>
 
-          <h3 id="quiz-question" className="text-lg sm:text-2xl font-bold font-industrial text-white leading-relaxed">
+          <h3 id="quiz-question" className="older-question text-lg sm:text-2xl font-bold font-industrial text-white leading-relaxed">
             {currentQuestion.question}
           </h3>
 
@@ -376,10 +376,10 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
                   type="button"
                   disabled={isAnswered || isPaused}
                   onClick={() => handleSelectOption(opt.key)}
-                  className={`min-h-16 rounded-xl border p-4 text-left flex items-start gap-3 transition-all duration-150 ${btnStyle}`}
+                  className={`older-option min-h-16 rounded-xl border p-4 text-left flex items-start gap-3 transition-all duration-150 ${btnStyle}`}
                 >
                   <span
-                    className={`w-7 h-7 rounded flex items-center justify-center font-bold text-xs shrink-0 font-industrial ${
+                    className={`older-option-letter w-7 h-7 rounded flex items-center justify-center font-bold text-xs shrink-0 font-industrial ${
                       isSelected
                         ? "bg-[#da291c] text-white"
                         : "bg-white/10 text-slate-300"
@@ -387,7 +387,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
                   >
                     {opt.key}
                   </span>
-                  <span className="text-sm font-medium leading-normal pt-0.5">{opt.text}</span>
+                  <span className="older-option-text text-sm font-medium leading-normal pt-0.5">{opt.text}</span>
                 </button>
               );
             })}
@@ -398,7 +398,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
             <div
               role="status"
               aria-live="polite"
-              className={`p-4 rounded-xl border text-sm animate-fadeIn space-y-2 ${
+              className={`older-feedback p-4 rounded-xl border text-sm animate-fadeIn space-y-2 ${
                 answerFeedback.isCorrect
                   ? "bg-emerald-950/50 border-emerald-500/50 text-emerald-200"
                   : "bg-red-950/50 border-red-500/50 text-red-200"
@@ -421,7 +421,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
               </div>
 
               {answerFeedback.explanation && (
-                <p className="text-xs text-slate-300 leading-relaxed border-t border-white/10 pt-2">
+                <p className="older-feedback-text text-xs text-slate-300 leading-relaxed border-t border-white/10 pt-2">
                   <strong>Justificativa Técnica:</strong> {answerFeedback.explanation}
                 </p>
               )}
@@ -429,7 +429,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
               <div className="pt-2 flex justify-end">
                 <Button
                   onClick={handleNextQuestion}
-                  className="bg-white text-black hover:bg-slate-200 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5"
+                  className="older-control bg-white text-black hover:bg-slate-200 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5"
                 >
                   {currentIndex + 1 < questions.length ? "Próxima Pergunta" : "Ver Resultado Final"}
                   <ArrowRight className="w-4 h-4" />
