@@ -322,3 +322,20 @@ Conforme a necessidade de visibilidade imediata sem exigir que os usuários role
    - `pnpm check`: sem erros de tipagem.
    - `pnpm test`: 48 testes automatizados aprovados em 10 arquivos.
    - `pnpm build`: compilação de produção validada.
+
+
+## Atualização — Tratamento da Foto Real do Eixo e Harmonização Visual do Site (22/09/2026)
+
+1. **Tratamento da Foto do Eixo**:
+   - A fotografia real do produto (`eixo-ms18x-cummins.jpg`) foi enquadrada em um canvas de estúdio fotográfico técnico com padding proporcional, evitando corte de extremidades dos cubos ou flanges.
+   - O card de apresentação em `/projeto-3d` recebeu borda técnica de 2px com destaque industrial em vermelho Cummins, fundo estúdio suave (`#f8f9fb`) e efeito sutil de hover, harmonizando o produto com o tema dark sem poluição visual.
+
+2. **Organização da Interface e da Home**:
+   - O visualizador 3D na Hero da página inicial teve seu cabeçalho simplificado: os botões de ação e acesso à lista acessível foram unificados em uma barra inferior compacta, liberando mais área útil para o modelo 3D.
+   - Removidos textos repetitivos sobre instruções e poluição visual, mantendo a visualização limpa e intuitiva.
+
+3. **Validação**:
+   - Capturas confirmadas em resolução desktop e mobile para `/` e `/projeto-3d`.
+   - `pnpm check`: sem erros de tipagem.
+   - `pnpm test`: todos os 48 testes automatizados aprovados em 10 arquivos.
+   - `pnpm build`: build de produção concluído com sucesso.

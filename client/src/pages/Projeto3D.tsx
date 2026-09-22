@@ -38,15 +38,32 @@ export default function Projeto3D() {
           <h2 className="mt-2 font-industrial text-3xl uppercase text-white">Da peça física ao modelo digital</h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300">A imagem abaixo apresenta um eixo Cummins relacionado à produção local anunciada para Osasco. Ela complementa o modelo 3D didático, que foi reconstruído para permitir a exploração das peças e não usa fotografia como textura.</p>
           <p className="mt-4 text-xs leading-relaxed text-slate-400">A fotografia é uma referência editorial do produto; dimensões, tolerâncias e especificações de fabricação devem sempre ser consultadas nos documentos oficiais do fabricante.</p>
+          <div className="mt-6 flex flex-wrap gap-2 text-[11px] font-mono uppercase text-slate-300">
+            <span className="rounded-md border border-white/15 bg-black/40 px-3 py-1.5">Fotografia de referência</span>
+            <span className="rounded-md border border-red-500/30 bg-red-950/30 px-3 py-1.5 text-red-200">Produção local anunciada</span>
+          </div>
         </div>
-        <RealFactoryPhoto
-          src={REAL_PHOTOS.axle.src}
-          alt="Eixo Cummins MS-18X HD apresentado como referência de produto relacionado à produção local em Osasco"
-          caption="Eixo MS-18X HD — referência de produto ligada à produção local em Osasco."
-          credit={REAL_PHOTOS.axle.credit}
-          sourceUrl={REAL_PHOTOS.axle.sourceUrl}
-          className="group"
-        />
+        <div className="rounded-2xl border-2 border-red-500/30 bg-gradient-to-b from-[#1c222e] to-[#11151c] p-3 shadow-2xl shadow-black/80">
+          <div className="overflow-hidden rounded-xl bg-[#f8f9fb]">
+            <img
+              src={REAL_PHOTOS.axle.src}
+              alt="Eixo Cummins MS-18X HD apresentado como referência de produto relacionado à produção local em Osasco"
+              className="aspect-[16/10] w-full object-contain transition duration-500 hover:scale-[1.03]"
+              loading="lazy"
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 px-2 text-xs">
+            <span className="font-semibold text-slate-200">Eixo MS-18X HD • Referência de produto em Osasco</span>
+            <a
+              href={REAL_PHOTOS.axle.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 font-mono text-[10px] uppercase text-red-300 hover:text-white"
+            >
+              {REAL_PHOTOS.axle.credit} <ArrowRight className="h-3 w-3" />
+            </a>
+          </div>
+        </div>
       </div>
     </section>
 

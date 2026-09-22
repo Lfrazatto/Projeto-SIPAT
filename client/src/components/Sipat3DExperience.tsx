@@ -230,51 +230,6 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
   if (heroLayout && !immersive) {
     return (
       <div ref={experienceRef} className="sipat-3d-hero-container flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="font-industrial text-xs uppercase tracking-widest text-amber-200">
-              Ambiente SIPAT 3D
-            </span>
-            <span className="rounded-full border border-white/15 bg-black/30 px-2 py-0.5 text-[10px] font-mono text-slate-300">
-              Modelo limpo
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setAccessibleOpen((value) => !value)}
-              className="inline-flex min-h-9 items-center gap-1 rounded-md border border-white/15 px-2.5 py-1 text-[11px] font-bold text-slate-200 hover:bg-white/10"
-              aria-expanded={accessibleOpen}
-            >
-              <Accessibility className="h-3.5 w-3.5 text-emerald-300" />
-              {accessibleOpen ? "Ocultar lista" : "Sem 3D"}
-            </button>
-
-            <button
-              type="button"
-              onClick={toggleImmersive}
-              className="inline-flex min-h-9 items-center gap-1 rounded-md bg-[#da291c] px-3 py-1 text-[11px] font-black uppercase text-white hover:bg-[#b01e12]"
-            >
-              <Maximize2 className="h-3.5 w-3.5" />
-              Tela cheia
-            </button>
-          </div>
-        </div>
-
-        {showInstructions && (
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-cyan-400/30 bg-cyan-950/30 px-3 py-2 text-[11px] text-cyan-200">
-            <span>Arraste para girar e use dois dedos para aproximar. Os conteúdos educativos ficam organizados fora da imagem.</span>
-            <button
-              type="button"
-              onClick={dismissInstructions}
-              className="shrink-0 font-bold underline hover:text-white"
-            >
-              OK
-            </button>
-          </div>
-        )}
-
         <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-black/40">
           {!load3D ? (
             <div className="flex min-h-[360px] flex-col items-center justify-center p-6 text-center">
@@ -299,12 +254,17 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
 
         <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-[#121620] p-3 text-xs sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <strong className="block uppercase tracking-wide text-amber-200">Imagem limpa para explorar</strong>
-            <span className="mt-1 block text-slate-400">Consulte os conteúdos educativos em uma lista organizada, sem cobrir o modelo.</span>
+            <strong className="block font-industrial text-sm uppercase tracking-wide text-white">Eixo MS-120 em 3D</strong>
+            <span className="mt-0.5 block text-[11px] text-slate-400">Arraste para girar em 360° • Zoom com a roda do mouse ou pinça no celular</span>
           </div>
-          <Button type="button" onClick={() => setAccessibleOpen(true)} variant="outline" className="min-h-10 shrink-0 border-emerald-400/30 bg-transparent text-xs font-bold text-emerald-200 hover:bg-emerald-950/30">
-            <Accessibility className="mr-2 h-4 w-4" aria-hidden="true" /> Ver conteúdos
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button type="button" onClick={() => setAccessibleOpen((v) => !v)} variant="outline" className="min-h-9 border-white/15 bg-transparent px-2.5 text-xs font-medium text-slate-300 hover:bg-white/10">
+              <Accessibility className="mr-1.5 h-3.5 w-3.5 text-emerald-300" aria-hidden="true" /> {accessibleOpen ? "Ocultar lista" : "Lista sem 3D"}
+            </Button>
+            <Button type="button" onClick={toggleImmersive} className="min-h-9 bg-[#da291c] px-3 text-xs font-bold uppercase text-white hover:bg-[#b01e12]">
+              <Maximize2 className="mr-1.5 h-3.5 w-3.5" /> Tela cheia
+            </Button>
+          </div>
         </div>
 
         {accessibleOpen && (

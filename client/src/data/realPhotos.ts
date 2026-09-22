@@ -10,7 +10,7 @@ export const REAL_PHOTOS = {
     credit: "Portal da Autopeça",
   },
   axle: {
-    src: "/manus-storage/eixo-ms18x-cummins_1bf791f6.jpg",
+    src: "/manus-storage/eixo-ms18x-cummins-studio_7abad853.jpg",
     sourceUrl: "https://revistamt.com.br/Noticias/Exibir/cummins-brasil-anuncia-producao-local-do-eixo-ms-18x-hd",
     credit: "Revista M&T",
   },
