@@ -306,3 +306,19 @@ Atendendo à solicitação do usuário, a seção de criadores do projeto na pá
    - `pnpm check`: sem erros de TypeScript.
    - `pnpm test`: 48 testes passando em 10 arquivos.
    - `pnpm build`: compilação e empacotamento concluídos com sucesso.
+
+
+## Atualização — Principais Criadores Posicionados no Início da Página (22/09/2026)
+
+Conforme a necessidade de visibilidade imediata sem exigir que os usuários rolem até o fim da página:
+
+1. **Reposicionamento para o topo**:
+   - A seção completa com os 4 principais criadores (**Ryan Neiva**, **Leonardo Frazatto**, **Matheus Felipe** e **Kauã Gonçalves**) foi movida para logo abaixo do hero principal da página `/nosso-projeto`.
+   - Um botão de atalho direto *"Conhecer os criadores"* foi adicionado aos botões de ação do topo, permitindo rolar com um toque direto para os cards.
+   - Os cards preservam destaque visual de alto impacto (cores institucionais Cummins, badge de *Núcleo principal*, numeração *CRIADOR 01 a 04* e links de e-mail e LinkedIn).
+
+2. **Validação**:
+   - Verificação em desktop (1280x900) e mobile (375x812) confirmando que os criadores aparecem logo na primeira rolagem, com leitura limpa e sem sobreposição de barras fixas.
+   - `pnpm check`: sem erros de tipagem.
+   - `pnpm test`: 48 testes automatizados aprovados em 10 arquivos.
+   - `pnpm build`: compilação de produção validada.
