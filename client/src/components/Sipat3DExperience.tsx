@@ -227,7 +227,7 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
     setImmersive(false);
   };
 
-  if (heroLayout && !immersive) {
+  if (heroLayout) {
     return (
       <div ref={experienceRef} className="sipat-3d-hero-container flex flex-col gap-3">
         <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-black/40">
@@ -262,7 +262,7 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
               <Accessibility className="mr-1.5 h-3.5 w-3.5 text-emerald-300" aria-hidden="true" /> {accessibleOpen ? "Ocultar lista" : "Lista sem 3D"}
             </Button>
             <Button type="button" onClick={toggleImmersive} className="min-h-9 bg-[#da291c] px-3 text-xs font-bold uppercase text-white hover:bg-[#b01e12]">
-              <Maximize2 className="mr-1.5 h-3.5 w-3.5" /> Tela cheia
+              {immersive ? <Minimize2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" /> : <Maximize2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />} {immersive ? "Sair da tela cheia" : "Tela cheia"}
             </Button>
           </div>
         </div>

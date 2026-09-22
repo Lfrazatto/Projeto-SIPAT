@@ -35,7 +35,7 @@ export default function Jogos() {
 
   // Fetch participant progress if identified to show badges
   const progressQuery = trpc.participant.getProgress.useQuery(
-    { wwid: participant?.wwid || "" },
+    {},
     { enabled: !!participant?.wwid }
   );
 
@@ -45,6 +45,10 @@ export default function Jogos() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const target = params.get("play") || params.get("game");
+    if (params.get("identify") === "1" && !participant) {
+      setIdentifyModalOpen(true);
+      return;
+    }
     if (!target) return;
     if (target === "quiz_seguranca" || target === "quiz_ergonomia" || target === "ache_o_erro" || target === "organize_a_fabrica") {
       setSelectedGameForLaunch(target);
@@ -161,8 +165,7 @@ export default function Jogos() {
                     <span>{participant.name}</span>
                     <span className="text-emerald-400 font-mono text-[10px]">● Conectado</span>
                   </div>
-                  <div className="text-[11px] text-slate-400 font-mono">
-                    WWID: <strong className="text-amber-400">{participant.wwid}</strong> •{" "}
+                  <div className="text-[11px] text-slate-400 font-mono">{" "}
                     Total: <strong className="text-white">{pData?.totalScore || 0} pts</strong>
                   </div>
                 </div>

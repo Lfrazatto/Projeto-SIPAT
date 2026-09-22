@@ -309,6 +309,13 @@ export async function findOrCreateParticipant(name: string, chapa: string, wwid:
   return created[0];
 }
 
+export async function getParticipantById(id: number): Promise<Participant | undefined> {
+  const dbConn = await getDb();
+  if (!dbConn) return undefined;
+  const rows = await dbConn.select().from(participants).where(eq(participants.id, id)).limit(1);
+  return rows[0];
+}
+
 export async function getParticipantByWwid(wwid: string): Promise<Participant | undefined> {
   const db = await getDb();
   if (!db) return undefined;

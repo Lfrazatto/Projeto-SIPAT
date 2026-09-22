@@ -70,7 +70,7 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
   const verifyMutation = trpc.games.verifyAnswer.useMutation();
   const submitResultMutation = trpc.games.submitResult.useMutation();
   const dailyAttemptsQuery = trpc.games.getDailyAttempts.useQuery(
-    { participantWwid: participant?.wwid || "", gameType },
+    { gameType },
     { enabled: Boolean(participant?.wwid), refetchOnWindowFocus: false }
   );
 
@@ -199,9 +199,6 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
     if (participant) {
       submitResultMutation.mutate(
         {
-          participantChapa: participant.chapa,
-          participantName: participant.name,
-          participantWwid: participant.wwid,
           gameType,
           difficulty,
           score: totalScore,

@@ -37,7 +37,7 @@ export default function Home() {
   const [heroPointer, setHeroPointer] = useState({ x: 0, y: 0 });
   const [now, setNow] = useState(() => Date.now());
   const settingsQuery = trpc.games.getSettings.useQuery(undefined, { refetchInterval: 30_000 });
-  const progressQuery = trpc.participant.getProgress.useQuery({ wwid: participant?.wwid || "" }, { enabled: Boolean(participant?.wwid), refetchInterval: 30_000 });
+  const progressQuery = trpc.participant.getProgress.useQuery({}, { enabled: Boolean(participant?.wwid), refetchInterval: 30_000 });
   const pData = progressQuery.data?.participant;
 
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1_000); return () => window.clearInterval(timer); }, []);

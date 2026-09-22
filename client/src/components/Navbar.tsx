@@ -71,7 +71,7 @@ export function Navbar({ onOpenIdentify }: NavbarProps) {
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
   const progressQuery = trpc.participant.getProgress.useQuery(
-    { wwid: participant?.wwid || "" },
+    {},
     { enabled: Boolean(participant?.wwid), refetchInterval: 30_000 }
   );
   const progress = progressQuery.data?.participant;
@@ -159,7 +159,7 @@ export function Navbar({ onOpenIdentify }: NavbarProps) {
 
   const identify = () => {
     if (onOpenIdentify) onOpenIdentify();
-    else navigate("/jogos");
+    else navigate("/jogos?identify=1");
   };
 
   const institutionalActive = DESKTOP_INSTITUTIONAL_LINKS.some((link) =>
@@ -433,7 +433,7 @@ export function Navbar({ onOpenIdentify }: NavbarProps) {
                       <strong className="block truncate text-white">{participant.name}</strong>
                     </div>
                     <span className="font-mono text-xs text-amber-300">
-                      WWID: {participant.wwid}
+                      Perfil: {participant.participantType === "cummins" ? "Cummins" : participant.participantType === "terceiro" ? "Terceiro" : "Visitante"}
                     </span>
                   </div>
                   <Button

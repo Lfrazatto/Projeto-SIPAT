@@ -10,9 +10,39 @@ import * as db from "./db";
 import { CDBS_SPOT_ERROR_SCENARIOS } from "./seedData";
 import { storagePut } from "./storage";
 import { ENV } from "./_core/env";
-import { timingSafeEqual } from "node:crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { parse as parseCookieHeader } from "cookie";
 import { analyzeMuralSafety, MURAL_PROMPTS } from "../shared/muralData";
 
+
+const PARTICIPANT_SESSION_COOKIE = "sipat_participant_session";
+const ADMIN_SESSION_COOKIE = "sipat_admin_session";
+const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
+
+function signSessionValue(scope: string, value: string, expiresAt: number) {
+  const payload = `${scope}|${value}|${expiresAt}`;
+  const signature = createHmac("sha256", ENV.cookieSecret || "sipat-fallback-session-secret").update(payload).digest("base64url");
+  return `${payload}|${signature}`;
+}
+
+function readSessionValue(req: { headers?: { cookie?: string } }, scope: string, cookieName: string) {
+  const token = parseCookieHeader(req.headers?.cookie ?? "")[cookieName];
+  if (!token) return null;
+  const parts = token.split("|");
+  if (parts.length !== 4 || parts[0] !== scope) return null;
+  const expiresAt = Number(parts[2]);
+  if (!Number.isSafeInteger(expiresAt) || expiresAt < Date.now()) return null;
+  const expected = createHmac("sha256", ENV.cookieSecret || "sipat-fallback-session-secret").update(`${parts[0]}|${parts[1]}|${parts[2]}`).digest("base64url");
+  const candidate = Buffer.from(parts[3]);
+  const expectedBuffer = Buffer.from(expected);
+  if (candidate.length !== expectedBuffer.length || !timingSafeEqual(candidate, expectedBuffer)) return null;
+  return parts[1];
+}
+
+function setSessionCookie(ctx: { req: any; res: any }, cookieName: string, scope: string, value: string) {
+  if (typeof ctx.res?.cookie !== "function") return;
+  ctx.res.cookie(cookieName, signSessionValue(scope, value, Date.now() + SESSION_TTL_MS), { ...getSessionCookieOptions(ctx.req), maxAge: SESSION_TTL_MS });
+}
 
 function isValidAdminKey(value: string) {
   const configuredKey = ENV.adminAccessKey.trim();
@@ -22,12 +52,23 @@ function isValidAdminKey(value: string) {
   return candidate.length === expected.length && timingSafeEqual(candidate, expected);
 }
 
+function isValidAdminRequest(value: string | undefined, req: { headers?: { cookie?: string } }) {
+  return isValidAdminKey(value ?? "") || Boolean(readSessionValue(req, "admin", ADMIN_SESSION_COOKIE));
+}
+
+function participantSessionId(req: { headers?: { cookie?: string } }) {
+  const value = readSessionValue(req, "participant", PARTICIPANT_SESSION_COOKIE);
+  const id = value ? Number(value) : NaN;
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
+}
+
 const scenarioImageUrlSchema = z.string().refine(
   (value) => value.startsWith("/manus-storage/") || /^https?:\/\//i.test(value),
   "Informe uma URL HTTPS ou uma imagem enviada ao armazenamento seguro."
 );
 
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+const quizAttempts = new Map<number, { gameType: "quiz_seguranca" | "quiz_ergonomia"; questionIds: Set<number>; answered: Set<number>; score: number; correctCount: number; wrongCount: number }>();
 
 function clientAddress(req: { headers?: Record<string, string | string[] | undefined> }) {
   const forwarded = req.headers?.["x-forwarded-for"];
@@ -101,10 +142,11 @@ export const appRouter = router({
         if (input.participantType !== "visitante" && !identifier) {
           throw new TRPCError({ code: "BAD_REQUEST", message: `Informe ${input.participantType === "terceiro" ? "a chapa" : "o WWID"}.` });
         }
-        const visitorKey = `VISITANTE-${cleanName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48)}`;
+        const visitorKey = `VISITANTE-${randomUUID().replace(/-/g, "").slice(0, 24).toUpperCase()}`;
         const chapa = input.participantType === "visitante" ? visitorKey : identifier;
         const wwid = input.participantType === "visitante" ? visitorKey : identifier;
         const participant = await db.findOrCreateParticipant(cleanName, chapa, wwid, input.participantType);
+        setSessionCookie(ctx, PARTICIPANT_SESSION_COOKIE, "participant", String(participant.id));
         const ranking = await db.getRankingList();
         const rankIndex = ranking.findIndex((item) => item.wwid === participant.wwid);
 
@@ -117,12 +159,14 @@ export const appRouter = router({
     getProgress: publicProcedure
       .input(
         z.object({
-          wwid: z.string().trim().min(1, "Chapa ou WWID é obrigatório").max(64),
+          wwid: z.string().trim().min(1).max(64).optional(),
         })
       )
-      .query(async ({ input }) => {
-        const cleanWwid = input.wwid.trim().toUpperCase();
-        const participant = (await db.getParticipantByWwid(cleanWwid)) || (await db.getParticipantByChapa(cleanWwid));
+      .query(async ({ input, ctx }) => {
+        const sessionId = participantSessionId(ctx.req);
+        const cleanWwid = input.wwid?.trim().toUpperCase();
+        const sessionParticipant = sessionId ? await db.getParticipantById(sessionId) : undefined;
+        const participant = sessionParticipant || (cleanWwid ? (await db.getParticipantByWwid(cleanWwid)) || (await db.getParticipantByChapa(cleanWwid)) : undefined);
         const ranking = await db.getRankingList();
         if (!participant) {
           return {
@@ -132,11 +176,14 @@ export const appRouter = router({
           };
         }
 
+        if (!sessionParticipant) {
+          return { participant: null, rank: 0, totalParticipants: ranking.length };
+        }
         const rankIndex = ranking.findIndex((item) => item.wwid === participant.wwid);
-
         const achievements = await db.getParticipantAchievements(participant.id);
+        const safeParticipant = { ...participant, chapa: maskIdentifier(participant.chapa), wwid: maskIdentifier(participant.wwid) };
         return {
-          participant,
+          participant: safeParticipant,
           rank: rankIndex >= 0 ? rankIndex + 1 : 1,
           totalParticipants: ranking.length,
           achievements,
@@ -194,8 +241,8 @@ export const appRouter = router({
 
       getSpotErrorHotspots: publicProcedure
       .input(z.object({ scenarioKey: z.string().optional(), adminKey: z.string().optional() }).optional())
-      .query(async ({ input }) => {
-        if (!isValidAdminKey(input?.adminKey ?? "")) await assertGameOpen("ache_o_erro");
+      .query(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input?.adminKey, ctx.req)) await assertGameOpen("ache_o_erro");
         return db.listSpotErrorHotspots(true, input?.scenarioKey);
     }),
 
@@ -206,7 +253,7 @@ export const appRouter = router({
           difficulty: z.enum(["facil", "medio", "dificil"]).optional(),
         })
       )
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
         await assertGameOpen(input.gameType);
         const questions = await db.getQuizQuestions(input.gameType);
         // Se uma dificuldade específica for solicitada, prioriza ou filtra as perguntas daquele nível
@@ -219,6 +266,10 @@ export const appRouter = router({
         }
         // Embaralha e seleciona até 12 perguntas estruturadas para a partida
         const shuffled = [...filtered].sort(() => Math.random() - 0.5).slice(0, 12);
+        const sessionId = participantSessionId(ctx.req);
+        if (sessionId) {
+          quizAttempts.set(sessionId, { gameType: input.gameType, questionIds: new Set(shuffled.map((q) => q.id)), answered: new Set(), score: 0, correctCount: 0, wrongCount: 0 });
+        }
         return shuffled.map((q) => ({
           id: q.id,
           gameType: q.gameType,
@@ -235,12 +286,13 @@ export const appRouter = router({
     getDailyAttempts: publicProcedure
       .input(
         z.object({
-          participantWwid: z.string().trim().min(1),
+          participantWwid: z.string().trim().min(1).optional(),
           gameType: z.enum(["quiz_seguranca", "quiz_ergonomia", "ache_o_erro", "organize_a_fabrica"]),
         })
       )
-      .query(async ({ input }) => {
-        const participant = await db.getParticipantByWwid(input.participantWwid) || await db.getParticipantByChapa(input.participantWwid);
+      .query(async ({ input, ctx }) => {
+        const sessionId = participantSessionId(ctx.req);
+        const participant = sessionId ? await db.getParticipantById(sessionId) : undefined;
         if (!participant) return { attemptsToday: 0, maxDailyAttempts: 5, remainingToday: 5 };
         const count = await db.getDailyAttemptsCount(participant.id, input.gameType);
         const maxDaily = 5;
@@ -275,6 +327,14 @@ export const appRouter = router({
           throw new TRPCError({ code: "NOT_FOUND", message: "Pergunta não encontrada" });
         }
 
+        const sessionId = participantSessionId(ctx.req);
+        const attempt = sessionId ? quizAttempts.get(sessionId) : undefined;
+        if (attempt) {
+          if (attempt.gameType !== question.gameType || !attempt.questionIds.has(question.id) || attempt.answered.has(question.id)) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Resposta fora da tentativa ativa." });
+          }
+          attempt.answered.add(question.id);
+        }
         const isCorrect = question.correctOption === input.selectedOption;
 
         let basePoints = 100;
@@ -285,9 +345,14 @@ export const appRouter = router({
         if (isCorrect && input.remainingSeconds > 0) {
           earnedPoints = Math.round(basePoints * (input.remainingSeconds / 60));
         }
+        const acceptedCorrect = isCorrect && input.remainingSeconds > 0;
+        if (attempt) {
+          if (acceptedCorrect) { attempt.correctCount += 1; attempt.score += earnedPoints; }
+          else attempt.wrongCount += 1;
+        }
 
         return {
-          isCorrect: isCorrect && input.remainingSeconds > 0,
+          isCorrect: acceptedCorrect,
           earnedPoints,
           explanation: question.explanation,
         };
@@ -296,17 +361,17 @@ export const appRouter = router({
   submitResult: publicProcedure
       .input(
         z.object({
-          participantChapa: z.string().min(1),
-          participantName: z.string().min(1),
-          participantWwid: z.string().min(1),
+          participantChapa: z.string().min(1).max(128).optional(),
+          participantName: z.string().min(1).max(120).optional(),
+          participantWwid: z.string().min(1).max(128).optional(),
           scenarioKey: z.string().max(64).optional(),
           gameType: z.enum(["quiz_seguranca", "quiz_ergonomia", "ache_o_erro", "organize_a_fabrica"]),
           difficulty: z.enum(["facil", "medio", "dificil", "muito_dificil"]),
-          score: z.number().min(0),
-          correctCount: z.number().min(0),
-          wrongCount: z.number().min(0),
+          score: z.number().int().min(0).max(10000),
+          correctCount: z.number().int().min(0).max(50),
+          wrongCount: z.number().int().min(0).max(100),
           hintsUsed: z.number().int().min(0).max(20).optional(),
-          timeSpentSeconds: z.number().min(0),
+          timeSpentSeconds: z.number().int().min(0).max(7200),
         })
       )
       .mutation(async ({ input, ctx }) => {
@@ -322,7 +387,12 @@ export const appRouter = router({
           });
         }
 
-        const participant = await db.findOrCreateParticipant(input.participantName, input.participantChapa, input.participantWwid);
+        const sessionId = participantSessionId(ctx.req);
+        const sessionParticipant = sessionId ? await db.getParticipantById(sessionId) : undefined;
+        const participant = sessionParticipant || await db.findOrCreateParticipant(input.participantName || "Colaborador", input.participantChapa || "SEM-CHAPA", input.participantWwid || "SEM-WWID");
+        const authoritativeAttempt = sessionParticipant && (input.gameType === "quiz_seguranca" || input.gameType === "quiz_ergonomia") ? quizAttempts.get(sessionParticipant.id) : undefined;
+        const resultInput = authoritativeAttempt ? { ...input, participantName: participant.name, participantChapa: participant.chapa, participantWwid: participant.wwid, score: authoritativeAttempt.score, correctCount: authoritativeAttempt.correctCount, wrongCount: authoritativeAttempt.wrongCount } : { ...input, participantName: participant.name, participantChapa: participant.chapa, participantWwid: participant.wwid };
+        if (authoritativeAttempt && sessionParticipant) quizAttempts.delete(sessionParticipant.id);
         const attemptsToday = await db.getDailyAttemptsCount(participant.id, input.gameType);
         const maxAttempts = 5;
         if (attemptsToday >= maxAttempts) {
@@ -332,7 +402,7 @@ export const appRouter = router({
           });
         }
 
-        const recorded = await db.recordGameResult(input);
+        const recorded = await db.recordGameResult(resultInput);
         const unlockedAchievements = await db.evaluateAndUnlockAchievements(recorded.participant.id);
         return {
           ...recorded,
@@ -350,14 +420,15 @@ export const appRouter = router({
       )
       .mutation(async ({ input, ctx }) => {
         enforceRateLimit("admin-login", clientAddress(ctx.req), 8, 5 * 60_000);
-        const isValid = isValidAdminKey(input.adminKey);
+        const isValid = isValidAdminRequest(input.adminKey, ctx.req);
+        if (isValid) setSessionCookie(ctx, ADMIN_SESSION_COOKIE, "admin", "authorized");
         return { isValid };
       }),
 
     dashboardStats: publicProcedure
-      .input(z.object({ adminKey: z.string() }))
-      .query(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .input(z.object({ adminKey: z.string().optional() }))
+      .query(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         return db.getDashboardStats();
@@ -366,13 +437,13 @@ export const appRouter = router({
     listParticipants: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           search: z.string().optional(),
           participantType: z.enum(["terceiro", "cummins", "visitante"]).optional(),
         })
       )
-      .query(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .query(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         return db.listAllParticipants(input.search, input.participantType);
@@ -381,7 +452,7 @@ export const appRouter = router({
     updateParticipant: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           id: z.number(),
           name: z.string().optional(),
           chapa: z.string().optional(),
@@ -389,8 +460,8 @@ export const appRouter = router({
           totalScore: z.number().optional(),
         })
       )
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         await db.updateParticipantData(input.id, {
@@ -405,12 +476,12 @@ export const appRouter = router({
     deleteParticipant: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           id: z.number(),
         })
       )
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         await db.deleteParticipant(input.id);
@@ -418,9 +489,9 @@ export const appRouter = router({
       }),
 
     listQuestions: publicProcedure
-      .input(z.object({ adminKey: z.string() }))
-      .query(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .input(z.object({ adminKey: z.string().optional() }))
+      .query(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         return db.listAllQuestions();
@@ -429,7 +500,7 @@ export const appRouter = router({
     createQuestion: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           gameType: z.enum(["quiz_seguranca", "quiz_ergonomia"]),
           question: z.string().min(5),
           optionA: z.string().min(1),
@@ -442,8 +513,8 @@ export const appRouter = router({
           difficulty: z.enum(["facil", "medio", "dificil"]),
         })
       )
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         const { adminKey, ...data } = input;
@@ -454,7 +525,7 @@ export const appRouter = router({
     updateQuestion: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           id: z.number(),
           question: z.string().optional(),
           optionA: z.string().optional(),
@@ -468,8 +539,8 @@ export const appRouter = router({
           active: z.boolean().optional(),
         })
       )
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         const { adminKey, id, ...data } = input;
@@ -480,12 +551,12 @@ export const appRouter = router({
     deleteQuestion: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           id: z.number(),
         })
       )
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         await db.deleteQuizQuestion(input.id);
@@ -493,48 +564,48 @@ export const appRouter = router({
       }),
 
     listSpotErrorHotspots: publicProcedure
-      .input(z.object({ adminKey: z.string(), scenarioKey: z.string().optional() }))
-      .query(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .input(z.object({ adminKey: z.string().optional(), scenarioKey: z.string().optional() }))
+      .query(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         return db.listSpotErrorHotspots(false, input.scenarioKey);
       }),
 
     createSpotErrorHotspot: publicProcedure
-      .input(z.object({ adminKey: z.string(), scenarioKey: z.string().min(2), title: z.string().min(3), description: z.string().min(3), hint: z.string().optional(), category: z.string().min(2), x: z.number().min(0).max(100), y: z.number().min(0).max(100), width: z.number().min(0.1).max(100).optional(), height: z.number().min(0.1).max(100).optional(), tolerance: z.number().min(0).max(2).optional(), shape: z.enum(["retangulo", "circulo", "poligono"]).optional(), points: z.string().optional() }))
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .input(z.object({ adminKey: z.string().optional(), scenarioKey: z.string().min(2), title: z.string().min(3), description: z.string().min(3), hint: z.string().optional(), category: z.string().min(2), x: z.number().min(0).max(100), y: z.number().min(0).max(100), width: z.number().min(0.1).max(100).optional(), height: z.number().min(0.1).max(100).optional(), tolerance: z.number().min(0).max(2).optional(), shape: z.enum(["retangulo", "circulo", "poligono"]).optional(), points: z.string().optional() }))
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         const { adminKey, ...data } = input;
         await db.createSpotErrorHotspot(data);
         return { success: true };
       }),
 
     updateSpotErrorHotspot: publicProcedure
-      .input(z.object({ adminKey: z.string(), id: z.number(), scenarioKey: z.string().min(2).optional(), title: z.string().min(3).optional(), description: z.string().min(3).optional(), hint: z.string().optional(), category: z.string().min(2).optional(), x: z.number().min(0).max(100).optional(), y: z.number().min(0).max(100).optional(), width: z.number().min(0.1).max(100).optional(), height: z.number().min(0.1).max(100).optional(), tolerance: z.number().min(0).max(2).optional(), shape: z.enum(["retangulo", "circulo", "poligono"]).optional(), points: z.string().optional(), active: z.boolean().optional() }))
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .input(z.object({ adminKey: z.string().optional(), id: z.number(), scenarioKey: z.string().min(2).optional(), title: z.string().min(3).optional(), description: z.string().min(3).optional(), hint: z.string().optional(), category: z.string().min(2).optional(), x: z.number().min(0).max(100).optional(), y: z.number().min(0).max(100).optional(), width: z.number().min(0.1).max(100).optional(), height: z.number().min(0.1).max(100).optional(), tolerance: z.number().min(0).max(2).optional(), shape: z.enum(["retangulo", "circulo", "poligono"]).optional(), points: z.string().optional(), active: z.boolean().optional() }))
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         const { adminKey, id, ...data } = input;
         await db.updateSpotErrorHotspot(id, data);
         return { success: true };
       }),
 
     deleteSpotErrorHotspot: publicProcedure
-      .input(z.object({ adminKey: z.string(), id: z.number() }))
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .input(z.object({ adminKey: z.string().optional(), id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         await db.deleteSpotErrorHotspot(input.id);
         return { success: true };
       }),
 
     listScenarioImages: publicProcedure
-      .input(z.object({ adminKey: z.string() }))
-      .query(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .input(z.object({ adminKey: z.string().optional() }))
+      .query(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         return db.listScenarioImages(false);
       }),
 
     createScenarioImage: publicProcedure
       .input(z.object({
-        adminKey: z.string(),
+        adminKey: z.string().optional(),
         scenarioKey: z.string().regex(/^[a-z0-9][a-z0-9-]{2,63}$/, "Use apenas letras minúsculas, números e hífens na chave."),
         label: z.string().trim().min(3).max(128),
         imageUrl: scenarioImageUrlSchema,
@@ -549,8 +620,8 @@ export const appRouter = router({
         phaseMode: z.enum(["livres", "sequenciais"]).optional(),
         active: z.boolean().optional(),
       }))
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         const { adminKey, ...data } = input;
         await db.createScenarioImage(data);
         return { success: true };
@@ -558,7 +629,7 @@ export const appRouter = router({
 
     updateScenarioImage: publicProcedure
       .input(z.object({
-        adminKey: z.string(),
+        adminKey: z.string().optional(),
         scenarioKey: z.string().regex(/^[a-z0-9][a-z0-9-]{2,63}$/, "Use apenas letras minúsculas, números e hífens na chave."),
         label: z.string().trim().min(3).max(128),
         imageUrl: scenarioImageUrlSchema,
@@ -573,17 +644,17 @@ export const appRouter = router({
         phaseMode: z.enum(["livres", "sequenciais"]).optional(),
         active: z.boolean().optional(),
       }))
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         const { adminKey, scenarioKey, ...data } = input;
         await db.updateScenarioImage(scenarioKey, data);
         return { success: true };
       }),
 
     uploadScenarioAsset: publicProcedure
-      .input(z.object({ adminKey: z.string(), scenarioKey: z.string().regex(/^[a-z0-9][a-z0-9-]{2,63}$/, "Use apenas letras minúsculas, números e hífens na chave."), kind: z.enum(["safe", "errors"]), dataUrl: z.string().regex(/^data:image\/(png|jpeg|webp);base64,/).max(16_000_000) }))
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .input(z.object({ adminKey: z.string().optional(), scenarioKey: z.string().regex(/^[a-z0-9][a-z0-9-]{2,63}$/, "Use apenas letras minúsculas, números e hífens na chave."), kind: z.enum(["safe", "errors"]), dataUrl: z.string().regex(/^data:image\/(png|jpeg|webp);base64,/).max(16_000_000) }))
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         const match = input.dataUrl.match(/^data:(image\/(?:png|jpeg|webp));base64,(.+)$/);
         if (!match) throw new TRPCError({ code: "BAD_REQUEST", message: "Envie uma imagem PNG, JPG ou WebP válida." });
         const extension = match[1] === "image/jpeg" ? "jpg" : match[1].split("/")[1];
@@ -592,17 +663,17 @@ export const appRouter = router({
       }),
 
     deleteScenarioImage: publicProcedure
-      .input(z.object({ adminKey: z.string(), id: z.number() }))
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .input(z.object({ adminKey: z.string().optional(), id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         await db.deleteScenarioImage(input.id);
         return { success: true };
       }),
 
     deleteScenario: publicProcedure
-      .input(z.object({ adminKey: z.string(), scenarioKey: z.string().min(3).max(64) }))
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .input(z.object({ adminKey: z.string().optional(), scenarioKey: z.string().min(3).max(64) }))
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         await db.deleteScenario(input.scenarioKey);
         return { success: true };
       }),
@@ -610,12 +681,12 @@ export const appRouter = router({
     listResults: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           search: z.string().optional(),
         })
       )
-      .query(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .query(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         return db.listAllGameResults(input.search);
@@ -624,12 +695,12 @@ export const appRouter = router({
     deleteResult: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           id: z.number(),
         })
       )
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         await db.deleteGameResult(input.id);
@@ -639,13 +710,13 @@ export const appRouter = router({
     toggleGameStatus: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           gameKey: z.string(),
           active: z.boolean(),
         })
       )
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         await db.updateGameStatus(input.gameKey, input.active);
@@ -653,9 +724,9 @@ export const appRouter = router({
       }),
 
     updateGameAccess: publicProcedure
-      .input(z.object({ adminKey: z.string(), gameKey: z.string(), active: z.boolean(), accessStartAt: z.string().nullable(), accessEndAt: z.string().nullable() }))
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+      .input(z.object({ adminKey: z.string().optional(), gameKey: z.string(), active: z.boolean(), accessStartAt: z.string().nullable(), accessEndAt: z.string().nullable() }))
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         const start = input.accessStartAt ? new Date(input.accessStartAt) : null;
         const end = input.accessEndAt ? new Date(input.accessEndAt) : null;
         if ((start && Number.isNaN(start.getTime())) || (end && Number.isNaN(end.getTime())) || (start && end && start >= end)) {
@@ -668,13 +739,13 @@ export const appRouter = router({
     listMuralMessages: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           status: z.enum(["todos", "pendente", "aprovada", "rejeitada", "arquivada"]).optional(),
           search: z.string().optional(),
         })
       )
-      .query(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .query(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         return db.listAllMuralMessagesAdmin(input.status, input.search);
@@ -683,14 +754,14 @@ export const appRouter = router({
     moderateMuralMessage: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           id: z.number(),
           action: z.enum(["aprovar", "rejeitar", "arquivar", "destacar", "remover_destaque"]),
           note: z.string().optional(),
         })
       )
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         await db.moderateMuralMessage(input.id, input.action, "Gestor EHS", input.note);
@@ -700,13 +771,13 @@ export const appRouter = router({
     editMuralMessageText: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           id: z.number(),
           message: z.string().min(5).max(280),
         })
       )
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         await db.updateMuralMessageText(input.id, input.message, "Gestor EHS");
@@ -716,12 +787,12 @@ export const appRouter = router({
     deleteMuralMessage: publicProcedure
       .input(
         z.object({
-          adminKey: z.string(),
+          adminKey: z.string().optional(),
           id: z.number(),
         })
       )
-      .mutation(async ({ input }) => {
-        if (!isValidAdminKey(input.adminKey)) {
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         }
         await db.deleteMuralMessage(input.id);

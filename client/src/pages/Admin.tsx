@@ -155,37 +155,37 @@ export default function Admin() {
   const verifyKeyMutation = trpc.admin.verifyKey.useMutation();
 
   const dashboardQuery = trpc.admin.dashboardStats.useQuery(
-    { adminKey },
+    {} ,
     { enabled: isAuthenticated, retry: false }
   );
 
   const participantsQuery = trpc.admin.listParticipants.useQuery(
-    { adminKey, search: playerSearch, participantType: playerTypeFilter === "todos" ? undefined : playerTypeFilter },
+    { search: playerSearch, participantType: playerTypeFilter === "todos" ? undefined : playerTypeFilter },
     { enabled: isAuthenticated, retry: false }
   );
 
   const questionsQuery = trpc.admin.listQuestions.useQuery(
-    { adminKey },
+    {},
     { enabled: isAuthenticated, retry: false }
   );
 
   const resultsQuery = trpc.admin.listResults.useQuery(
-    { adminKey, search: resultSearch },
+    { search: resultSearch },
     { enabled: isAuthenticated, retry: false }
   );
 
   const gameSettingsQuery = trpc.games.getSettings.useQuery();
   const scenarioCatalogQuery = trpc.games.getScenarioCatalog.useQuery();
   const hotspotsQuery = trpc.admin.listSpotErrorHotspots.useQuery(
-    { adminKey, scenarioKey: spotScenarioKey },
+    { scenarioKey: spotScenarioKey },
     { enabled: isAuthenticated, retry: false }
   );
   const scenarioImagesQuery = trpc.admin.listScenarioImages.useQuery(
-    { adminKey },
+    {},
     { enabled: isAuthenticated, retry: false }
   );
   const muralMessagesQuery = trpc.admin.listMuralMessages.useQuery(
-    { adminKey, status: muralStatusFilter === "todos" ? undefined : muralStatusFilter, search: muralSearch },
+    { status: muralStatusFilter === "todos" ? undefined : muralStatusFilter, search: muralSearch },
     { enabled: isAuthenticated, retry: false }
   );
 
@@ -386,7 +386,6 @@ export default function Admin() {
       return;
     }
     const payload = {
-      adminKey,
       scenarioKey,
       label: imageLabel.trim(),
       imageUrl: imageUrl.trim(),
@@ -536,7 +535,7 @@ export default function Admin() {
   const saveVisualHotspots = async () => {
     try {
       await Promise.all(editorHotspots.map((hotspot) => {
-        const data = { adminKey, scenarioKey: spotScenarioKey, title: hotspot.title, description: hotspot.description, hint: hotspot.hint || undefined, category: hotspot.category, x: Number(hotspot.x.toFixed(3)), y: Number(hotspot.y.toFixed(3)), width: Number(hotspot.width.toFixed(3)), height: Number(hotspot.height.toFixed(3)), tolerance: Math.min(2, Number(hotspot.tolerance.toFixed(3))), shape: hotspot.shape, points: hotspot.points || undefined };
+        const data = { scenarioKey: spotScenarioKey, title: hotspot.title, description: hotspot.description, hint: hotspot.hint || undefined, category: hotspot.category, x: Number(hotspot.x.toFixed(3)), y: Number(hotspot.y.toFixed(3)), width: Number(hotspot.width.toFixed(3)), height: Number(hotspot.height.toFixed(3)), tolerance: Math.min(2, Number(hotspot.tolerance.toFixed(3))), shape: hotspot.shape, points: hotspot.points || undefined };
         return hotspot.id < 0 ? createHotspotMutation.mutateAsync(data) : updateHotspotMutation.mutateAsync({ ...data, id: hotspot.id, active: hotspot.active });
       }));
       toast.success("Posições e tamanhos salvos na fase!");
@@ -563,7 +562,7 @@ export default function Admin() {
       setSelectedEditorHotspotId(null);
       setEditingHotspotId(null);
     }
-    if (hotspot.id >= 0) deleteHotspotMutation.mutate({ adminKey, id: hotspot.id });
+    if (hotspot.id >= 0) deleteHotspotMutation.mutate({ id: hotspot.id });
     else toast.success("Área clicável removida do rascunho.");
   };
 
@@ -579,7 +578,7 @@ export default function Admin() {
       {
         onSuccess: (data) => {
           if (data.isValid) {
-            setAdminKey(cleanKey);
+            setAdminKey("");
             setIsAuthenticated(true);
             toast.success("Acesso administrativo autorizado!");
           } else {
@@ -636,7 +635,6 @@ export default function Admin() {
 
     if (editingQuestionId) {
       updateQuestionMutation.mutate({
-        adminKey,
         id: editingQuestionId,
         question: qText,
         optionA: qOptA,
@@ -650,7 +648,6 @@ export default function Admin() {
       });
     } else {
       createQuestionMutation.mutate({
-        adminKey,
         gameType: qGameType,
         question: qText,
         optionA: qOptA,
@@ -828,7 +825,7 @@ export default function Admin() {
                 <div className="text-3xl font-black font-industrial text-emerald-400 mt-1">
                   {dStats?.totalQuizzes || 0}
                 </div>
-                <div className="text-[11px] text-slate-500 mt-1">Segurança + Ergonomia</div>
+                <div className="text-[11px] text-slate-500 mt-1">Segurança + Lean Manufacturing</div>
               </div>
 
               <div className="p-5 rounded-xl bg-[#141822] border border-white/10">
@@ -935,7 +932,7 @@ export default function Admin() {
                           variant="destructive"
                           onClick={() => {
                             if (confirm(`Deseja realmente excluir o participante ${p.name}?`)) {
-                              deletePlayerMutation.mutate({ adminKey, id: p.id });
+                              deletePlayerMutation.mutate({ id: p.id });
                             }
                           }}
                           className="h-7 text-xs"
@@ -970,7 +967,7 @@ export default function Admin() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-white/5 border border-white/10 text-amber-400 uppercase">
-                        {q.gameType === "quiz_seguranca" ? "Segurança" : "Ergonomia"}
+                        {q.gameType === "quiz_seguranca" ? "Segurança" : "Lean Manufacturing"}
                       </span>
                       <span className="text-xs font-mono text-slate-400">Tema: {q.theme}</span>
                       <span className="text-xs font-mono text-slate-500">Dificuldade: {q.difficulty.toUpperCase()}</span>
@@ -990,7 +987,7 @@ export default function Admin() {
                         variant="destructive"
                         onClick={() => {
                           if (confirm("Excluir esta pergunta permanentemente?")) {
-                            deleteQuestionMutation.mutate({ adminKey, id: q.id });
+                            deleteQuestionMutation.mutate({ id: q.id });
                           }
                         }}
                         className="h-7 text-xs"
@@ -1073,7 +1070,7 @@ export default function Admin() {
                   <div className="rounded-xl border border-red-400/25 bg-red-950/10 p-4">
                     <div className="mb-3 flex items-center gap-2"><Upload className="h-4 w-4 text-red-300" /><div><Label className="text-xs font-black uppercase text-red-200">Foto com erros *</Label><p className="text-[10px] text-red-100/60">É sobre esta imagem que as áreas clicáveis serão desenhadas.</p></div></div>
                     <Input value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="URL HTTPS ou envie um arquivo abaixo" className="mb-3 bg-black/40 border-white/15 text-white" />
-                    <input type="file" accept="image/png,image/jpeg,image/webp" disabled={!imageScenarioKey || imageUploadBusy !== null} onChange={async (event) => { const file = event.target.files?.[0]; if (!file || !imageScenarioKey) return; if (file.size > 10 * 1024 * 1024) { toast.error("A imagem deve ter no máximo 10 MB."); return; } try { setImageUploadBusy("errors"); const dataUrl = await readImageAsDataUrl(file); uploadScenarioAssetMutation.mutate({ adminKey, scenarioKey: normalizeScenarioKey(imageScenarioKey), kind: "errors", dataUrl }); } catch (error) { setImageUploadBusy(null); toast.error(error instanceof Error ? error.message : "Falha no upload."); } }} className="w-full text-xs text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-red-500/20 file:px-3 file:py-2 file:text-xs file:font-bold file:text-red-100" />
+                    <input type="file" accept="image/png,image/jpeg,image/webp" disabled={!imageScenarioKey || imageUploadBusy !== null} onChange={async (event) => { const file = event.target.files?.[0]; if (!file || !imageScenarioKey) return; if (file.size > 10 * 1024 * 1024) { toast.error("A imagem deve ter no máximo 10 MB."); return; } try { setImageUploadBusy("errors"); const dataUrl = await readImageAsDataUrl(file); uploadScenarioAssetMutation.mutate({ scenarioKey: normalizeScenarioKey(imageScenarioKey), kind: "errors", dataUrl }); } catch (error) { setImageUploadBusy(null); toast.error(error instanceof Error ? error.message : "Falha no upload."); } }} className="w-full text-xs text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-red-500/20 file:px-3 file:py-2 file:text-xs file:font-bold file:text-red-100" />
                     {imageUploadBusy === "errors" ? <span className="mt-2 block text-[10px] text-amber-300">Enviando foto com erros...</span> : null}
                     {imageUrl ? <img src={imageUrl} alt="Prévia da cena com erros" className="mt-3 aspect-video w-full rounded-lg border border-white/10 bg-black object-contain" /> : <div className="mt-3 flex aspect-video items-center justify-center rounded-lg border border-dashed border-white/10 bg-black/30 text-[10px] text-slate-500">Prévia da foto com erros</div>}
                   </div>
@@ -1081,7 +1078,7 @@ export default function Admin() {
                   <div className="rounded-xl border border-emerald-400/25 bg-emerald-950/10 p-4">
                     <div className="mb-3 flex items-center gap-2"><Upload className="h-4 w-4 text-emerald-300" /><div><Label className="text-xs font-black uppercase text-emerald-200">Foto segura *</Label><p className="text-[10px] text-emerald-100/60">Par correspondente, sem os riscos da situação.</p></div></div>
                     <Input value={safeImageUrl} onChange={(event) => setSafeImageUrl(event.target.value)} placeholder="URL HTTPS ou envie um arquivo abaixo" className="mb-3 bg-black/40 border-white/15 text-white" />
-                    <input type="file" accept="image/png,image/jpeg,image/webp" disabled={!imageScenarioKey || imageUploadBusy !== null} onChange={async (event) => { const file = event.target.files?.[0]; if (!file || !imageScenarioKey) return; if (file.size > 10 * 1024 * 1024) { toast.error("A imagem deve ter no máximo 10 MB."); return; } try { setImageUploadBusy("safe"); const dataUrl = await readImageAsDataUrl(file); uploadScenarioAssetMutation.mutate({ adminKey, scenarioKey: normalizeScenarioKey(imageScenarioKey), kind: "safe", dataUrl }); } catch (error) { setImageUploadBusy(null); toast.error(error instanceof Error ? error.message : "Falha no upload."); } }} className="w-full text-xs text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-emerald-500/20 file:px-3 file:py-2 file:text-xs file:font-bold file:text-emerald-100" />
+                    <input type="file" accept="image/png,image/jpeg,image/webp" disabled={!imageScenarioKey || imageUploadBusy !== null} onChange={async (event) => { const file = event.target.files?.[0]; if (!file || !imageScenarioKey) return; if (file.size > 10 * 1024 * 1024) { toast.error("A imagem deve ter no máximo 10 MB."); return; } try { setImageUploadBusy("safe"); const dataUrl = await readImageAsDataUrl(file); uploadScenarioAssetMutation.mutate({ scenarioKey: normalizeScenarioKey(imageScenarioKey), kind: "safe", dataUrl }); } catch (error) { setImageUploadBusy(null); toast.error(error instanceof Error ? error.message : "Falha no upload."); } }} className="w-full text-xs text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-emerald-500/20 file:px-3 file:py-2 file:text-xs file:font-bold file:text-emerald-100" />
                     {imageUploadBusy === "safe" ? <span className="mt-2 block text-[10px] text-amber-300">Enviando foto segura...</span> : null}
                     {safeImageUrl ? <img src={safeImageUrl} alt="Prévia da cena segura" className="mt-3 aspect-video w-full rounded-lg border border-white/10 bg-black object-contain" /> : <div className="mt-3 flex aspect-video items-center justify-center rounded-lg border border-dashed border-white/10 bg-black/30 text-[10px] text-slate-500">Prévia da foto segura</div>}
                   </div>
@@ -1113,7 +1110,7 @@ export default function Admin() {
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               {(scenarioImagesQuery.data || []).map((scenario) => <article key={scenario.id} className="overflow-hidden rounded-xl border border-white/10 bg-black/30">
                 <div className="grid grid-cols-2 gap-px bg-white/10"><div className="relative aspect-video bg-black"><img src={scenario.imageUrl} alt={`${scenario.label} — com erros`} className="h-full w-full object-cover" /><span className="absolute left-2 top-2 rounded bg-red-600/90 px-2 py-1 text-[9px] font-black uppercase text-white">Com erros</span></div><div className="relative aspect-video bg-black"><img src={scenario.safeImageUrl || scenario.imageUrl} alt={`${scenario.label} — segura`} className="h-full w-full object-cover" /><span className="absolute left-2 top-2 rounded bg-emerald-600/90 px-2 py-1 text-[9px] font-black uppercase text-white">Segura</span></div></div>
-                <div className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-bold uppercase text-white">{scenario.label}</h3><div className="mt-1 font-mono text-[10px] text-cyan-300">{scenario.scenarioKey}</div></div><span className={`rounded-full border px-2 py-1 text-[9px] font-black uppercase ${scenario.active ? "border-emerald-400/30 bg-emerald-950/40 text-emerald-300" : "border-slate-500/30 bg-slate-900/40 text-slate-400"}`}>{scenario.active ? "Publicado" : "Rascunho"}</span></div><p className="text-xs leading-5 text-slate-400">{scenario.description || "Sem descrição cadastrada."}</p><div className="flex flex-wrap gap-2 text-[10px] font-mono uppercase text-slate-500"><span>{scenario.difficulty}</span><span>•</span><span>{scenario.timeSeconds}s</span><span>•</span><span>{scenario.hintCount} dicas</span></div><div className="flex flex-wrap gap-2"><Button size="sm" variant="outline" className="h-8 border-white/20 text-[10px]" onClick={() => editScenario(scenario)}><Edit3 className="mr-1 h-3 w-3" /> Editar cenário</Button><Button size="sm" variant="outline" className="h-8 border-cyan-400/30 text-[10px] text-cyan-200" onClick={() => { setSpotScenarioKey(scenario.scenarioKey); setActiveTab("ache-o-erro"); }}><Crosshair className="mr-1 h-3 w-3" /> Editar áreas</Button><Button size="sm" variant="destructive" className="h-8 text-[10px]" disabled={deleteScenarioMutation.isPending} onClick={() => { if (confirm(`Apagar a fase "${scenario.label}"? Isso removerá as duas imagens e todas as áreas clicáveis desta fase. Resultados históricos serão preservados.`)) deleteScenarioMutation.mutate({ adminKey, scenarioKey: scenario.scenarioKey }); }}><Trash2 className="mr-1 h-3 w-3" /> Excluir</Button></div></div>
+                <div className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-bold uppercase text-white">{scenario.label}</h3><div className="mt-1 font-mono text-[10px] text-cyan-300">{scenario.scenarioKey}</div></div><span className={`rounded-full border px-2 py-1 text-[9px] font-black uppercase ${scenario.active ? "border-emerald-400/30 bg-emerald-950/40 text-emerald-300" : "border-slate-500/30 bg-slate-900/40 text-slate-400"}`}>{scenario.active ? "Publicado" : "Rascunho"}</span></div><p className="text-xs leading-5 text-slate-400">{scenario.description || "Sem descrição cadastrada."}</p><div className="flex flex-wrap gap-2 text-[10px] font-mono uppercase text-slate-500"><span>{scenario.difficulty}</span><span>•</span><span>{scenario.timeSeconds}s</span><span>•</span><span>{scenario.hintCount} dicas</span></div><div className="flex flex-wrap gap-2"><Button size="sm" variant="outline" className="h-8 border-white/20 text-[10px]" onClick={() => editScenario(scenario)}><Edit3 className="mr-1 h-3 w-3" /> Editar cenário</Button><Button size="sm" variant="outline" className="h-8 border-cyan-400/30 text-[10px] text-cyan-200" onClick={() => { setSpotScenarioKey(scenario.scenarioKey); setActiveTab("ache-o-erro"); }}><Crosshair className="mr-1 h-3 w-3" /> Editar áreas</Button><Button size="sm" variant="destructive" className="h-8 text-[10px]" disabled={deleteScenarioMutation.isPending} onClick={() => { if (confirm(`Apagar a fase "${scenario.label}"? Isso removerá as duas imagens e todas as áreas clicáveis desta fase. Resultados históricos serão preservados.`)) deleteScenarioMutation.mutate({ scenarioKey: scenario.scenarioKey }); }}><Trash2 className="mr-1 h-3 w-3" /> Excluir</Button></div></div>
               </article>)}
             </div>
             {!scenarioImagesQuery.data?.length ? <div className="rounded-xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-slate-500">Nenhum cenário cadastrado. Comece enviando as duas fotos acima.</div> : null}
@@ -1173,7 +1170,7 @@ export default function Admin() {
                 </> : <p className="text-sm leading-6 text-slate-400">Clique em um quadrado numerado para editar nome, descrição e tolerância. Use <strong className="text-white">Adicionar erro</strong> para cadastrar um novo risco.</p>}
               </div>
             </div>
-            {editorPreviewOpen && <div className="fixed inset-0 z-50 overflow-y-auto bg-black/90 p-2 sm:p-6"><div className="mx-auto min-h-full max-w-7xl"><div className="sticky top-0 z-10 flex justify-end py-2"><Button type="button" variant="outline" onClick={() => setEditorPreviewOpen(false)} className="border-cyan-400/40 bg-[#10131b] text-cyan-200">Fechar teste</Button></div><SpotErrorGame difficulty={previewDifficulty} initialScenarioKey={spotScenarioKey} previewOnly previewAdminKey={adminKey} onBackToGames={() => setEditorPreviewOpen(false)} /></div></div>}
+            {editorPreviewOpen && <div className="fixed inset-0 z-50 overflow-y-auto bg-black/90 p-2 sm:p-6"><div className="mx-auto min-h-full max-w-7xl"><div className="sticky top-0 z-10 flex justify-end py-2"><Button type="button" variant="outline" onClick={() => setEditorPreviewOpen(false)} className="border-cyan-400/40 bg-[#10131b] text-cyan-200">Fechar teste</Button></div><SpotErrorGame difficulty={previewDifficulty} initialScenarioKey={spotScenarioKey} previewOnly  onBackToGames={() => setEditorPreviewOpen(false)} /></div></div>}
           </TabsContent>
           <TabsContent value="acesso" className="space-y-5">
             <div className="p-4 rounded-xl bg-cyan-950/30 border border-cyan-500/30 text-sm text-cyan-100">
@@ -1187,7 +1184,7 @@ export default function Admin() {
                 return <div key={game.gameKey} className="p-5 rounded-xl bg-[#141822] border border-white/10 space-y-4">
                   <div className="flex items-start justify-between gap-3"><div><h3 className="font-industrial font-bold uppercase text-white">{game.title}</h3><p className="text-xs text-slate-400 mt-1">{game.description}</p></div><span className={`text-[10px] font-mono font-bold uppercase ${game.isOpen ? "text-emerald-400" : "text-amber-400"}`}>{game.isOpen ? "ABERTO AGORA" : "FORA DA JANELA"}</span></div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><Label className="text-xs text-slate-300">Começa em • São Paulo</Label><Input type="datetime-local" value={draft.start} onChange={(event) => setDraft("start", event.target.value)} className="bg-black/40 border-white/15 text-white text-xs [color-scheme:dark]" /></div><div><Label className="text-xs text-slate-300">Termina em • São Paulo</Label><Input type="datetime-local" value={draft.end} onChange={(event) => setDraft("end", event.target.value)} className="bg-black/40 border-white/15 text-white text-xs [color-scheme:dark]" /></div></div>
-                  <div className="flex items-center justify-between gap-3"><span className="text-[11px] text-slate-500">Fuso: America/Sao_Paulo. Deixe vazio para manter sem limite.</span><Button onClick={() => updateGameAccessMutation.mutate({ adminKey, gameKey: game.gameKey, active: game.active, accessStartAt: draft.start ? fromSaoPauloInput(draft.start) : null, accessEndAt: draft.end ? fromSaoPauloInput(draft.end) : null })} className="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold uppercase"><Save className="w-3.5 h-3.5 mr-1.5" /> Salvar janela</Button></div>
+                  <div className="flex items-center justify-between gap-3"><span className="text-[11px] text-slate-500">Fuso: America/Sao_Paulo. Deixe vazio para manter sem limite.</span><Button onClick={() => updateGameAccessMutation.mutate({ gameKey: game.gameKey, active: game.active, accessStartAt: draft.start ? fromSaoPauloInput(draft.start) : null, accessEndAt: draft.end ? fromSaoPauloInput(draft.end) : null })} className="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold uppercase"><Save className="w-3.5 h-3.5 mr-1.5" /> Salvar janela</Button></div>
                 </div>;
               })}
             </div>
@@ -1246,7 +1243,7 @@ export default function Admin() {
                           variant="destructive"
                           onClick={() => {
                             if (confirm("Excluir este resultado da partida? O ranking será recalculado.")) {
-                              deleteResultMutation.mutate({ adminKey, id: res.id });
+                              deleteResultMutation.mutate({ id: res.id });
                             }
                           }}
                           className="h-7 text-xs"
@@ -1277,7 +1274,6 @@ export default function Admin() {
                   <Button
                     onClick={() =>
                       toggleGameMutation.mutate({
-                        adminKey,
                         gameKey: g.gameKey,
                         active: !g.active,
                       })
@@ -1413,7 +1409,7 @@ export default function Admin() {
                         <div className="flex gap-2">
                           <Button
                             size="sm"
-                            onClick={() => editMuralTextMutation.mutate({ adminKey, id: msg.id, message: editingMuralText })}
+                            onClick={() => editMuralTextMutation.mutate({ id: msg.id, message: editingMuralText })}
                             className="h-8 bg-emerald-600 hover:bg-emerald-700 text-xs text-white uppercase font-bold"
                           >
                             Salvar alteração
@@ -1461,7 +1457,7 @@ export default function Admin() {
                       {msg.status !== "aprovada" ? (
                         <Button
                           size="sm"
-                          onClick={() => moderateMuralMutation.mutate({ adminKey, id: msg.id, action: "aprovar" })}
+                          onClick={() => moderateMuralMutation.mutate({ id: msg.id, action: "aprovar" })}
                           className="h-8 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase"
                         >
                           <Check className="w-3.5 h-3.5 mr-1" /> Aprovar
@@ -1470,7 +1466,7 @@ export default function Admin() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => moderateMuralMutation.mutate({ adminKey, id: msg.id, action: "rejeitar" })}
+                          onClick={() => moderateMuralMutation.mutate({ id: msg.id, action: "rejeitar" })}
                           className="h-8 border-red-500/40 text-red-300 hover:bg-red-950/40 text-xs"
                         >
                           <X className="w-3.5 h-3.5 mr-1" /> Rejeitar
@@ -1482,7 +1478,7 @@ export default function Admin() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => moderateMuralMutation.mutate({ adminKey, id: msg.id, action: "remover_destaque" })}
+                            onClick={() => moderateMuralMutation.mutate({ id: msg.id, action: "remover_destaque" })}
                             className="h-8 border-amber-400/40 text-amber-300 text-xs"
                           >
                             Remover destaque
@@ -1490,7 +1486,7 @@ export default function Admin() {
                         ) : (
                           <Button
                             size="sm"
-                            onClick={() => moderateMuralMutation.mutate({ adminKey, id: msg.id, action: "destacar" })}
+                            onClick={() => moderateMuralMutation.mutate({ id: msg.id, action: "destacar" })}
                             className="h-8 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold uppercase"
                           >
                             <Sparkles className="w-3.5 h-3.5 mr-1" /> Tornar Destaque
@@ -1503,7 +1499,7 @@ export default function Admin() {
                         variant="destructive"
                         onClick={() => {
                           if (confirm("Deseja realmente excluir esta mensagem do mural?")) {
-                            deleteMuralMutation.mutate({ adminKey, id: msg.id });
+                            deleteMuralMutation.mutate({ id: msg.id });
                           }
                         }}
                         className="h-8 text-xs"
@@ -1657,7 +1653,6 @@ export default function Admin() {
               e.preventDefault();
               if (editingPlayerId) {
                 updatePlayerMutation.mutate({
-                  adminKey,
                   id: editingPlayerId,
                   name: editPlayerName,
                   chapa: editPlayerChapa,

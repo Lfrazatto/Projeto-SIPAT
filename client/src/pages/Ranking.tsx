@@ -36,7 +36,7 @@ export default function Ranking() {
   });
 
   const participantProgressQuery = trpc.participant.getProgress.useQuery(
-    { wwid: participant?.wwid || "" },
+    {},
     { enabled: Boolean(participant?.wwid), refetchInterval: 30_000 }
   );
 

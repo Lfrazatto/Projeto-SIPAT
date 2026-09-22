@@ -26,19 +26,17 @@ import { Progress } from "@/components/ui/progress";
 
 export default function MeuProgresso() {
   const { participant } = useParticipant();
-  const [searchWwid, setSearchWwid] = useState(participant?.wwid || "");
-  const [activeWwid, setActiveWwid] = useState(participant?.wwid || "");
+  const [searchWwid, setSearchWwid] = useState("");
+  const [activeWwid, setActiveWwid] = useState("");
 
   const progressQuery = trpc.participant.getProgress.useQuery(
-    { wwid: activeWwid },
-    { enabled: !!activeWwid }
+    {},
+    { enabled: Boolean(participant) }
   );
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchWwid.trim()) {
-      setActiveWwid(searchWwid.trim().toUpperCase());
-    }
+    if (participant) setActiveWwid("session");
   };
 
   const pData = progressQuery.data?.participant;
@@ -73,31 +71,26 @@ export default function MeuProgresso() {
         </div>
       </section>
 
-      {/* Chapa / WWID lookup section */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full">
-        <form onSubmit={handleSearch} className="p-4 rounded-xl bg-[#141822] border border-white/10 flex flex-col sm:flex-row gap-3">
-          <div className="flex-1">
-            <label htmlFor="progress-identifier" className="text-[11px] font-mono text-slate-300 block mb-1">
-              DIGITE SUA CHAPA OU WWID CORPORATIVO:
-            </label>
-            <Input
-              id="progress-identifier"
-              name="identifier"
-              autoComplete="off"
-              placeholder="Ex: 123456 ou WW12345"
-              value={searchWwid}
-              onChange={(e) => setSearchWwid(e.target.value.toUpperCase())}
-              className="bg-black/50 border-white/15 text-white placeholder:text-slate-600 font-mono text-sm focus:border-[#da291c]"
-            />
+      {/* Consulta protegida por sessão */}
+      <section className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+        {participant ? (
+          <form onSubmit={handleSearch} className="flex flex-col gap-3 rounded-xl border border-white/10 bg-[#141822] p-4 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <span className="mb-1 block text-[11px] font-mono text-slate-300">SESSÃO DO PARTICIPANTE</span>
+              <p className="text-sm text-slate-200">Progresso vinculado à sua identificação nesta sessão. O identificador corporativo não é exibido publicamente.</p>
+            </div>
+            <Button type="submit" className="min-h-11 bg-[#da291c] px-6 text-xs font-bold uppercase text-white hover:bg-[#b01e12]">Atualizar progresso</Button>
+          </form>
+        ) : (
+          <div className="rounded-xl border border-amber-400/30 bg-amber-950/20 p-5 text-center">
+            <h2 className="font-industrial text-xl uppercase text-white">Identifique-se para consultar seu progresso</h2>
+            <p className="mt-2 text-sm text-slate-300">Por privacidade, a consulta é vinculada à sessão do participante e não aceita busca pública por chapa ou WWID.</p>
+            <Button asChild className="mt-4 min-h-11 bg-[#da291c] text-xs font-bold uppercase text-white hover:bg-[#b01e12]"><Link href="/jogos?identify=1">Identificar e começar</Link></Button>
           </div>
-          <Button
-            type="submit"
-            className="self-end bg-[#da291c] hover:bg-[#b01e12] text-white text-xs font-bold uppercase tracking-wider px-6 h-10"
-          >
-            Consultar Progresso
-          </Button>
-        </form>
+        )}
+      </section>
 
+      <section className="mx-auto w-full max-w-4xl px-4 pb-12 sm:px-6 lg:px-8">
         {progressQuery.isLoading && (
           <div role="status" aria-live="polite" className="py-16 text-center text-slate-300 font-mono text-sm">
             Consultando registros no banco de dados...
@@ -111,7 +104,7 @@ export default function MeuProgresso() {
               Colaborador Não Encontrado
             </h3>
             <p className="text-xs text-slate-400">
-              Nenhum registro com a chapa ou WWID <strong>{activeWwid}</strong> foi localizado. Cadastre-se iniciando qualquer desafio na área de jogos!
+              Nenhum registro com a chapa ou WWID <strong>{participant ? "sua sessão" : "sua sessão"}</strong> foi localizado. Cadastre-se iniciando qualquer desafio na área de jogos!
             </p>
             <Button asChild size="sm" className="bg-[#da291c] text-white text-xs font-bold uppercase"><Link href="/jogos">Ir Para os Jogos</Link></Button>
           </div>
@@ -173,7 +166,7 @@ export default function MeuProgresso() {
                     {pData.name}
                   </h2>
                   <div className="text-xs font-mono text-slate-400">
-                    Chapa: <strong className="text-amber-400">{pData.chapa}</strong> • WWID: <strong className="text-amber-400">{pData.wwid}</strong> • Maior Dificuldade:{" "}
+                    Perfil protegido • Maior Dificuldade:{" "}
                     <strong className="text-white">{pData.highestDifficulty}</strong>
                   </div>
                 </div>

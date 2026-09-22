@@ -38,6 +38,7 @@ function PreferenceSwitch({
 export function AccessibilityToolbar() {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const {
     highContrast,
     reducedMotion,
@@ -51,7 +52,16 @@ export function AccessibilityToolbar() {
   } = useAccessibility();
 
   useEffect(() => {
-    if (!open) return;
+    const openFromFooter = () => setOpen(true);
+    window.addEventListener("open-sipat-accessibility", openFromFooter);
+    return () => window.removeEventListener("open-sipat-accessibility", openFromFooter);
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      triggerRef.current?.focus();
+      return;
+    }
     panelRef.current?.focus();
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
@@ -70,6 +80,7 @@ export function AccessibilityToolbar() {
           tabIndex={-1}
           role="dialog"
           aria-modal="false"
+          id="accessibility-panel"
           aria-labelledby="accessibility-title"
           className="w-[min(23rem,calc(100vw-2rem))] rounded-2xl border border-amber-300/40 bg-[#11151d]/98 p-4 text-slate-100 shadow-2xl backdrop-blur-xl"
         >
@@ -106,10 +117,11 @@ export function AccessibilityToolbar() {
       )}
 
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((current) => !current)}
         aria-expanded={open}
-        aria-controls="accessibility-title"
+        aria-controls="accessibility-panel"
         className="inline-flex min-h-12 items-center gap-2 rounded-full border-2 border-amber-300 bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-2xl transition-transform active:scale-[.97]"
       >
         {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Accessibility className="h-5 w-5 text-amber-300" aria-hidden="true" />}

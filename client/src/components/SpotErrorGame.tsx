@@ -1135,9 +1135,6 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
     if (!previewOnly && required > 0) {
       submit.mutate(
         {
-          participantChapa: participant?.chapa || "SEM-CHAPA",
-          participantName: participant?.name || "Colaborador",
-          participantWwid: participant?.wwid || "WWID",
           scenarioKey,
           gameType: "ache_o_erro",
           difficulty,

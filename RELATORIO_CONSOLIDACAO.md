@@ -380,3 +380,40 @@ Em conformidade com a diretriz de modelagem mecânica de engenharia e renderiza�
    - A central de jogos (`/jogos`) não inicia mais partidas via URL sem a identificação prévia do participante.
    - O modal de encerramento (`QuizFinalResultModal`) foi aprimorado com métrica de tempo médio por pergunta/item e mensagem orientativa para participantes não identificados.
    - Todos os 10 arquivos de teste Vitest (48 testes) foram executados e aprovados com 100% de sucesso.
+
+
+## Atualização Final — Fechamento Completo para Lançamento Oficial (22/09/2026)
+
+Esta rodada conclui a revisão integral de segurança, privacidade, acessibilidade, navegação, módulo 3D e governança de dados antes do lançamento oficial do projeto:
+
+1. **Privacidade e Proteção de Dados de Colaboradores:**
+   - Remoção de consulta pública arbitrária por chapa ou WWID em `/meu-progresso`.
+   - Implementação de sessão assinada via cookie HttpOnly com escopo de participante e tempo de expiração seguro.
+   - Envio de resultados vinculado exclusivamente ao participante ativo da sessão no backend, impedindo adulteração de identidade.
+   - Mascaramento padrão de identificadores corporativos no ranking, cabeçalho e componentes públicos.
+
+2. **Segurança Administrativa e Redução de Superfície:**
+   - O painel `/admin` deixa de transportar a chave administrativa nas requisições subsequentes do cliente após autenticação.
+   - Criação de sessão administrativa segura via cookie assinado, preservando compatibilidade e tempo de expiração curto.
+   - Retirada de envio desnecessário de credenciais na prévia do jogo Ache o Erro.
+
+3. **Governança dos Quizzes e Integridade de Pontuação:**
+   - Validação autoritativa das perguntas ativas no servidor para impedir acúmulo arbitrário de pontos ou envio de respostas fora da rodada.
+   - Definição de limites estritos por tipo de desafio no backend, bloqueando pontuações impossíveis.
+
+4. **Acessibilidade e Experiência do Usuário:**
+   - Correção do vínculo semântico (`aria-controls`, `id="accessibility-panel"`) e gerenciamento de foco na barra de acessibilidade.
+   - Integração do atalho de acessibilidade do rodapé diretamente ao acionamento da barra flutuante.
+   - Módulo 3D atualizado com suporte completo a navegação por teclado (setas para girar, `+`/`-` para zoom, `R` para resetar e `M` para medir) e foco visível no canvas.
+   - Ajuste da medida didática de bitola entre flanges para `1,688 mm`, evitando interpretação equivocada de precisão milimétrica.
+   - Estabilização do modo tela cheia no componente 3D da primeira dobra, garantindo fechamento e retorno suaves sem travar a rolagem.
+
+5. **Navegação e Identificação:**
+   - Os botões da barra de navegação conduzem diretamente ao fluxo correto de identificação quando não há participante ativo.
+   - Menus mobile e atalhos com fechamento seguro, trapping de foco e restauração de foco ao fechar.
+
+6. **Validação Técnica de Lançamento:**
+   - `pnpm check`: 0 erros de TypeScript.
+   - `pnpm test`: 10 arquivos e 48 testes automatizados aprovados (100%).
+   - `pnpm build`: build de produção finalizado com sucesso (Vite + esbuild).
+   - Auditoria visual aprovada em resoluções mobile (375x812) e desktop (1280x720).

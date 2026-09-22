@@ -208,9 +208,6 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
     if (participant) {
       submitMutation.mutate(
         {
-          participantChapa: participant.chapa,
-          participantName: participant.name,
-          participantWwid: participant.wwid,
           gameType: "organize_a_fabrica",
           difficulty,
           score: finalScore,

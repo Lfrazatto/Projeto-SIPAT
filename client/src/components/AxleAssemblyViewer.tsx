@@ -1767,7 +1767,7 @@ export function AxleAssemblyViewer({
   const handleMeasureToggle = () => {
     if (!measureModeActive) {
       setMeasureModeActive(true);
-      setMeasuredDistance("Bitola entre flanges dos cubos: 1.688 mm (Conforme catálogo MS-120)");
+      setMeasuredDistance("Bitola entre flanges dos cubos: 1,688 mm (referência didática do catálogo MS-120)");
     } else {
       setMeasureModeActive(false);
       setMeasuredDistance(null);
@@ -2066,8 +2066,22 @@ export function AxleAssemblyViewer({
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(218,41,28,.15),transparent_38%)]" aria-hidden="true" />
             <canvas
               ref={canvasRef}
-              aria-label="Visualizador 3D Interativo do Eixo Traseiro Meritor Cummins MS-120 com Exploded View"
-              className="relative z-10 w-full h-full cursor-grab active:cursor-grabbing outline-none"
+              tabIndex={0}
+              role="application"
+              aria-label="Visualizador 3D interativo do eixo traseiro Meritor Cummins MS-120. Use as setas para girar, mais e menos para zoom, R para resetar e M para medir."
+              onKeyDown={(event) => {
+                if (event.key === "r" || event.key === "R") { event.preventDefault(); handleReset(); return; }
+                if (event.key === "m" || event.key === "M") { event.preventDefault(); handleMeasureToggle(); return; }
+                if (event.key === "+" || event.key === "=") { event.preventDefault(); zoomBy(-1.2); return; }
+                if (event.key === "-" || event.key === "_") { event.preventDefault(); zoomBy(1.2); return; }
+                if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                  event.preventDefault(); cameraPolarRef.current.theta += event.key === "ArrowLeft" ? -0.12 : 0.12;
+                }
+                if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                  event.preventDefault(); cameraPolarRef.current.phi = Math.max(0.25, Math.min(Math.PI - 0.25, cameraPolarRef.current.phi + (event.key === "ArrowUp" ? -0.08 : 0.08)));
+                }
+              }}
+              className="relative z-10 w-full h-full cursor-grab active:cursor-grabbing outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
             />
           </div>
 

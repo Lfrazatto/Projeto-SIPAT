@@ -58,3 +58,24 @@
 - [x] Calibrar pontuações proporcionais à dificuldade (100, 200 e 300 pontos base)
 - [x] Preservar 100% o jogo Ache o Erro e validar estabilidade do Organize a Fábrica
 - [x] Validar suíte automatizada: TypeScript, 42 testes no Vitest e build de produção
+
+
+## Checklist Oficial de Lançamento — Cummins SIPAT 2026 (22/09/2026)
+
+- [x] Bloqueio de consulta pública de progresso por chapa/WWID em `/meu-progresso`.
+- [x] Sessão de participante assinada via cookie HttpOnly (`sipat_participant_session`).
+- [x] Mascaramento de dados corporativos no ranking, cabeçalho e componentes públicos.
+- [x] Sessão administrativa HttpOnly sem persistência nem retransmissão da chave no cliente.
+- [x] Remoção de envio da chave administrativa na prévia do jogo Ache o Erro.
+- [x] Validação autoritativa das perguntas e respostas dos quizzes no servidor.
+- [x] Limites estritos de pontuação e tempo por desafio no backend.
+- [x] Acessibilidade: correção de `aria-controls`, `id="accessibility-panel"` e foco na barra flutuante.
+- [x] Atalho do rodapé integrado para abrir a barra de acessibilidade nativa.
+- [x] Módulo 3D: suporte a teclado (setas, zoom, reset, medição), foco visível e tela cheia estável.
+- [x] Ajuste didático da bitola entre flanges para `1,688 mm`.
+- [x] TypeScript sem erros (`pnpm check`).
+- [x] 10 arquivos e 48 testes automatizados aprovados no Vitest (`pnpm test`).
+- [x] Build de produção concluído com sucesso (`pnpm build`).
+- [x] Auditoria visual confirmada em mobile (375x812) e desktop (1280x720).
+- [x] Checkpoint oficial salvo no WebDev.
+- [x] Pacote ZIP consolidado atualizado na raiz home.
