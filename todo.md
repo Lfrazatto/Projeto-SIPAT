@@ -47,3 +47,14 @@
 - [x] Auditar capturas de tela em 375x812 e 768x1024 para validar legibilidade real
 - [x] Salvar novo checkpoint versionado
 - [x] Gerar pacote ZIP atualizado da aplicação
+
+
+## Melhorias de Navegação Mobile e Equilíbrio de Jogos — 22/09/2026
+
+- [x] Implementar os 8 links oficiais do menu mobile na ordem estrita solicitada
+- [x] Garantir alvos de toque >= 48px, botão de menu 44x44px e contenção de foco com Escape e Tab
+- [x] Reequilibrar catálogo com 36 perguntas reais (6 fáceis, 6 médias, 6 difíceis para cada quiz)
+- [x] Eliminar perguntas repetidas ou sem objetivo educativo claro no banco de dados
+- [x] Calibrar pontuações proporcionais à dificuldade (100, 200 e 300 pontos base)
+- [x] Preservar 100% o jogo Ache o Erro e validar estabilidade do Organize a Fábrica
+- [x] Validar suíte automatizada: TypeScript, 42 testes no Vitest e build de produção

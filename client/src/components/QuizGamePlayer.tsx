@@ -61,8 +61,9 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
   const submittedRef = useRef(false);
 
   // Fetch 12 questions from server
+  const apiDifficulty = difficulty === "muito_dificil" ? "dificil" : difficulty;
   const questionsQuery = trpc.games.getQuestions.useQuery(
-    { gameType },
+    { gameType, difficulty: apiDifficulty },
     { refetchOnWindowFocus: false }
   );
 

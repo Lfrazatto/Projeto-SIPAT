@@ -200,13 +200,22 @@ export const appRouter = router({
       .input(
         z.object({
           gameType: z.enum(["quiz_seguranca", "quiz_ergonomia"]),
+          difficulty: z.enum(["facil", "medio", "dificil"]).optional(),
         })
       )
       .query(async ({ input }) => {
         await assertGameOpen(input.gameType);
         const questions = await db.getQuizQuestions(input.gameType);
-        // Embaralha o catálogo completo e seleciona até 12 perguntas por partida.
-        const shuffled = [...questions].sort(() => Math.random() - 0.5).slice(0, 12);
+        // Se uma dificuldade específica for solicitada, prioriza ou filtra as perguntas daquele nível
+        let filtered = questions;
+        if (input.difficulty) {
+          const exact = questions.filter((q) => q.difficulty === input.difficulty);
+          if (exact.length >= 6) {
+            filtered = exact;
+          }
+        }
+        // Embaralha e seleciona até 12 perguntas estruturadas para a partida
+        const shuffled = [...filtered].sort(() => Math.random() - 0.5).slice(0, 12);
         return shuffled.map((q) => ({
           id: q.id,
           gameType: q.gameType,

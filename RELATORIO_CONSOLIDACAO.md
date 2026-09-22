@@ -161,3 +161,24 @@ A auditoria visual cobriu 375 × 812 px nas rotas Home, Jogos, Organize a Fábri
   - No jogo Ache o Erro, imagens em smartphones e tablets de até 1023px são apresentadas em tamanho expandido por abas alternadas com rótulos contrastantes ("Inspeção" e "Referência segura"), impedindo o encolhimento de detalhes visuais que ocorria no modo lado a lado simultâneo.
   - No jogo Organize a Fábrica, cartões de ferramentas e bancadas de 5S/Lean ganharam tipografia de 1rem, altura ampliada para toque confortável (6.25rem a 7rem) e alto contraste.
   - Todos os 42 testes automatizados continuam passando e o build de produção Vite + esbuild foi concluído sem inconsistências.
+
+## Atualização — Navegação Mobile Oficial e Equilíbrio Pedagógico dos Jogos (22/09/2026)
+
+Nesta etapa, a navegação mobile e os três jogos editáveis da SIPAT Cummins 2026 foram consolidados com os seguintes resultados:
+
+1. **Navegação Mobile Padronizada com os 8 Links Oficiais**:
+   O menu retrátil em telas móveis passou a exibir rigorosamente os oito links oficiais na ordem de prioridade solicitada: *Começar desafio*, *Jogos*, *Ranking*, *Meu progresso*, *Nosso projeto*, *Formare*, *História da Cummins* e *Galeria de fotos*.
+   A experiência móvel cumpre as diretrizes de acessibilidade WCAG AA: alvos de toque com altura mínima entre 48px e 50px, botão disparador de 44x44px, contenção de foco com tecla Tab, fechamento com Escape ou clique no fundo escurecido e travamento da rolagem da página quando o menu estiver aberto.
+
+2. **Quizzes de Segurança e Ergonomia**:
+   O catálogo de perguntas foi reformulado e balanceado com 36 perguntas técnicas reais (18 para Segurança e 18 para Ergonomia), estruturadas em 6 fáceis, 6 médias e 6 difíceis para cada jogo. Foram eliminadas todas as perguntas duplicadas ou genéricas.
+   O backend tRPC filtra perguntas pela dificuldade selecionada pelo usuário e calcula a pontuação proporcional ao tempo restante com base na complexidade do nível (100, 200 e 300 pontos base). Cada resposta conta com justificativa técnica aprofundada orientada ao chão de fábrica da unidade de Osasco.
+
+3. **Organize a Fábrica (5S & Lean)**:
+   A mecânica bifásica oficial (encaixe físico por estação fabril + ordenação da esteira Lean em cinco sensos) foi mantida com estabilidade. O jogo possui suporte a múltiplos métodos de entrada (arrastar e soltar, toque móvel e teclado acessível com Tab e Enter) e pontuação calibrada.
+
+4. **Jogo Ache o Erro (Intacto)**:
+   Conforme instrução expressa, o jogo *Ache o Erro* não sofreu qualquer alteração em sua lógica, preservando seus 5 cenários reais, hotspots de risco calibrados em banco de dados e modo de acessibilidade textual.
+
+5. **Validação Técnica e Build**:
+   TypeScript 100% aprovado sem erros (`pnpm check`), Vitest com 42 testes passando em 9 arquivos (`pnpm test`) e build de produção compilado com sucesso (`pnpm build`).

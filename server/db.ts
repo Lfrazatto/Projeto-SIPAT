@@ -111,16 +111,30 @@ export async function ensureInitialSeeds(): Promise<void> {
     }
   }
 
-  const seedPools = {
-    quiz_seguranca: INITIAL_SECURITY_QUESTIONS,
-    quiz_ergonomia: CDBS_EVENT_QUESTIONS.filter((question) => question.gameType === "quiz_ergonomia"),
-  } as const;
-  for (const gameType of ["quiz_seguranca", "quiz_ergonomia"] as const) {
-    const existing = await db.select({ id: quizQuestions.id }).from(quizQuestions).where(eq(quizQuestions.gameType, gameType));
-    const pool = seedPools[gameType];
-    for (let index = existing.length; index < 12; index += 1) {
-      const question = pool[index % pool.length];
-      if (question) await db.insert(quizQuestions).values(question);
+  const existingQuestions = await db.select({ count: sql<number>`count(*)` }).from(quizQuestions);
+  if (Number(existingQuestions[0]?.count ?? 0) < 36) {
+    const { OFFICIAL_QUIZ_QUESTIONS } = await import("./quizQuestionsCatalog");
+    for (const question of OFFICIAL_QUIZ_QUESTIONS) {
+      const [found] = await db
+        .select({ id: quizQuestions.id })
+        .from(quizQuestions)
+        .where(and(eq(quizQuestions.gameType, question.gameType), eq(quizQuestions.question, question.question)))
+        .limit(1);
+      if (!found) {
+        await db.insert(quizQuestions).values({
+          gameType: question.gameType,
+          difficulty: question.difficulty,
+          theme: question.theme,
+          question: question.question,
+          optionA: question.optionA,
+          optionB: question.optionB,
+          optionC: question.optionC,
+          optionD: question.optionD,
+          correctOption: question.correctOption,
+          explanation: question.explanation,
+          active: true,
+        });
+      }
     }
   }
 

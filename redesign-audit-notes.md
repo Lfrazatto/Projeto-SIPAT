@@ -74,3 +74,40 @@ A verificação automatizada executou `pnpm check`, `pnpm test` e `pnpm build`: 
   - Suíte de testes: 42 testes aprovados em 9 arquivos vitest.
   - TypeScript: 0 erros (`tsc --noEmit`).
   - Build de produção: Vite + esbuild finalizado sem falhas.
+
+
+## Auditoria de Navegação Mobile, 8 Links Oficiais e Equilíbrio de Jogos (22/09/2026)
+
+### 1. Navegação Mobile Acessível e Ordem Oficial dos Links
+- O menu mobile foi atualizado com a ordem estrita dos 8 links definida no prompt:
+  1. **Começar desafio** (`/jogos`) — CTA vermelho Cummins em destaque no topo;
+  2. **Jogos** (`/jogos`) — Central oficial com os 4 jogos;
+  3. **Ranking** (`/ranking`) — Classificação geral dos colaboradores;
+  4. **Meu progresso** (`/meu-progresso`) — Histórico individual e recordes;
+  5. **Nosso projeto** (`/nosso-projeto`) — Créditos institucionais e foto da equipe;
+  6. **Formare** (`/formare`) — Projeto social Formare Cummins;
+  7. **História da Cummins** (`/historia-cummins`) — Linha do tempo centenária;
+  8. **Galeria de fotos** (`/galeria`) — Fotografias autênticas da unidade Osasco.
+- Todos os links possuem alvos de toque confortáveis com altura mínima entre 48px e 50px.
+- Botão de abertura do menu com tamanho mínimo de 44x44px.
+- Implementação de `focus trap` (contenção de foco do teclado), fechamento por `Escape`, fechamento ao clicar fora no backdrop e bloqueio de rolagem do body quando o menu está aberto.
+
+### 2. Quizzes de Segurança e Ergonomia
+- O catálogo de perguntas foi reestruturado e balanceado com 36 perguntas técnicas reais (18 para Segurança e 18 para Ergonomia), rigorosamente divididas em 6 fáceis, 6 médias e 6 difíceis para cada jogo.
+- Eliminação completa de perguntas mock/duplicadas do banco de dados.
+- Justificativas técnicas pedagógicas detalhadas com objetivo educacional por competência operacional.
+- O backend tRPC filtra por dificuldade solicitada e o cálculo de pontos respeita a base por nível (Fácil: 100 pts, Médio: 200 pts, Difícil: 300 pts) proporcional ao tempo restante.
+
+### 3. Organize a Fábrica (5S & Lean)
+- Mecânica mantida com excelência: Encaixe físico 5S nas estações correspondentes + Ordenação sequencial Lean dos 5 sensos.
+- Alvos de toque grandes, suporte a drag-and-drop, clique/toque duplo e teclado (Tab + Enter).
+- Feedback sonoro/visual e pontuação balanceada por tempo e dificuldade.
+
+### 4. Ache o Erro (Intacto)
+- Os 5 cenários industriais reais, hotspots calibrados em banco de dados e modo de acessibilidade foram 100% preservados conforme exigência de não modificar este jogo.
+
+### 5. Validação Técnica Final
+- `pnpm check`: 0 erros de TypeScript.
+- `pnpm test`: 42 testes aprovados em 9 arquivos vitest.
+- `pnpm build`: Build de produção gerado com sucesso.
+- Capturas de tela aprovadas nos viewports mobile (375x812) e desktop (1280x720).
