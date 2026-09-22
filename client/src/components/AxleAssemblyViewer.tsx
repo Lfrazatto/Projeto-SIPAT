@@ -81,6 +81,7 @@ export function AxleAssemblyViewer({
   const [selectedId, setSelectedId] = useState<string>("main_axle_housing");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [showOptionalComponents, setShowOptionalComponents] = useState<boolean>(true);
+  const [showComponents, setShowComponents] = useState<boolean>(true);
   const [measureModeActive, setMeasureModeActive] = useState<boolean>(false);
   const [measuredDistance, setMeasuredDistance] = useState<string | null>(null);
   const [isolatedId, setIsolatedId] = useState<string | null>(null);
@@ -198,6 +199,10 @@ export function AxleAssemblyViewer({
     if (shouldFocus) focusComponent(id);
   }, [focusComponent]);
 
+  const zoomBy = useCallback((delta: number) => {
+    cameraDistanceRef.current = Math.max(4, Math.min(25, cameraDistanceRef.current + delta));
+  }, []);
+
   // Update exploded positions strictly according to catalog specification
   const applyExplodeTransformations = useCallback((depth: number) => {
     const map = groupMapRef.current;
@@ -226,7 +231,9 @@ export function AxleAssemblyViewer({
       const yOff = comp.removalAxis === "y" ? comp.removalSign * offsetDist : 0;
       const zOff = comp.removalAxis === "z" ? comp.removalSign * offsetDist : 0;
 
-      grp.position.set(mountedPos.x + xOff, mountedPos.y + yOff, mountedPos.z + zOff);
+      const targetPosition = new THREE.Vector3(mountedPos.x + xOff, mountedPos.y + yOff, mountedPos.z + zOff);
+      grp.userData.explodeTarget = targetPosition;
+      if (reducedMotionRef.current) grp.position.copy(targetPosition);
     });
   }, []);
 
@@ -395,6 +402,167 @@ export function AxleAssemblyViewer({
       return geometry;
     };
 
+
+
+    // Geometria CAD-like gerada em tempo de execução: perfis, dentes, pistas e fixadores
+    // permanecem peças tridimensionais independentes para seleção, explosão e inspeção.
+    const annularGeometry = (outerRadius: number, innerRadius: number, depth: number, segments = 64) => {
+      const shape = new THREE.Shape();
+      for (let i = 0; i <= segments; i += 1) {
+        const a = (i / segments) * Math.PI * 2;
+        const x = Math.cos(a) * outerRadius;
+        const y = Math.sin(a) * outerRadius;
+        if (i === 0) shape.moveTo(x, y);
+        else shape.lineTo(x, y);
+      }
+      const hole = new THREE.Path();
+      for (let i = segments; i >= 0; i -= 1) {
+        const a = (i / segments) * Math.PI * 2;
+        const x = Math.cos(a) * innerRadius;
+        const y = Math.sin(a) * innerRadius;
+        if (i === segments) hole.moveTo(x, y);
+        else hole.lineTo(x, y);
+      }
+      shape.holes.push(hole);
+      const geometry = new THREE.ExtrudeGeometry(shape, {
+        depth,
+        bevelEnabled: true,
+        bevelSegments: 2,
+        bevelSize: Math.min(0.035, depth * 0.18),
+        bevelThickness: Math.min(0.035, depth * 0.18),
+        curveSegments: 3,
+      });
+      geometry.translate(0, 0, -depth / 2);
+      return geometry;
+    };
+
+    const toothGeometry = (angle: number, rootRadius: number, tipRadius: number, halfRoot: number, halfTip: number, depth: number) => {
+      const point = (radius: number, a: number) => new THREE.Vector2(Math.cos(a) * radius, Math.sin(a) * radius);
+      const shape = new THREE.Shape();
+      const p1 = point(rootRadius, angle - halfRoot);
+      const p2 = point(tipRadius, angle - halfTip);
+      const p3 = point(tipRadius, angle + halfTip);
+      const p4 = point(rootRadius, angle + halfRoot);
+      shape.moveTo(p1.x, p1.y);
+      shape.lineTo(p2.x, p2.y);
+      shape.lineTo(p3.x, p3.y);
+      shape.lineTo(p4.x, p4.y);
+      shape.closePath();
+      const geometry = new THREE.ExtrudeGeometry(shape, {
+        depth,
+        bevelEnabled: true,
+        bevelSegments: 2,
+        bevelSize: Math.min(0.025, depth * 0.18),
+        bevelThickness: Math.min(0.025, depth * 0.18),
+      });
+      geometry.translate(0, 0, -depth / 2);
+      return geometry;
+    };
+
+    const addGearTeeth = (group: THREE.Group, count: number, rootRadius: number, tipRadius: number, depth: number, material: THREE.Material, axis: "x" | "z" = "z", helical = false) => {
+      const annulus = new THREE.Mesh(annularGeometry(rootRadius, rootRadius * 0.58, depth, Math.max(48, count * 2)), material);
+      if (axis === "x") annulus.rotation.y = Math.PI / 2;
+      group.add(annulus);
+      const segments = helical ? 5 : 1;
+      for (let toothIndex = 0; toothIndex < count; toothIndex += 1) {
+        const baseAngle = (toothIndex / count) * Math.PI * 2;
+        for (let segment = 0; segment < segments; segment += 1) {
+          const t = segments === 1 ? 0.5 : segment / (segments - 1);
+          const angle = baseAngle + (helical ? (t - 0.5) * 0.42 : 0);
+          const tooth = new THREE.Mesh(
+            toothGeometry(angle, rootRadius * 0.98, tipRadius, Math.PI / count * 0.44, Math.PI / count * 0.22, depth / segments * 1.02),
+            material
+          );
+          if (helical) tooth.position.z = (t - 0.5) * depth;
+          if (axis === "x") tooth.rotation.y = Math.PI / 2;
+          group.add(tooth);
+        }
+      }
+    };
+
+    const addMachiningMarks = (group: THREE.Group, radius: number, axis: "x" | "z", material: THREE.Material, count = 3) => {
+      for (let i = 0; i < count; i += 1) {
+        const mark = new THREE.Mesh(new THREE.TorusGeometry(radius - i * 0.075, 0.012, 6, 48), material);
+        if (axis === "x") mark.rotation.y = Math.PI / 2;
+        else mark.rotation.x = Math.PI / 2;
+        if (axis === "x") mark.position.x = (i - (count - 1) / 2) * 0.055;
+        else mark.position.z = (i - (count - 1) / 2) * 0.055;
+        group.add(mark);
+      }
+    };
+
+    const addDetailedBearing = (group: THREE.Group, axis: "x" | "z", outerRadius: number, innerRadius: number, width: number, rollerCount: number, rollerMaterial: THREE.Material, cageMaterial: THREE.Material) => {
+      const outer = new THREE.Mesh(annularGeometry(outerRadius, outerRadius * 0.78, width, 48), rollerMaterial);
+      const inner = new THREE.Mesh(annularGeometry(innerRadius * 1.35, innerRadius, width * 0.82, 48), rollerMaterial);
+      group.add(outer, inner);
+      const raceMaterial = rollerMaterial.clone();
+      if (raceMaterial instanceof THREE.MeshStandardMaterial) {
+        raceMaterial.color = new THREE.Color(0xf4f7f8);
+        raceMaterial.metalness = 1;
+        raceMaterial.roughness = 0.1;
+      }
+      const raceA = new THREE.Mesh(new THREE.TorusGeometry((outerRadius + innerRadius) / 2, 0.045, 8, 48), raceMaterial);
+      const raceB = raceA.clone();
+      raceA.position.z = -width * 0.3;
+      raceB.position.z = width * 0.3;
+      group.add(raceA, raceB);
+      const rollingRadius = (outerRadius + innerRadius) / 2;
+      for (let i = 0; i < rollerCount; i += 1) {
+        const angle = (i / rollerCount) * Math.PI * 2;
+        const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.052, width * 0.52, 12), rollerMaterial);
+        roller.position.set(Math.cos(angle) * rollingRadius, Math.sin(angle) * rollingRadius, 0);
+        roller.rotation.z = angle;
+        group.add(roller);
+        const separator = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.16, width * 0.58), cageMaterial);
+        separator.position.set(Math.cos(angle) * rollingRadius, Math.sin(angle) * rollingRadius, 0);
+        separator.rotation.z = angle;
+        group.add(separator);
+      }
+      if (axis === "x") group.rotation.y = Math.PI / 2;
+      else group.rotation.x = 0;
+    };
+
+    const addThreadedFastener = (group: THREE.Group, axis: "x" | "z", length: number, radius: number, threadCount = 5, withWasher = true) => {
+      const shank = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.48, radius * 0.48, length, 16), fastenerMat);
+      shank.rotation.x = Math.PI / 2;
+      shank.position.z = length * 0.05;
+      group.add(shank);
+      const head = new THREE.Mesh(new THREE.CylinderGeometry(radius * 1.42, radius * 1.35, radius * 0.72, 6), fastenerMat);
+      head.rotation.x = Math.PI / 2;
+      head.position.z = length * 0.56;
+      group.add(head);
+      for (let i = 0; i < threadCount; i += 1) {
+        const thread = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.5, radius * 0.025, 6, 18), darkSteelMat);
+        thread.rotation.x = Math.PI / 2;
+        thread.position.z = -length * 0.38 + i * (length * 0.11);
+        group.add(thread);
+      }
+      if (withWasher) {
+        const washer = new THREE.Mesh(new THREE.RingGeometry(radius * 0.74, radius * 1.08, 6), gearHighlightMat);
+        washer.position.z = length * 0.35;
+        group.add(washer);
+      }
+      if (axis === "x") group.rotation.y = Math.PI / 2;
+    };
+
+    const addSplinePack = (group: THREE.Group, side: -1 | 1, length = 0.62, toothCount = 20) => {
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.27, length, 32), machinedSteelMat);
+      body.rotation.z = Math.PI / 2;
+      body.position.x = side * 2.15;
+      group.add(body);
+      for (let i = 0; i < toothCount; i += 1) {
+        const angle = (i / toothCount) * Math.PI * 2;
+        const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.042, 0.065), gearHighlightMat);
+        tooth.position.set(side * 2.15, Math.cos(angle) * 0.255, Math.sin(angle) * 0.255);
+        tooth.rotation.x = angle;
+        group.add(tooth);
+      }
+      const transition = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.025, 8, 32), darkSteelMat);
+      transition.rotation.y = Math.PI / 2;
+      transition.position.x = side * 1.84;
+      group.add(transition);
+    };
+
     const compMap: ComponentMeshMap = {};
 
     const registerComp = (id: string, mountedPos: THREE.Vector3): THREE.Group => {
@@ -409,75 +577,47 @@ export function AxleAssemblyViewer({
     // 1. CARCAÇA CENTRAL DO EIXO (Main Axle Housing)
     const grpMainHousing = registerComp("main_axle_housing", new THREE.Vector3(0, 0, 0));
     {
-      const pumpkinGeom = new THREE.SphereGeometry(1.65, 32, 24);
-      pumpkinGeom.scale(1.08, 1.15, 0.92);
+      const profile = [
+        new THREE.Vector2(0, -0.92), new THREE.Vector2(0.86, -0.88), new THREE.Vector2(1.32, -0.62),
+        new THREE.Vector2(1.55, -0.2), new THREE.Vector2(1.62, 0.18), new THREE.Vector2(1.48, 0.58),
+        new THREE.Vector2(1.08, 0.86), new THREE.Vector2(0.56, 1.02), new THREE.Vector2(0, 1.06),
+      ];
+      const pumpkinGeom = new THREE.LatheGeometry(profile, 56);
+      pumpkinGeom.rotateX(Math.PI / 2);
       const pumpkinMesh = new THREE.Mesh(pumpkinGeom, castIronMat);
       pumpkinMesh.castShadow = true;
       pumpkinMesh.receiveShadow = true;
       grpMainHousing.add(pumpkinMesh);
-
-      const rearFlangeGeom = new THREE.TorusGeometry(1.58, 0.14, 16, 48);
-      const rearFlange = new THREE.Mesh(rearFlangeGeom, castIronMat);
-      rearFlange.position.set(0, 0, -0.72);
+      const machinedFace = new THREE.Mesh(annularGeometry(1.48, 0.92, 0.16, 64), machinedSteelMat);
+      machinedFace.position.z = -0.9;
+      grpMainHousing.add(machinedFace);
+      const rearFlange = new THREE.Mesh(new THREE.TorusGeometry(1.52, 0.11, 12, 64), machinedSteelMat);
+      rearFlange.position.z = -0.94;
       grpMainHousing.add(rearFlange);
-
-      for (let i = 0; i < 6; i++) {
-        const ang = (i / 6) * Math.PI;
-        const ribGeom = new THREE.BoxGeometry(0.12, 2.9, 0.35);
-        const rib = new THREE.Mesh(ribGeom, castIronMat);
-        rib.rotation.z = ang;
-        rib.position.set(0, 0, 0.25);
+      for (let i = 0; i < 8; i += 1) {
+        const a = (i / 8) * Math.PI * 2;
+        const rib = new THREE.Mesh(beveledBox(0.16, 2.7, 0.28, 0.06), darkSteelMat);
+        rib.position.set(Math.cos(a) * 0.44, Math.sin(a) * 1.12, 0.56);
+        rib.rotation.z = a;
         grpMainHousing.add(rib);
       }
-
-      const neckLeftGeom = new THREE.CylinderGeometry(0.72, 1.1, 1.0, 24);
-      const neckLeft = new THREE.Mesh(neckLeftGeom, castIronMat);
-      neckLeft.rotation.z = Math.PI / 2;
-      neckLeft.position.set(-1.45, 0, 0);
-      grpMainHousing.add(neckLeft);
-
-      const neckRightGeom = new THREE.CylinderGeometry(1.1, 0.72, 1.0, 24);
-      const neckRight = new THREE.Mesh(neckRightGeom, castIronMat);
-      neckRight.rotation.z = Math.PI / 2;
-      neckRight.position.set(1.45, 0, 0);
-      grpMainHousing.add(neckRight);
-
-      // Reforços longitudinais e ressaltos de fixação para leitura de peça fundida pesada.
-      [-1.05, -0.35, 0.35, 1.05].forEach((y) => {
-        const rib = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.12, 0.22), darkSteelMat);
-        rib.position.set(0, y, 0.92);
-        grpMainHousing.add(rib);
-      });
-      [-1.28, 1.28].forEach((x) => {
-        const boss = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.34, 16), castIronMat);
-        boss.rotation.x = Math.PI / 2;
-        boss.position.set(x, 0.8, -0.2);
-        grpMainHousing.add(boss);
-      });
-
-      // Alojamentos robustos dos mancais e planos usinados de apoio.
       [-1, 1].forEach((side) => {
-        const bearingSeat = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.02, 0.22, 32), innerIronMat);
-        bearingSeat.rotation.z = Math.PI / 2;
-        bearingSeat.position.x = side * 1.28;
-        grpMainHousing.add(bearingSeat);
-
-        const machinedPad = new THREE.Mesh(beveledBox(0.78, 0.18, 0.56, 0.06), machinedSteelMat);
-        machinedPad.position.set(side * 1.05, 0.98, -0.05);
-        machinedPad.rotation.z = side * 0.05;
-        grpMainHousing.add(machinedPad);
+        const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.64, 0.98, 1.05, 40), castIronMat);
+        neck.rotation.z = Math.PI / 2;
+        neck.position.x = side * 1.44;
+        grpMainHousing.add(neck);
+        const seat = new THREE.Mesh(annularGeometry(0.88, 0.62, 0.18, 48), machinedSteelMat);
+        seat.rotation.y = Math.PI / 2;
+        seat.position.x = side * 1.98;
+        grpMainHousing.add(seat);
+        const pad = new THREE.Mesh(beveledBox(0.78, 0.2, 0.62, 0.055), machinedSteelMat);
+        pad.position.set(side * 1.1, 0.98, -0.05);
+        grpMainHousing.add(pad);
       });
-
-      // Ressaltos de fundição que fazem a transição entre o corpo central e os tubos.
-      [-1, 1].forEach((side) => {
-        const transition = new THREE.Mesh(new THREE.CylinderGeometry(0.88, 0.62, 0.34, 32), castIronMat);
-        transition.rotation.z = Math.PI / 2;
-        transition.position.x = side * 1.68;
-        grpMainHousing.add(transition);
-      });
+      addMachiningMarks(grpMainHousing, 1.18, "z", darkSteelMat, 2);
     }
 
-    // 2. NARIZ DO PINHÃO (Pinion Nose Housing)
+    // 2. NARIZ DO PINHÃO    // 2. NARIZ DO PINHÃO (Pinion Nose Housing)
     const grpPinionNose = registerComp("pinion_nose_housing", new THREE.Vector3(0, 0, 0.95));
     {
       const noseGeom = new THREE.CylinderGeometry(0.76, 0.92, 1.35, 32);
@@ -711,23 +851,10 @@ export function AxleAssemblyViewer({
     // 15. ROLAMENTO DIANTEIRO DO PINHÃO (Front Pinion Bearing)
     const grpFrontBearing = registerComp("front_pinion_bearing", new THREE.Vector3(0, 0, 1.36));
     {
-      const coneGeom = new THREE.CylinderGeometry(0.44, 0.58, 0.32, 24);
-      const cone = new THREE.Mesh(coneGeom, machinedSteelMat);
-      cone.rotation.x = Math.PI / 2;
-      grpFrontBearing.add(cone);
-      const outerRace = new THREE.Mesh(new THREE.TorusGeometry(0.58, 0.055, 10, 28), fastenerMat);
-      outerRace.rotation.x = Math.PI / 2;
-      grpFrontBearing.add(outerRace);
-      for (let i = 0; i < 10; i++) {
-        const a = (i / 10) * Math.PI * 2;
-        const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.16, 10), gearHighlightMat);
-        roller.rotation.x = Math.PI / 2;
-        roller.position.set(Math.cos(a) * 0.5, Math.sin(a) * 0.5, 0);
-        grpFrontBearing.add(roller);
-      }
+      addDetailedBearing(grpFrontBearing, "z", 0.62, 0.4, 0.34, 12, machinedSteelMat, darkSteelMat);
     }
 
-    // 16. ESPAÇADOR / LUVA DE ESMAGAMENTO (Pinion Spacer)
+    // 16. ESPAÇADOR    // 16. ESPAÇADOR / LUVA DE ESMAGAMENTO (Pinion Spacer)
     const grpSpacer = registerComp("pinion_spacer_or_crush_sleeve", new THREE.Vector3(0, 0, 1.05));
     {
       const sleeveGeom = new THREE.CylinderGeometry(0.42, 0.42, 0.45, 24);
@@ -739,82 +866,59 @@ export function AxleAssemblyViewer({
     // 17. ROLAMENTO TRASEIRO DO PINHÃO (Rear Pinion Bearing)
     const grpRearBearing = registerComp("rear_pinion_bearing", new THREE.Vector3(0, 0, 0.75));
     {
-      const coneGeom = new THREE.CylinderGeometry(0.52, 0.68, 0.38, 24);
-      const cone = new THREE.Mesh(coneGeom, machinedSteelMat);
-      cone.rotation.x = Math.PI / 2;
-      grpRearBearing.add(cone);
-      const outerRace = new THREE.Mesh(new THREE.TorusGeometry(0.68, 0.06, 10, 28), fastenerMat);
-      outerRace.rotation.x = Math.PI / 2;
-      grpRearBearing.add(outerRace);
-      for (let i = 0; i < 12; i++) {
-        const a = (i / 12) * Math.PI * 2;
-        const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.17, 10), gearHighlightMat);
-        roller.rotation.x = Math.PI / 2;
-        roller.position.set(Math.cos(a) * 0.58, Math.sin(a) * 0.58, 0);
-        grpRearBearing.add(roller);
-      }
+      addDetailedBearing(grpRearBearing, "z", 0.72, 0.48, 0.42, 14, machinedSteelMat, darkSteelMat);
     }
 
     // 18. PINHÃO DE ATAQUE (Drive Pinion)
     const grpDrivePinion = registerComp("drive_pinion", new THREE.Vector3(0, 0, 0.42));
     {
-      const shaftGeom = new THREE.CylinderGeometry(0.38, 0.38, 1.6, 24);
-      const shaft = new THREE.Mesh(shaftGeom, machinedSteelMat);
+      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.42, 2.15, 32), machinedSteelMat);
       shaft.rotation.x = Math.PI / 2;
-      shaft.position.z = 0.55;
+      shaft.position.z = 0.58;
       grpDrivePinion.add(shaft);
-
-      const headGeom = new THREE.ConeGeometry(0.68, 0.75, 28);
-      const head = new THREE.Mesh(headGeom, gearBronzeMat);
-      head.rotation.x = -Math.PI / 2;
-      grpDrivePinion.add(head);
-
-      for (let i = 0; i < 9; i++) {
-        const ang = (i / 9) * Math.PI * 2;
-        const toothGeom = new THREE.BoxGeometry(0.08, 0.45, 0.75);
-        const tooth = new THREE.Mesh(toothGeom, gearBronzeMat);
-        tooth.position.set(Math.cos(ang) * 0.42, Math.sin(ang) * 0.42, -0.05);
-        tooth.rotation.z = ang + 0.3;
-        grpDrivePinion.add(tooth);
-      }
+      const shoulder = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.64, 0.22, 32), darkSteelMat);
+      shoulder.rotation.x = Math.PI / 2;
+      shoulder.position.z = -0.18;
+      grpDrivePinion.add(shoulder);
+      addGearTeeth(grpDrivePinion, 11, 0.47, 0.72, 0.5, gearBronzeMat, "z", true);
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.32, 0.34, 28), machinedSteelMat);
+      hub.rotation.x = Math.PI / 2;
+      hub.position.z = -0.4;
+      grpDrivePinion.add(hub);
+      addMachiningMarks(grpDrivePinion, 0.52, "z", gearHighlightMat, 2);
     }
 
-    // 19. COROA DE REDUÇÃO (Ring Gear)
+    // 19. COROA    // 19. COROA DE REDUÇÃO (Ring Gear)
     const grpRingGear = registerComp("ring_gear", new THREE.Vector3(-0.18, 0, 0.05));
     {
-      const ringGeom = new THREE.CylinderGeometry(1.42, 1.42, 0.38, 48);
-      const ring = new THREE.Mesh(ringGeom, gearBronzeMat);
-      ring.rotation.z = Math.PI / 2;
-      grpRingGear.add(ring);
-
-      const ringFace = new THREE.Mesh(new THREE.TorusGeometry(1.12, 0.14, 12, 48), gearHighlightMat);
-      ringFace.rotation.y = Math.PI / 2;
-      ringFace.position.x = -0.22;
-      grpRingGear.add(ringFace);
-      for (let i = 0; i < 37; i++) {
-        const ang = (i / 37) * Math.PI * 2;
-        const toothGeom = new THREE.BoxGeometry(0.34, 0.09, 0.24);
-        const tooth = new THREE.Mesh(toothGeom, gearHighlightMat);
-        tooth.position.set(0.12, Math.cos(ang) * 1.38, Math.sin(ang) * 1.38);
-        tooth.rotation.x = ang;
-        grpRingGear.add(tooth);
+      addGearTeeth(grpRingGear, 37, 1.42, 1.62, 0.42, gearBronzeMat, "x", false);
+      const face = new THREE.Mesh(annularGeometry(1.2, 0.72, 0.18, 64), gearHighlightMat);
+      face.rotation.y = Math.PI / 2;
+      face.position.x = -0.24;
+      grpRingGear.add(face);
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.86, 0.44, 48), darkSteelMat);
+      hub.rotation.z = Math.PI / 2;
+      hub.position.x = -0.34;
+      grpRingGear.add(hub);
+      for (let i = 0; i < 12; i += 1) {
+        const a = (i / 12) * Math.PI * 2;
+        const fastener = new THREE.Group();
+        fastener.position.set(-0.48, Math.cos(a) * 0.92, Math.sin(a) * 0.92);
+        addThreadedFastener(fastener, "x", 0.24, 0.06, 3, true);
+        grpRingGear.add(fastener);
       }
-      for (let i = 0; i < 12; i++) {
-        const ang = (i / 12) * Math.PI * 2;
-        const bolt = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.22, 8), fastenerMat);
-        bolt.rotation.z = Math.PI / 2;
-        bolt.position.set(-0.42, Math.cos(ang) * 0.88, Math.sin(ang) * 0.88);
-        grpRingGear.add(bolt);
-      }
+      addMachiningMarks(grpRingGear, 1.27, "x", gearHighlightMat, 3);
     }
 
-    // 20. CAIXA DO DIFERENCIAL (Differential Carrier Case)
+    // 20. CAIXA DO DIFERENCIAL    // 20. CAIXA DO DIFERENCIAL (Differential Carrier Case)
     const grpCarrier = registerComp("differential_carrier", new THREE.Vector3(0.18, 0, 0));
     {
-      const carrierGeom = new THREE.SphereGeometry(1.05, 24, 20);
-      carrierGeom.scale(0.85, 1.05, 1.05);
+      const carrierProfile = [new THREE.Vector2(0, -0.68), new THREE.Vector2(0.66, -0.66), new THREE.Vector2(0.94, -0.42), new THREE.Vector2(1.04, 0), new THREE.Vector2(0.94, 0.42), new THREE.Vector2(0.66, 0.66), new THREE.Vector2(0, 0.7)];
+      const carrierGeom = new THREE.LatheGeometry(carrierProfile, 40);
+      carrierGeom.rotateX(Math.PI / 2);
       const carrier = new THREE.Mesh(carrierGeom, castIronMat);
       grpCarrier.add(carrier);
+      addMachiningMarks(grpCarrier, 0.9, "z", darkSteelMat, 2);
 
       const ringFlangeGeom = new THREE.CylinderGeometry(1.36, 1.36, 0.15, 32);
       const ringFlange = new THREE.Mesh(ringFlangeGeom, machinedSteelMat);
@@ -841,22 +945,16 @@ export function AxleAssemblyViewer({
     // 21. ROLAMENTO ESQUERDO DO DIFERENCIAL (Left Carrier Bearing)
     const grpLeftDiffBearing = registerComp("left_differential_bearing", new THREE.Vector3(-0.95, 0, 0));
     {
-      const brgGeom = new THREE.CylinderGeometry(0.62, 0.75, 0.28, 24);
-      const brg = new THREE.Mesh(brgGeom, machinedSteelMat);
-      brg.rotation.z = Math.PI / 2;
-      grpLeftDiffBearing.add(brg);
+      addDetailedBearing(grpLeftDiffBearing, "x", 0.76, 0.5, 0.3, 12, machinedSteelMat, darkSteelMat);
     }
 
     // 22. ROLAMENTO DIREITO DO DIFERENCIAL (Right Carrier Bearing)
     const grpRightDiffBearing = registerComp("right_differential_bearing", new THREE.Vector3(0.95, 0, 0));
     {
-      const brgGeom = new THREE.CylinderGeometry(0.75, 0.62, 0.28, 24);
-      const brg = new THREE.Mesh(brgGeom, machinedSteelMat);
-      brg.rotation.z = Math.PI / 2;
-      grpRightDiffBearing.add(brg);
+      addDetailedBearing(grpRightDiffBearing, "x", 0.76, 0.5, 0.3, 12, machinedSteelMat, darkSteelMat);
     }
 
-    // 23. CRUZETA DO DIFERENCIAL (Spider Cross)
+    // 23. CRUZETA    // 23. CRUZETA DO DIFERENCIAL (Spider Cross)
     const grpSpiderCross = registerComp("spider_cross", new THREE.Vector3(0.18, 0, 0));
     {
       const armVerticalGeom = new THREE.CylinderGeometry(0.14, 0.14, 1.4, 16);
@@ -885,55 +983,36 @@ export function AxleAssemblyViewer({
     // 24. ENGRENAGENS SATÉLITES (Spider Gears)
     const grpSpiderGears = registerComp("spider_gears", new THREE.Vector3(0.18, 0, 0));
     {
-      const pinPositions = [
-        { x: 0, y: 0.52, z: 0, rotZ: 0 },
-        { x: 0, y: -0.52, z: 0, rotZ: Math.PI },
-        { x: 0, y: 0, z: 0.52, rotX: -Math.PI / 2 },
-        { x: 0, y: 0, z: -0.52, rotX: Math.PI / 2 }
+      const positions = [
+        { x: 0, y: 0.52, z: 0 }, { x: 0, y: -0.52, z: 0 },
+        { x: 0, y: 0, z: 0.52 }, { x: 0, y: 0, z: -0.52 },
       ];
-
-      pinPositions.forEach((pos) => {
-        const gearGeom = new THREE.ConeGeometry(0.32, 0.28, 16);
-        const gear = new THREE.Mesh(gearGeom, gearBronzeMat);
-        gear.position.set(pos.x, pos.y, pos.z);
-        if (pos.rotZ !== undefined) gear.rotation.z = pos.rotZ;
-        if (pos.rotX !== undefined) gear.rotation.x = pos.rotX;
+      positions.forEach((position, index) => {
+        const gear = new THREE.Group();
+        gear.position.set(position.x, position.y, position.z);
+        if (index >= 2) gear.rotation.x = index === 2 ? -Math.PI / 2 : Math.PI / 2;
+        addGearTeeth(gear, 12, 0.24, 0.36, 0.25, gearBronzeMat, "z", true);
         grpSpiderGears.add(gear);
       });
     }
 
-    // 25. ENGRENAGENS PLANETÁRIAS LATERAIS (Side Gears)
+    // 25. ENGRENAGENS PLANETÁRIAS    // 25. ENGRENAGENS PLANETÁRIAS LATERAIS (Side Gears)
     const grpSideGears = registerComp("side_gears", new THREE.Vector3(0.18, 0, 0));
     {
-      [-0.42, 0.42].forEach((xOff, idx) => {
-        const gearGeom = new THREE.ConeGeometry(0.48, 0.32, 20);
-        const gear = new THREE.Mesh(gearGeom, gearBronzeMat);
+      [-0.46, 0.46].forEach((xOff, idx) => {
+        const gear = new THREE.Group();
         gear.position.x = xOff;
         gear.rotation.z = idx === 0 ? -Math.PI / 2 : Math.PI / 2;
-        grpSideGears.add(gear);
-
-        for (let toothIndex = 0; toothIndex < 12; toothIndex++) {
-          const angle = (toothIndex / 12) * Math.PI * 2;
-          const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.16), gearHighlightMat);
-          tooth.position.set(xOff, Math.cos(angle) * 0.46, Math.sin(angle) * 0.46);
-          tooth.rotation.x = angle;
-          grpSideGears.add(tooth);
-        }
-
-        const splineGeom = new THREE.CylinderGeometry(0.18, 0.18, 0.38, 12);
-        const spline = new THREE.Mesh(splineGeom, machinedSteelMat);
+        addGearTeeth(gear, 16, 0.43, 0.56, 0.34, gearBronzeMat, "x", true);
+        const spline = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.23, 0.48, 24), machinedSteelMat);
         spline.rotation.z = Math.PI / 2;
-        spline.position.x = xOff + (idx === 0 ? -0.15 : 0.15);
-        grpSideGears.add(spline);
-
-        const washer = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.04, 10, 24), fastenerMat);
-        washer.rotation.y = Math.PI / 2;
-        washer.position.x = xOff + (idx === 0 ? 0.18 : -0.18);
-        grpSideGears.add(washer);
+        spline.position.x = idx === 0 ? -0.18 : 0.18;
+        gear.add(spline);
+        grpSideGears.add(gear);
       });
     }
 
-    // Arruelas de encosto separadas das engrenagens para leitura de montagem.
+    // Arruelas de encosto    // Arruelas de encosto separadas das engrenagens para leitura de montagem.
     const grpThrustWashers = registerComp("thrust_washers", new THREE.Vector3(0.18, 0, 0));
     {
       [-0.52, 0.52].forEach((x) => {
@@ -967,16 +1046,10 @@ export function AxleAssemblyViewer({
 
     const grpLeftSplines = registerComp("left_axle_splines", new THREE.Vector3(-3.25, 0, 0));
     {
-      for (let i = 0; i < 12; i++) {
-        const spline = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.06), gearHighlightMat);
-        const angle = (i / 12) * Math.PI * 2;
-        spline.position.set(2.14, Math.cos(angle) * 0.26, Math.sin(angle) * 0.26);
-        spline.rotation.x = angle;
-        grpLeftSplines.add(spline);
-      }
+      addSplinePack(grpLeftSplines, -1, 0.62, 20);
     }
 
-    // 27. SEMIEIXO DIREITO (Right Axle Shaft)
+    // 27. SEMIEIXO DIREITO    // 27. SEMIEIXO DIREITO (Right Axle Shaft)
     const grpRightShaft = registerComp("right_axle_shaft", new THREE.Vector3(3.25, 0, 0));
     {
       const shaftGeom = new THREE.CylinderGeometry(0.24, 0.24, 4.4, 24);
@@ -999,16 +1072,10 @@ export function AxleAssemblyViewer({
 
     const grpRightSplines = registerComp("right_axle_splines", new THREE.Vector3(3.25, 0, 0));
     {
-      for (let i = 0; i < 12; i++) {
-        const spline = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.06), gearHighlightMat);
-        const angle = (i / 12) * Math.PI * 2;
-        spline.position.set(-2.14, Math.cos(angle) * 0.26, Math.sin(angle) * 0.26);
-        spline.rotation.x = angle;
-        grpRightSplines.add(spline);
-      }
+      addSplinePack(grpRightSplines, 1, 0.62, 20);
     }
 
-    // 28. CUBO DE RODA ESQUERDO (Left Wheel Hub)
+    // 28. CUBO DE RODA ESQUERDO    // 28. CUBO DE RODA ESQUERDO (Left Wheel Hub)
     const grpLeftHub = registerComp("left_wheel_hub", new THREE.Vector3(-5.35, 0, 0));
     {
       const hubGeom = new THREE.CylinderGeometry(0.85, 0.85, 0.95, 32);
@@ -1102,43 +1169,17 @@ export function AxleAssemblyViewer({
     const grpWheelStuds = registerComp("wheel_studs", new THREE.Vector3(0, 0, 0));
     {
       [-5.5, 5.5].forEach((xCenter) => {
-        for (let i = 0; i < 10; i++) {
-          const ang = (i / 10) * Math.PI * 2;
-          const y = Math.cos(ang) * 1.35;
-          const z = Math.sin(ang) * 1.35;
-
-          const studGeom = new THREE.CylinderGeometry(0.065, 0.065, 0.42, 8);
-          const stud = new THREE.Mesh(studGeom, fastenerMat);
-          stud.rotation.z = Math.PI / 2;
-          stud.position.set(xCenter + (xCenter < 0 ? -0.22 : 0.22), y, z);
-          grpWheelStuds.add(stud);
-
-          const nutGeom = new THREE.CylinderGeometry(0.11, 0.11, 0.18, 6);
-          const nut = new THREE.Mesh(nutGeom, fastenerMat);
-          nut.rotation.z = Math.PI / 2;
-          nut.position.set(xCenter + (xCenter < 0 ? -0.38 : 0.38), y, z);
-          grpWheelStuds.add(nut);
-
-          for (let thread = 0; thread < 3; thread++) {
-            const threadRing = new THREE.Mesh(new THREE.TorusGeometry(0.073, 0.018, 6, 14), darkSteelMat);
-            threadRing.rotation.y = Math.PI / 2;
-            threadRing.position.set(
-              xCenter + (xCenter < 0 ? -0.22 : 0.22) + (xCenter < 0 ? -0.065 : 0.065) * thread,
-              y,
-              z
-            );
-            grpWheelStuds.add(threadRing);
-          }
-
-          const washer = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.025, 8, 18), gearHighlightMat);
-          washer.rotation.y = Math.PI / 2;
-          washer.position.set(xCenter + (xCenter < 0 ? -0.3 : 0.3), y, z);
-          grpWheelStuds.add(washer);
+        for (let i = 0; i < 10; i += 1) {
+          const angle = (i / 10) * Math.PI * 2;
+          const fastener = new THREE.Group();
+          fastener.position.set(xCenter + (xCenter < 0 ? -0.32 : 0.32), Math.cos(angle) * 1.35, Math.sin(angle) * 1.35);
+          addThreadedFastener(fastener, "x", 0.5, 0.095, 5, true);
+          grpWheelStuds.add(fastener);
         }
       });
     }
 
-    // 31. CONJUNTO DE FREIO ESQUERDO (Left Brake Assembly)
+    // 31. CONJUNTO DE FREIO ESQUERDO    // 31. CONJUNTO DE FREIO ESQUERDO (Left Brake Assembly)
     const grpLeftBrake = registerComp("left_brake_assembly", new THREE.Vector3(-4.65, 0, 0));
     {
       const drumGeom = new THREE.CylinderGeometry(1.68, 1.68, 0.85, 32, 1, true);
@@ -1343,6 +1384,9 @@ export function AxleAssemblyViewer({
     }
 
     groupMapRef.current = compMap;
+    Object.values(compMap).forEach((group) => {
+      group.userData.componentDefinition = MS120_CATALOG.find((item) => item.id === group.userData.id);
+    });
 
     const assemblyBounds = new THREE.Box3().setFromObject(rootAssembly);
     const assemblyCenter = assemblyBounds.getCenter(new THREE.Vector3());
@@ -1502,6 +1546,16 @@ export function AxleAssemblyViewer({
       const dist = cameraDistanceRef.current;
       const target = cameraTargetRef.current;
 
+      // A desmontagem percorre os estágios em aproximadamente 1–2 segundos,
+      // preservando o alinhamento mecânico em vez de teleportar as peças.
+      Object.values(compMap).forEach((group) => {
+        const explodeTarget = group.userData.explodeTarget as THREE.Vector3 | undefined;
+        if (explodeTarget) {
+          if (reducedMotionRef.current) group.position.copy(explodeTarget);
+          else group.position.lerp(explodeTarget, 0.075);
+        }
+      });
+
       if (autoRotateRef.current && !reducedMotionRef.current) {
         cameraPolarRef.current.theta += 0.0025 * animationSpeedRef.current;
       }
@@ -1603,6 +1657,17 @@ export function AxleAssemblyViewer({
     applyExplodeTransformations(explodeDepth);
   }, [explodeDepth, applyExplodeTransformations]);
 
+  // Mostra ou oculta o miolo mecânico sem destruir a montagem; X-Ray sempre força a leitura interna.
+  useEffect(() => {
+    const map = groupMapRef.current;
+    if (!Object.keys(map).length) return;
+    MS120_CATALOG.forEach((component) => {
+      const group = map[component.id];
+      if (!group) return;
+      group.visible = showComponents || component.category !== "internal" || viewMode === "xray" || viewMode === "section";
+    });
+  }, [showComponents, viewMode]);
+
   // Handle View Mode Materials with per-mesh clones so X-ray does not flatten every material.
   useEffect(() => {
     const root = rootAssemblyRef.current;
@@ -1678,6 +1743,13 @@ export function AxleAssemblyViewer({
       const isSelected = id === selectedId;
 
       grp.traverse((obj) => {
+        if (obj instanceof THREE.LineSegments) {
+          obj.visible = isSelected;
+          const lineMaterial = obj.material as THREE.LineBasicMaterial;
+          lineMaterial.color.set(isSelected ? 0xff3b30 : 0x69c8ef);
+          lineMaterial.opacity = isSelected ? 0.98 : 0.12;
+          return;
+        }
         if (obj instanceof THREE.Mesh) {
           const mat = obj.material as THREE.MeshStandardMaterial;
           if (isSelected) {
@@ -1859,6 +1931,37 @@ export function AxleAssemblyViewer({
             <Sliders className="w-3.5 h-3.5 mr-1" />
             Section View
           </Button>
+
+          <Button
+            size="sm"
+            variant={showComponents ? "secondary" : "outline"}
+            onClick={() => setShowComponents((value) => !value)}
+            className="text-xs border-white/15"
+            aria-pressed={showComponents}
+          >
+            <Eye className="w-3.5 h-3.5 mr-1" />
+            {showComponents ? "Ocultar miolo" : "Mostrar componentes"}
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => zoomBy(-1.2)}
+            className="text-xs border-white/15"
+            aria-label="Aproximar o modelo"
+          >
+            Zoom +
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => zoomBy(1.2)}
+            className="text-xs border-white/15"
+            aria-label="Afastar o modelo"
+          >
+            Zoom −
+          </Button>
         </div>
 
         <div className="flex items-center gap-2">
@@ -1916,6 +2019,30 @@ export function AxleAssemblyViewer({
               className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-red-400/40 bg-red-950/30 px-3 py-2 text-xs font-bold text-red-100 hover:bg-red-900/50"
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" /> Resetar
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowComponents((value) => !value)}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-cyan-400/30 px-3 py-2 text-xs font-bold text-cyan-100 hover:bg-cyan-900/30"
+              aria-pressed={showComponents}
+            >
+              <Eye className="h-4 w-4" aria-hidden="true" /> {showComponents ? "Ocultar miolo" : "Mostrar componentes"}
+            </button>
+            <button
+              type="button"
+              onClick={() => zoomBy(-1.2)}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs font-bold text-white hover:bg-white/10"
+              aria-label="Aproximar o modelo"
+            >
+              Zoom +
+            </button>
+            <button
+              type="button"
+              onClick={() => zoomBy(1.2)}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs font-bold text-white hover:bg-white/10"
+              aria-label="Afastar o modelo"
+            >
+              Zoom −
             </button>
           </div>
         </div>

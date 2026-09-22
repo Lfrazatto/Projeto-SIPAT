@@ -341,6 +341,30 @@ Conforme a necessidade de visibilidade imediata sem exigir que os usuários role
    - `pnpm build`: build de produção concluído com sucesso.
 
 
+## Atualização — Módulo 3D com Nível de Realismo Industrial Extremo (22/09/2026)
+
+Em conformidade com a diretriz de modelagem mecânica de engenharia e renderização realista:
+
+1. **Geometrias Próprias Não Simplificadas**:
+   - **Coroa de Redução**: 37 dentes modelados individualmente com raiz, topo, flancos, cubo usinado, 12 fixadores sextavados com arruela e marcas concêntricas de usinagem.
+   - **Pinhão de Ataque**: 11 dentes com perfil cônico/helicoidal, corpo escalonado usinado, ombro de encosto, cubo de fixação e marcas concêntricas.
+   - **Rolamentos Cônicos e de Mancal**: modelados com anel externo, anel interno, pistas polidas, roletes cilíndricos/cônicos independentes e gaiolas separadoras.
+   - **Satélites e Planetárias**: engrenagens com dentes individuais tridimensionais, furos, eixos, estrias de acoplamento nos semieixos e arruelas de encosto.
+   - **Semieixos e Estrias**: pacotes com 20 dentes longitudinais nas extremidades estriadas, vales, transição cônica e flanges usinados.
+   - **Fixadores**: prisioneiros de roda e parafusos da coroa modelados com corpo, cabeça sextavada, roscas em anel e arruelas de assentamento.
+   - **Carcaça Fundida**: perfil usinado com nervuras de reforço estrutural, alojamentos de mancais usinados, planos de assentamento e ressaltos nodulares.
+
+2. **Exploded View e Controles Mecânicos**:
+   - A desmontagem ocorre com interpolação suave em aproximadamente 1–2 segundos, respeitando os eixos mecânicos reais de remoção (X, Y e Z).
+   - Adicionados botões explícitos de **Zoom +**, **Zoom −**, **Mostrar componentes** / **Ocultar miolo**, além dos modos **Sólido**, **Wireframe**, **X-Ray**, **Section View** e **Medição**.
+   - Ao selecionar qualquer peça, a geometria ativa recebe contorno técnico e iluminação em destaque vermelho, mantendo as demais com visual de conjunto.
+
+3. **Validação**:
+   - `pnpm check`: sem erros de tipagem.
+   - `pnpm test`: 48 testes automatizados aprovados em 10 arquivos.
+   - `pnpm build`: build de produção concluído com sucesso.
+
+
 ## Atualização — Alinhamento Integral com a Especificação Oficial SIPAT (22/09/2026)
 
 1. **Substituição Pedagógica do Segundo Quiz por Lean Manufacturing**:
