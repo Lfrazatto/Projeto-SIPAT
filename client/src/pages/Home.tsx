@@ -16,7 +16,7 @@ import { Sipat3DExperience } from "@/components/Sipat3DExperience";
 
 const games = [
   { key: "quiz_seguranca", number: "01", title: "Quiz de Segurança", short: "Atenção, decisão e prevenção.", description: "Red Flag, EPIs, LOTO e comunicação de riscos.", time: "10–12 min", score: "Pontuação por acerto", interaction: "Toque ou teclado", tone: "red", Icon: ShieldAlert },
-  { key: "quiz_ergonomia", number: "02", title: "Quiz Lean Manufacturing", short: "Fluxo, qualidade e melhoria contínua.", description: "5S, Kaizen, Kanban, Just in Time e qualidade na fonte.", time: "10–12 min", score: "Pontuação por acerto", interaction: "Toque ou teclado", tone: "cyan", Icon: HeartPulse },
+  { key: "quiz_ergonomia", number: "02", title: "Desafio Fábrica Eficiente", short: "Fluxo, qualidade e melhoria contínua.", description: "5S, Kaizen, Kanban, Just in Time e qualidade na fonte.", time: "10–12 min", score: "Pontuação por acerto", interaction: "Toque ou teclado", tone: "cyan", Icon: HeartPulse },
   { key: "ache_o_erro", number: "03", title: "Ache o Erro", short: "Olhar atento. Ação segura.", description: "Encontre atos e condições inseguras em cenas industriais.", time: "5–10 min", score: "Até 5 fases", interaction: "Clique, toque ou teclado", tone: "amber", Icon: Eye },
   { key: "organize_a_fabrica", number: "04", title: "Organize a Fábrica", short: "Fluxo, 5S e melhoria contínua.", description: "Encaixe os itens no posto e ordene o fluxo Lean.", time: "5–8 min", score: "12 encaixes + 5 etapas", interaction: "Toque, arraste ou teclado", tone: "blue", Icon: SlidersHorizontal },
 ] as const;

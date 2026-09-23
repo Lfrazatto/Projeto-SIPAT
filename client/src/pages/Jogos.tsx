@@ -85,7 +85,7 @@ export default function Jogos() {
       case "quiz_seguranca":
         return "Quiz de Segurança";
       case "quiz_ergonomia":
-        return "Quiz Lean Manufacturing";
+        return "Desafio Fábrica Eficiente";
       case "ache_o_erro":
         return "Ache o Erro";
       case "organize_a_fabrica":
@@ -250,7 +250,7 @@ export default function Jogos() {
 
               <div>
                 <h2 className="text-2xl font-black font-industrial text-white uppercase tracking-wide">
-                  QUIZ LEAN MANUFACTURING
+                  DESAFIO FÁBRICA EFICIENTE
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
                   “Teste seus conhecimentos sobre 5S, Kaizen, Kanban, Just in Time, qualidade e melhoria contínua na manufatura.”
@@ -343,7 +343,7 @@ export default function Jogos() {
                   ORGANIZE A FÁBRICA
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-                  “Use seus conhecimentos de organização, 5S e Lean Manufacturing para deixar a fábrica mais segura e eficiente.”
+                  “Use seus conhecimentos de organização, 5S e melhoria contínua para deixar a fábrica mais segura e eficiente.”
                 </p>
               </div>
 

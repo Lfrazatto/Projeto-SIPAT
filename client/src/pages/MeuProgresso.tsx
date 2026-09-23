@@ -257,7 +257,7 @@ export default function MeuProgresso() {
                   </div>
                 </div>
 
-                {/* 2. Quiz Lean Manufacturing */}
+                {/* 2. Desafio Fábrica Eficiente */}
                 <div className="p-5 rounded-xl bg-[#141822] border border-white/10 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-lg bg-emerald-950/80 text-emerald-400">
@@ -265,7 +265,7 @@ export default function MeuProgresso() {
                     </div>
                     <div>
                       <div className="font-bold text-sm text-white uppercase font-industrial">
-                        Quiz Lean Manufacturing
+                        Desafio Fábrica Eficiente
                       </div>
                       <div className="text-xs text-slate-400">
                         {pData.bestEnvironmentScore > 0 ? "Concluído" : "Pendente"}

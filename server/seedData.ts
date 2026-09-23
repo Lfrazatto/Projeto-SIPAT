@@ -156,7 +156,7 @@ export const INITIAL_GAME_SETTINGS = [
   },
   {
     gameKey: "quiz_ergonomia",
-    title: "SIPAT CDBS • Lean Manufacturing",
+    title: "SIPAT CDBS • Desafio Fábrica Eficiente",
     description: "Desafios sobre 5S, Kaizen, Kanban, Just in Time, qualidade e melhoria contínua na rotina CDBS.",
     active: true,
   },

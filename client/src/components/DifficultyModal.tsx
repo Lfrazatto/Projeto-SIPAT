@@ -60,7 +60,7 @@ export const DifficultyModal: React.FC<DifficultyModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Pontuação base menor. Ideal para revisar conceitos básicos de segurança e ergonomia.
+                Pontuação base menor. Ideal para revisar conceitos básicos de segurança, cuidado e melhoria contínua.
               </p>
             </div>
             <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />

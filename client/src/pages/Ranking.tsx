@@ -216,7 +216,7 @@ export default function Ranking() {
                   <div className="font-bold text-white">{searchResult.bestSecurityScore} pts</div>
                 </div>
                 <div className="p-2 rounded bg-black/40 border border-white/10">
-                  <div className="text-[10px] text-slate-400">Quiz Lean Manufacturing</div>
+                  <div className="text-[10px] text-slate-400">Desafio Fábrica Eficiente</div>
                   <div className="font-bold text-white">{searchResult.bestEnvironmentScore} pts</div>
                 </div>
                 <div className="p-2 rounded bg-black/40 border border-white/10">
@@ -240,7 +240,7 @@ export default function Ranking() {
             {[
               { id: "geral", label: "Ranking Geral" },
               { id: "quiz_seguranca", label: "Quiz Segurança" },
-              { id: "quiz_ergonomia", label: "Quiz Lean Manufacturing" },
+              { id: "quiz_ergonomia", label: "Desafio Fábrica Eficiente" },
               { id: "ache_o_erro", label: "Ache o Erro" },
               { id: "organize_a_fabrica", label: "Organize a Fábrica" },
             ].map((f) => (

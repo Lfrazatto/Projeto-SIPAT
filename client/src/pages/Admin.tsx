@@ -825,7 +825,7 @@ export default function Admin() {
                 <div className="text-3xl font-black font-industrial text-emerald-400 mt-1">
                   {dStats?.totalQuizzes || 0}
                 </div>
-                <div className="text-[11px] text-slate-500 mt-1">Segurança + Lean Manufacturing</div>
+                <div className="text-[11px] text-slate-500 mt-1">Segurança + Fábrica Eficiente</div>
               </div>
 
               <div className="p-5 rounded-xl bg-[#141822] border border-white/10">
@@ -967,7 +967,7 @@ export default function Admin() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-white/5 border border-white/10 text-amber-400 uppercase">
-                        {q.gameType === "quiz_seguranca" ? "Segurança" : "Lean Manufacturing"}
+                        {q.gameType === "quiz_seguranca" ? "Segurança" : "Fábrica Eficiente"}
                       </span>
                       <span className="text-xs font-mono text-slate-400">Tema: {q.theme}</span>
                       <span className="text-xs font-mono text-slate-500">Dificuldade: {q.difficulty.toUpperCase()}</span>
@@ -1540,7 +1540,7 @@ export default function Admin() {
                   className="w-full bg-black/50 border border-white/15 text-white text-xs rounded p-2"
                 >
                   <option value="quiz_seguranca">Quiz de Segurança</option>
-                  <option value="quiz_ergonomia">Quiz Lean Manufacturing</option>
+                  <option value="quiz_ergonomia">Quiz Fábrica Eficiente</option>
                 </select>
               </div>
 

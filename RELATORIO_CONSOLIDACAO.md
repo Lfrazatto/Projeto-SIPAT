@@ -417,3 +417,13 @@ Esta rodada conclui a revisão integral de segurança, privacidade, acessibilida
    - `pnpm test`: 10 arquivos e 48 testes automatizados aprovados (100%).
    - `pnpm build`: build de produção finalizado com sucesso (Vite + esbuild).
    - Auditoria visual aprovada em resoluções mobile (375x812) e desktop (1280x720).
+
+
+## Atualização — Renomeação do Segundo Jogo para "Desafio Fábrica Eficiente" (23/09/2026)
+
+Em atendimento à solicitação do usuário:
+- O segundo desafio teve seu nome visível padronizado de **"Quiz Lean Manufacturing"** para **"Desafio Fábrica Eficiente"**.
+- A alteração foi aplicada na Home, Central de Jogos (`/jogos`), Ranking (`/ranking`), Meu Progresso (`/meu-progresso`), tela de carregamento, modal de dificuldade, cabeçalho de partida e painel administrativo (`/admin`).
+- O identificador técnico `quiz_ergonomia` foi preservado no banco de dados e nos schemas para manter compatibilidade retroativa, histórico de pontuações e testes automatizados sem migração destrutiva.
+- A tabela `game_settings` foi atualizada via banco para refletir o título `SIPAT CDBS • Desafio Fábrica Eficiente`.
+- Validação: TypeScript aprovado (`pnpm check`), 48 testes passando em 10 arquivos (`pnpm test`), build de produção aprovado (`pnpm build`) e capturas visuais confirmadas.
