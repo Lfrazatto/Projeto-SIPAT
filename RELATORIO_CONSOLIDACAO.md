@@ -427,3 +427,12 @@ Em atendimento à solicitação do usuário:
 - O identificador técnico `quiz_ergonomia` foi preservado no banco de dados e nos schemas para manter compatibilidade retroativa, histórico de pontuações e testes automatizados sem migração destrutiva.
 - A tabela `game_settings` foi atualizada via banco para refletir o título `SIPAT CDBS • Desafio Fábrica Eficiente`.
 - Validação: TypeScript aprovado (`pnpm check`), 48 testes passando em 10 arquivos (`pnpm test`), build de produção aprovado (`pnpm build`) e capturas visuais confirmadas.
+
+
+## Atualização — Remoção de Kauã Gonçalves da Equipe de Criadores (23/09/2026)
+
+Em atendimento à solicitação do usuário:
+- O nome de **Kauã Gonçalves** foi removido da lista de criadores na página `/nosso-projeto`.
+- A seção foi reorganizada para apresentar os **três principais criadores** (**Ryan Neiva**, **Leonardo Frazatto** e **Matheus Felipe**), mantendo os cards de destaque no topo, links de e-mail e LinkedIn, foco acessível e sem quebras de layout.
+- A fotografia original da equipe (`/home/ubuntu/webdev-static-assets/sipatma-brand/equipe-cummins-sipat-osasco.jpg`, 1280×720) foi localizada e disponibilizada para edição visual.
+- Validação: TypeScript aprovado (`pnpm check`), 48 testes automatizados aprovados (`pnpm test`), build de produção concluído (`pnpm build`).

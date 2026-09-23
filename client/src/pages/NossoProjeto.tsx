@@ -17,7 +17,6 @@ const creators = [
   { name: "Ryan Neiva", role: "Idealização e desenvolvimento", email: "ryanneiva80@gmail.com", linkedin: "https://www.linkedin.com/in/ryan-neiva" },
   { name: "Leonardo Frazatto", role: "Idealização e desenvolvimento", email: "lmpfrazatto@gmail.com", linkedin: "https://www.linkedin.com/in/leonardo-machado-pereira-fraza" },
   { name: "Matheus Felipe", role: "Idealização e desenvolvimento", email: "matheusfelipedasferreira@gmail.com" },
-  { name: "Kauã Gonçalves", role: "Idealização e desenvolvimento", email: "kauagc20@gmail.com" },
 ];
 
 const process = [
@@ -35,7 +34,7 @@ function MainCreatorsSection() {
           <div className="max-w-4xl">
             <div className="v2-kicker flex items-center gap-2 text-amber-200"><Users className="h-4 w-4" aria-hidden="true" /> Equipe principal do projeto</div>
             <h2 id="principais-criadores-title" className="mt-3 font-industrial text-5xl uppercase leading-none text-white sm:text-7xl">Quem criou este <span className="text-[#da291c]">projeto?</span></h2>
-            <p className="mt-5 text-base leading-relaxed text-slate-200">Conheça os quatro principais criadores responsáveis pela idealização, organização e desenvolvimento da experiência SIPAT Cummins Osasco.</p>
+            <p className="mt-5 text-base leading-relaxed text-slate-200">Conheça os três principais criadores responsáveis pela idealização, organização e desenvolvimento da experiência SIPAT Cummins Osasco.</p>
           </div>
           <span className="inline-flex w-fit items-center rounded-full border border-red-300/40 bg-red-950/50 px-3 py-2 text-xs font-black uppercase tracking-wide text-red-100">Conheça nossa equipe</span>
         </div>
