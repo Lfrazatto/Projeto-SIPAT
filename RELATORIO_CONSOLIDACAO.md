@@ -436,3 +436,11 @@ Em atendimento à solicitação do usuário:
 - A seção foi reorganizada para apresentar os **três principais criadores** (**Ryan Neiva**, **Leonardo Frazatto** e **Matheus Felipe**), mantendo os cards de destaque no topo, links de e-mail e LinkedIn, foco acessível e sem quebras de layout.
 - A fotografia original da equipe (`/home/ubuntu/webdev-static-assets/sipatma-brand/equipe-cummins-sipat-osasco.jpg`, 1280×720) foi localizada e disponibilizada para edição visual.
 - Validação: TypeScript aprovado (`pnpm check`), 48 testes automatizados aprovados (`pnpm test`), build de produção concluído (`pnpm build`).
+
+
+## Atualização — Centralização da Seção dos Criadores (23/09/2026)
+
+Em atendimento à solicitação do usuário:
+- O bloco de apresentação da equipe principal em `/nosso-projeto` foi centralizado: kicker, título "Quem criou este projeto?", parágrafo explicativo e badge institucional alinhados ao centro.
+- A grade dos três cards de criadores foi ajustada com largura máxima de 6xl e centralização automática (`mx-auto`), proporcionando simetria perfeita em desktop (`lg:grid-cols-3`) e visual balanceado em tablets e celulares.
+- Testes e integridade preservados: 48 testes passando, TypeScript sem erros e build aprovado.
