@@ -444,3 +444,8 @@ Em atendimento à solicitação do usuário:
 - O bloco de apresentação da equipe principal em `/nosso-projeto` foi centralizado: kicker, título "Quem criou este projeto?", parágrafo explicativo e badge institucional alinhados ao centro.
 - A grade dos três cards de criadores foi ajustada com largura máxima de 6xl e centralização automática (`mx-auto`), proporcionando simetria perfeita em desktop (`lg:grid-cols-3`) e visual balanceado em tablets e celulares.
 - Testes e integridade preservados: 48 testes passando, TypeScript sem erros e build aprovado.
+
+
+## Atualização — Assinatura Institucional Discreta nas Interfaces dos Jogos (13/10/2026)
+
+Foi adicionada uma faixa institucional mínima nas telas de partida dos quatro desafios. O texto exibido é **“Projeto desenvolvido por alunos do Formare • Cummins Osasco”**, com tipografia pequena, cor neutra e posição abaixo da navegação, para identificar a autoria sem competir com perguntas, controles, imagens, cronômetros ou pontuação. Os dois quizzes utilizam a mesma interface compartilhada; por isso, a assinatura aparece automaticamente em ambos. A mecânica, persistência, ranking e fluxo dos jogos permaneceram inalterados. Validação concluída com TypeScript aprovado, 48 testes em 10 arquivos e build de produção aprovado.

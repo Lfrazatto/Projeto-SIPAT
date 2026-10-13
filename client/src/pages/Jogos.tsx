@@ -5,6 +5,7 @@ import { DifficultyModal, DifficultyLevel } from "@/components/DifficultyModal";
 import { QuizGamePlayer } from "@/components/QuizGamePlayer";
 import { SpotErrorGame } from "@/components/SpotErrorGame";
 import { OrganizeFactoryGame } from "@/components/OrganizeFactoryGame";
+import { GameCreatorCredit } from "@/components/GameCreatorCredit";
 import { useParticipant } from "@/contexts/ParticipantContext";
 import { trpc } from "@/lib/trpc";
 import { 
@@ -100,6 +101,7 @@ export default function Jogos() {
     return (
       <div className="min-h-screen bg-[#0d0f13] text-slate-100 flex flex-col selection:bg-[#da291c] selection:text-white">
         <Navbar />
+        <GameCreatorCredit />
         <QuizGamePlayer
           gameType={activeRunningGame}
           difficulty={selectedDifficulty}
@@ -113,6 +115,7 @@ export default function Jogos() {
     return (
       <div className="min-h-screen bg-[#0d0f13] text-slate-100 flex flex-col selection:bg-[#da291c] selection:text-white">
         <Navbar />
+        <GameCreatorCredit />
         <SpotErrorGame
           difficulty={selectedDifficulty}
           onBackToGames={() => setActiveRunningGame(null)}
@@ -125,6 +128,7 @@ export default function Jogos() {
     return (
       <div className="min-h-screen bg-[#0d0f13] text-slate-100 flex flex-col selection:bg-[#da291c] selection:text-white">
         <Navbar />
+        <GameCreatorCredit />
         <OrganizeFactoryGame
           difficulty={selectedDifficulty}
           onBackToGames={() => setActiveRunningGame(null)}
