@@ -454,3 +454,8 @@ Foi adicionada uma faixa institucional mínima nas telas de partida dos quatro d
 ## Atualização — Autoria Visível na Primeira Dobra da Home (13/10/2026)
 
 A primeira dobra da Home recebeu uma identificação institucional mais visível, posicionada no espaço superior destacado da hero, antes do selo do evento. O texto exibido é **“Criado e desenhado por alunos do Formare • Cummins Osasco”**, com moldura discreta em âmbar, fundo escuro translúcido e ícone de equipe. A assinatura foi validada em desktop e mobile sem cobrir o modelo 3D nem os CTAs. TypeScript, 48 testes e build de produção aprovados.
+
+
+## Atualização — Equipe Principal com Quatro Criadores (13/10/2026)
+
+A seção centralizada de criadores da página Nosso Projeto foi atualizada para incluir **Kauã Gonçalves**, com o e-mail **kauagc20@gmail.com**. Também foi adicionado ao card de **Matheus Felipe** o link direto para seu perfil do LinkedIn. O texto institucional passou a informar quatro principais criadores e o grid foi ajustado para exibir os quatro cards lado a lado em telas grandes, mantendo duas colunas em telas médias e leitura vertical em celular. TypeScript, 48 testes e build de produção aprovados.

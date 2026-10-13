@@ -16,7 +16,8 @@ const pillars = [
 const creators = [
   { name: "Ryan Neiva", role: "Idealização e desenvolvimento", email: "ryanneiva80@gmail.com", linkedin: "https://www.linkedin.com/in/ryan-neiva" },
   { name: "Leonardo Frazatto", role: "Idealização e desenvolvimento", email: "lmpfrazatto@gmail.com", linkedin: "https://www.linkedin.com/in/leonardo-machado-pereira-fraza" },
-  { name: "Matheus Felipe", role: "Idealização e desenvolvimento", email: "matheusfelipedasferreira@gmail.com" },
+  { name: "Matheus Felipe", role: "Idealização e desenvolvimento", email: "matheusfelipedasferreira@gmail.com", linkedin: "https://www.linkedin.com/in/matheus-felipe-da-silva-ferreira-165465439" },
+  { name: "Kauã Gonçalves", role: "Idealização e desenvolvimento", email: "kauagc20@gmail.com" },
 ];
 
 const process = [
@@ -34,11 +35,11 @@ function MainCreatorsSection() {
           <div className="max-w-4xl">
             <div className="v2-kicker flex items-center justify-center gap-2 text-amber-200"><Users className="h-4 w-4" aria-hidden="true" /> Equipe principal do projeto</div>
             <h2 id="principais-criadores-title" className="mt-3 font-industrial text-5xl uppercase leading-none text-white sm:text-7xl">Quem criou este <span className="text-[#da291c]">projeto?</span></h2>
-            <p className="mt-5 text-base leading-relaxed text-slate-200">Conheça os três principais criadores responsáveis pela idealização, organização e desenvolvimento da experiência SIPAT Cummins Osasco.</p>
+            <p className="mt-5 text-base leading-relaxed text-slate-200">Conheça os quatro principais criadores responsáveis pela idealização, organização e desenvolvimento da experiência SIPAT Cummins Osasco.</p>
           </div>
           <span className="inline-flex w-fit items-center rounded-full border border-red-300/40 bg-red-950/50 px-3 py-2 text-xs font-black uppercase tracking-wide text-red-100">Conheça nossa equipe</span>
         </div>
-        <div className="mx-auto mt-8 grid w-full max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto mt-8 grid w-full max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {creators.map((creator, index) => (
             <article key={creator.name} className="group relative overflow-hidden rounded-2xl border border-[#da291c]/35 bg-gradient-to-br from-[#21171c] via-[#171b24] to-[#12151d] p-6 shadow-xl shadow-black/20 transition duration-200 hover:-translate-y-1 hover:border-[#da291c] hover:shadow-red-950/30">
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#da291c] via-amber-300 to-transparent" aria-hidden="true" />
