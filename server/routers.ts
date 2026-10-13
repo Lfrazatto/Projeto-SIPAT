@@ -314,21 +314,28 @@ export const appRouter = router({
       )
       .mutation(async ({ input, ctx }) => {
         enforceRateLimit("quiz-answer", clientAddress(ctx.req), 120, 60_000);
-        const dbConn = await db.getDb();
-        if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database offline" });
+        const sessionId = participantSessionId(ctx.req);
+        const attempt = sessionId ? quizAttempts.get(sessionId) : undefined;
+        let question: typeof quizQuestions.$inferSelect | undefined;
 
-        const [question] = await dbConn
-          .select()
-          .from(quizQuestions)
-          .where(eq(quizQuestions.id, input.questionId))
-          .limit(1);
+        if (attempt) {
+          const questions = await db.getQuizQuestions(attempt.gameType);
+          question = questions.find((item) => item.id === input.questionId);
+        } else {
+          const dbConn = await db.getDb();
+          if (!dbConn) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database offline" });
+          const [storedQuestion] = await dbConn
+            .select()
+            .from(quizQuestions)
+            .where(eq(quizQuestions.id, input.questionId))
+            .limit(1);
+          question = storedQuestion;
+        }
 
         if (!question) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Pergunta não encontrada" });
         }
 
-        const sessionId = participantSessionId(ctx.req);
-        const attempt = sessionId ? quizAttempts.get(sessionId) : undefined;
         if (attempt) {
           if (attempt.gameType !== question.gameType || !attempt.questionIds.has(question.id) || attempt.answered.has(question.id)) {
             throw new TRPCError({ code: "BAD_REQUEST", message: "Resposta fora da tentativa ativa." });

@@ -24,6 +24,7 @@ import {
 } from "../drizzle/schema";
 import { ACHIEVEMENT_DEFINITIONS } from "../shared/achievements";
 import { ENV } from "./_core/env";
+import { getCached, invalidateCachePrefix } from "./readCache";
 import {
   INITIAL_CDBS_SPOT_ERROR_HOTSPOTS,
   V4_CDBS_SPOT_ERROR_HOTSPOTS,
@@ -38,7 +39,16 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const configuredLimit = Number(process.env.DB_CONNECTION_LIMIT ?? 20);
+      const connectionLimit = Number.isFinite(configuredLimit) ? Math.min(50, Math.max(5, Math.floor(configuredLimit))) : 20;
+      _db = drizzle({
+        connection: {
+          uri: process.env.DATABASE_URL,
+          connectionLimit,
+          waitForConnections: true,
+          queueLimit: 0,
+        },
+      });
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -181,10 +191,12 @@ export async function ensureInitialSeeds(): Promise<void> {
 }
 
 export async function listScenarioImages(activeOnly = true) {
-  const db = await getDb();
-  if (!db) return [];
-  const query = db.select().from(scenarioImages);
-  return activeOnly ? query.where(eq(scenarioImages.active, true)).orderBy(desc(scenarioImages.id)) : query.orderBy(desc(scenarioImages.id));
+  return getCached(`scenario-images:${activeOnly ? "active" : "all"}`, 60_000, async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const query = db.select().from(scenarioImages);
+    return activeOnly ? query.where(eq(scenarioImages.active, true)).orderBy(desc(scenarioImages.id)) : query.orderBy(desc(scenarioImages.id));
+  });
 }
 
 export type ScenarioImageData = {
@@ -207,18 +219,21 @@ export async function createScenarioImage(data: ScenarioImageData) {
   const db = await getDb();
   if (!db) return;
   await db.insert(scenarioImages).values(data);
+  invalidateCachePrefix("scenario-images:");
 }
 
 export async function updateScenarioImage(scenarioKey: string, data: Omit<ScenarioImageData, "scenarioKey">) {
   const db = await getDb();
   if (!db) return;
   await db.update(scenarioImages).set({ ...data, updatedAt: new Date() }).where(eq(scenarioImages.scenarioKey, scenarioKey));
+  invalidateCachePrefix("scenario-images:");
 }
 
 export async function deleteScenarioImage(id: number) {
   const db = await getDb();
   if (!db) return;
   await db.delete(scenarioImages).where(eq(scenarioImages.id, id));
+  invalidateCachePrefix("scenario-images:");
 }
 
 export async function deleteScenario(scenarioKey: string) {
@@ -226,34 +241,41 @@ export async function deleteScenario(scenarioKey: string) {
   if (!db) return;
   await db.delete(spotErrorHotspots).where(eq(spotErrorHotspots.scenarioKey, scenarioKey));
   await db.delete(scenarioImages).where(eq(scenarioImages.scenarioKey, scenarioKey));
+  invalidateCachePrefix("spot-hotspots:");
+  invalidateCachePrefix("scenario-images:");
 }
 
 export async function listSpotErrorHotspots(activeOnly = true, scenarioKey?: string) {
-  const db = await getDb();
-  if (!db) return [];
-  const filters = [];
-  if (activeOnly) filters.push(eq(spotErrorHotspots.active, true));
-  if (scenarioKey) filters.push(eq(spotErrorHotspots.scenarioKey, scenarioKey));
-  const query = db.select().from(spotErrorHotspots);
-  return filters.length ? query.where(and(...filters)).orderBy(desc(spotErrorHotspots.id)) : query.orderBy(desc(spotErrorHotspots.id));
+  return getCached(`spot-hotspots:${activeOnly ? "active" : "all"}:${scenarioKey ?? "all"}`, 60_000, async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const filters = [];
+    if (activeOnly) filters.push(eq(spotErrorHotspots.active, true));
+    if (scenarioKey) filters.push(eq(spotErrorHotspots.scenarioKey, scenarioKey));
+    const query = db.select().from(spotErrorHotspots);
+    return filters.length ? query.where(and(...filters)).orderBy(desc(spotErrorHotspots.id)) : query.orderBy(desc(spotErrorHotspots.id));
+  });
 }
 
 export async function createSpotErrorHotspot(data: { scenarioKey: string; title: string; description: string; hint?: string; category: string; x: number; y: number; width?: number; height?: number; tolerance?: number; shape?: "retangulo" | "circulo" | "poligono"; points?: string }) {
   const db = await getDb();
   if (!db) return;
   await db.insert(spotErrorHotspots).values({ ...data, x: Number(data.x.toFixed(3)), y: Number(data.y.toFixed(3)), width: Number((data.width ?? 14).toFixed(3)), height: Number((data.height ?? 13).toFixed(3)), tolerance: Number((data.tolerance ?? 1).toFixed(3)) });
+  invalidateCachePrefix("spot-hotspots:");
 }
 
 export async function updateSpotErrorHotspot(id: number, data: Partial<{ scenarioKey: string; title: string; description: string; hint: string; category: string; x: number; y: number; width: number; height: number; tolerance: number; shape: "retangulo" | "circulo" | "poligono"; points: string; active: boolean }>) {
   const db = await getDb();
   if (!db) return;
   await db.update(spotErrorHotspots).set({ ...data, updatedAt: new Date() }).where(eq(spotErrorHotspots.id, id));
+  invalidateCachePrefix("spot-hotspots:");
 }
 
 export async function deleteSpotErrorHotspot(id: number) {
   const db = await getDb();
   if (!db) return;
   await db.delete(spotErrorHotspots).where(eq(spotErrorHotspots.id, id));
+  invalidateCachePrefix("spot-hotspots:");
 }
 
 export async function findOrCreateParticipant(name: string, chapa: string, wwid: string, participantType?: "terceiro" | "cummins" | "visitante"): Promise<Participant> {
@@ -277,6 +299,7 @@ export async function findOrCreateParticipant(name: string, chapa: string, wwid:
         .update(participants)
         .set({ name: cleanName || current.name, ...(participantType ? { participantType } : {}), chapa: cleanChapa, wwid: cleanWwid, updatedAt: new Date() })
         .where(eq(participants.id, current.id));
+      invalidateCachePrefix("ranking:");
       return { ...current, name: cleanName || current.name, participantType: participantType || current.participantType, chapa: cleanChapa, wwid: cleanWwid };
     }
     return existing[0];
@@ -299,6 +322,7 @@ export async function findOrCreateParticipant(name: string, chapa: string, wwid:
   };
 
   await db.insert(participants).values(newRecord);
+  invalidateCachePrefix("ranking:");
 
   const created = await db
     .select()
@@ -460,6 +484,7 @@ export async function recordGameResult(data: {
   await db.insert(gameResults).values(insertData);
 
   await calculateParticipantStats(participant.id);
+  invalidateCachePrefix("ranking:");
   const updatedParticipant = (await getParticipantByWwid(participant.wwid))!;
 
   const higherRanks = await db
@@ -486,6 +511,7 @@ export async function recordGameResult(data: {
 }
 
 export async function getRankingList(filterGame?: string, sortBy: "highest" | "lowest" | "recent" = "highest", participantType?: "todos" | "cummins" | "terceiro" | "visitante") {
+  return getCached(`ranking:${filterGame ?? "geral"}:${sortBy}:${participantType ?? "todos"}`, 5_000, async () => {
   const db = await getDb();
   if (!db) return [];
 
@@ -554,6 +580,7 @@ export async function getRankingList(filterGame?: string, sortBy: "highest" | "l
       updatedAt: p.updatedAt,
     };
   });
+  });
 }
 
 export async function searchRankingUser(term: string) {
@@ -569,19 +596,23 @@ export async function searchRankingUser(term: string) {
 }
 
 export async function getQuizQuestions(gameType: "quiz_seguranca" | "quiz_ergonomia") {
-  const db = await getDb();
-  if (!db) return [];
+  return getCached(`quiz-questions:${gameType}`, 60_000, async () => {
+    const db = await getDb();
+    if (!db) return [];
 
-  return db
-    .select()
-    .from(quizQuestions)
-    .where(and(eq(quizQuestions.gameType, gameType), eq(quizQuestions.active, true)));
+    return db
+      .select()
+      .from(quizQuestions)
+      .where(and(eq(quizQuestions.gameType, gameType), eq(quizQuestions.active, true)));
+  });
 }
 
 export async function getGameSettings() {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(gameSettings);
+  return getCached("game-settings", 15_000, async () => {
+    const db = await getDb();
+    if (!db) return [];
+    return db.select().from(gameSettings);
+  });
 }
 
 export async function updateGameStatus(gameKey: string, active: boolean) {
@@ -591,6 +622,7 @@ export async function updateGameStatus(gameKey: string, active: boolean) {
     .update(gameSettings)
     .set({ active, updatedAt: new Date() })
     .where(eq(gameSettings.gameKey, gameKey));
+  invalidateCachePrefix("game-settings");
 }
 
 export async function updateGameAccess(gameKey: string, data: { active: boolean; accessStartAt: Date | null; accessEndAt: Date | null }) {
@@ -600,6 +632,7 @@ export async function updateGameAccess(gameKey: string, data: { active: boolean;
     .update(gameSettings)
     .set({ ...data, updatedAt: new Date() })
     .where(eq(gameSettings.gameKey, gameKey));
+  invalidateCachePrefix("game-settings");
 }
 
 export async function getDashboardStats() {
@@ -693,6 +726,7 @@ export async function createQuizQuestion(data: InsertQuizQuestion) {
   const db = await getDb();
   if (!db) return;
   await db.insert(quizQuestions).values(data);
+  invalidateCachePrefix("quiz-questions:");
 }
 
 export async function updateQuizQuestion(id: number, data: Partial<InsertQuizQuestion>) {
@@ -702,12 +736,14 @@ export async function updateQuizQuestion(id: number, data: Partial<InsertQuizQue
     .update(quizQuestions)
     .set({ ...data, updatedAt: new Date() })
     .where(eq(quizQuestions.id, id));
+  invalidateCachePrefix("quiz-questions:");
 }
 
 export async function deleteQuizQuestion(id: number) {
   const db = await getDb();
   if (!db) return;
   await db.delete(quizQuestions).where(eq(quizQuestions.id, id));
+  invalidateCachePrefix("quiz-questions:");
 }
 
 export async function listAllQuestions() {
@@ -750,6 +786,7 @@ export async function listAllGameResults(search?: string) {
 }
 
 export async function listApprovedMuralMessages(promptKey?: string, limit = 60) {
+  return getCached(`mural-approved:${promptKey ?? "all"}:${Math.min(limit, 60)}`, 10_000, async () => {
   const db = await getDb();
   if (!db) return [];
 
@@ -772,10 +809,12 @@ export async function listApprovedMuralMessages(promptKey?: string, limit = 60) 
     .from(muralMessages)
     .where(and(...conditions))
     .orderBy(desc(muralMessages.isFeatured), desc(muralMessages.submittedAt))
-    .limit(limit);
+    .limit(Math.min(limit, 60));
+  });
 }
 
 export async function getFeaturedMuralMessage() {
+  return getCached("mural-featured", 10_000, async () => {
   const db = await getDb();
   if (!db) return null;
   const [featured] = await db
@@ -795,6 +834,7 @@ export async function getFeaturedMuralMessage() {
     .limit(1);
 
   return featured || null;
+  });
 }
 
 export async function createMuralSubmission(data: {
@@ -825,6 +865,7 @@ export async function createMuralSubmission(data: {
     flagReasons: data.flagReasons || null,
   });
 
+  invalidateCachePrefix("mural-");
   return inserted;
 }
 
@@ -876,6 +917,7 @@ export async function moderateMuralMessage(id: number, action: "aprovar" | "reje
   }
 
   await db.update(muralMessages).set(updateObj).where(eq(muralMessages.id, id));
+  invalidateCachePrefix("mural-");
 }
 
 export async function updateMuralMessageText(id: number, message: string, moderator: string) {
@@ -889,12 +931,14 @@ export async function updateMuralMessageText(id: number, message: string, modera
       updatedAt: new Date(),
     })
     .where(eq(muralMessages.id, id));
+  invalidateCachePrefix("mural-");
 }
 
 export async function deleteMuralMessage(id: number) {
   const db = await getDb();
   if (!db) return;
   await db.delete(muralMessages).where(eq(muralMessages.id, id));
+  invalidateCachePrefix("mural-");
 }
 
 

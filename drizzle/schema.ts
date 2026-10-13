@@ -1,4 +1,4 @@
-import { boolean, double, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { boolean, double, index, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -29,7 +29,11 @@ export const participants = mysqlTable("participants", {
   highestDifficulty: varchar("highestDifficulty", { length: 32 }).default("Fácil").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  participantTypeIdx: index("participants_participant_type_idx").on(table.participantType),
+  totalScoreIdx: index("participants_total_score_idx").on(table.totalScore),
+  updatedAtIdx: index("participants_updated_at_idx").on(table.updatedAt),
+}));
 
 export const gameResults = mysqlTable("game_results", {
   id: int("id").autoincrement().primaryKey(),
@@ -47,7 +51,10 @@ export const gameResults = mysqlTable("game_results", {
   timeSpentSeconds: int("timeSpentSeconds").notNull(),
   isBestScore: boolean("isBestScore").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  participantGameDateIdx: index("game_results_participant_game_date_idx").on(table.participantId, table.gameType, table.createdAt),
+  gameScoreIdx: index("game_results_game_score_idx").on(table.gameType, table.score),
+}));
 
 export const quizQuestions = mysqlTable("quiz_questions", {
   id: int("id").autoincrement().primaryKey(),
@@ -64,7 +71,9 @@ export const quizQuestions = mysqlTable("quiz_questions", {
   active: boolean("active").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  activeDifficultyIdx: index("quiz_questions_active_difficulty_idx").on(table.gameType, table.active, table.difficulty),
+}));
 
 export const gameSettings = mysqlTable("game_settings", {
   id: int("id").autoincrement().primaryKey(),
@@ -94,7 +103,9 @@ export const spotErrorHotspots = mysqlTable("spot_error_hotspots", {
   active: boolean("active").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  scenarioActiveIdx: index("spot_hotspots_scenario_active_idx").on(table.scenarioKey, table.active),
+}));
 
 export const scenarioImages = mysqlTable("scenario_images", {
   id: int("id").autoincrement().primaryKey(),
@@ -113,7 +124,9 @@ export const scenarioImages = mysqlTable("scenario_images", {
   active: boolean("active").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  activeIdx: index("scenario_images_active_idx").on(table.active),
+}));
 
 export const muralMessages = mysqlTable("mural_messages", {
   id: int("id").autoincrement().primaryKey(),
@@ -133,7 +146,10 @@ export const muralMessages = mysqlTable("mural_messages", {
   moderatedAt: timestamp("moderatedAt"),
   moderatedBy: varchar("moderatedBy", { length: 120 }),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  publicFeedIdx: index("mural_public_feed_idx").on(table.status, table.isFeatured, table.submittedAt),
+  promptFeedIdx: index("mural_prompt_feed_idx").on(table.status, table.promptKey, table.submittedAt),
+}));
 
 export const participantAchievements = mysqlTable("participant_achievements", {
   id: int("id").autoincrement().primaryKey(),
