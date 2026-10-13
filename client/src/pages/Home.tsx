@@ -69,6 +69,10 @@ export default function Home() {
     <main>
       <section className="hero-control relative isolate overflow-hidden border-b border-white/10" onMouseMove={(event) => { if (reducedMotion) return; const rect = event.currentTarget.getBoundingClientRect(); setHeroPointer({ x: ((event.clientX - rect.left) / rect.width - 0.5) * 18, y: ((event.clientY - rect.top) / rect.height - 0.5) * 18 }); }} onMouseLeave={() => setHeroPointer({ x: 0, y: 0 })}><div className="hero-control-bg absolute inset-0" style={{ backgroundImage: `url(${REAL_PHOTOS.productionLine.src})`, "--pointer-x": heroPointer.x, "--pointer-y": heroPointer.y } as React.CSSProperties} aria-hidden="true" /><div className="hero-energy-lines absolute inset-0" aria-hidden="true" /><div className="hero-connectors absolute inset-0" aria-hidden="true" /><div className="hero-cursor-glow absolute h-56 w-56 rounded-full" style={{ left: `calc(50% + ${heroPointer.x * 2}%)`, top: `calc(42% + ${heroPointer.y * 2}%)` }} aria-hidden="true" /><div className="hero-control-grid absolute inset-0" aria-hidden="true" /><div className="hero-control-glow absolute inset-0" aria-hidden="true" /><div className="relative mx-auto grid max-w-[1520px] gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:px-8 lg:py-16">
         <Reveal className="max-w-3xl">
+          <div className="hero-enter hero-enter-1 mb-5 inline-flex items-center gap-2 rounded-lg border border-amber-300/45 bg-[#111821]/90 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-amber-200 shadow-lg shadow-black/30 backdrop-blur-sm sm:text-sm">
+            <Users className="h-4 w-4 text-[#da291c]" aria-hidden="true" />
+            <span>Criado e desenhado por alunos do Formare • Cummins Osasco</span>
+          </div>
           <div className="hero-enter hero-enter-1 inline-flex items-center gap-2 rounded-full border border-red-400/40 bg-red-950/80 px-3 py-1.5 text-xs font-bold text-red-200">
             <span className="status-dot" aria-hidden="true" /> DESAFIO 2026 • CUMMINS OSASCO
           </div>

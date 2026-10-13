@@ -449,3 +449,8 @@ Em atendimento à solicitação do usuário:
 ## Atualização — Assinatura Institucional Discreta nas Interfaces dos Jogos (13/10/2026)
 
 Foi adicionada uma faixa institucional mínima nas telas de partida dos quatro desafios. O texto exibido é **“Projeto desenvolvido por alunos do Formare • Cummins Osasco”**, com tipografia pequena, cor neutra e posição abaixo da navegação, para identificar a autoria sem competir com perguntas, controles, imagens, cronômetros ou pontuação. Os dois quizzes utilizam a mesma interface compartilhada; por isso, a assinatura aparece automaticamente em ambos. A mecânica, persistência, ranking e fluxo dos jogos permaneceram inalterados. Validação concluída com TypeScript aprovado, 48 testes em 10 arquivos e build de produção aprovado.
+
+
+## Atualização — Autoria Visível na Primeira Dobra da Home (13/10/2026)
+
+A primeira dobra da Home recebeu uma identificação institucional mais visível, posicionada no espaço superior destacado da hero, antes do selo do evento. O texto exibido é **“Criado e desenhado por alunos do Formare • Cummins Osasco”**, com moldura discreta em âmbar, fundo escuro translúcido e ícone de equipe. A assinatura foi validada em desktop e mobile sem cobrir o modelo 3D nem os CTAs. TypeScript, 48 testes e build de produção aprovados.
