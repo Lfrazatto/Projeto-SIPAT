@@ -34,7 +34,18 @@ Crie a configuração Hyperdrive apontando para o MySQL atual. O comando pede a 
 npx wrangler hyperdrive create sipat-cummins-db --connection-string="mysql://USUARIO:SENHA@HOST:3306/BANCO"
 ```
 
-Copie o `id` retornado e substitua apenas `REPLACE_WITH_HYPERDRIVE_ID` em `wrangler.jsonc`.
+Copie o `id` retornado e adicione o binding `HYPERDRIVE` em `wrangler.jsonc`, usando o UUID real retornado pela Cloudflare. O arquivo foi deixado sem um placeholder propositalmente, porque a Cloudflare rejeita qualquer texto que não seja um UUID válido.
+
+Exemplo do bloco que deve ser acrescentado somente depois de obter o ID real:
+
+```jsonc
+"hyperdrive": [
+  {
+    "binding": "HYPERDRIVE",
+    "id": "UUID_REAL_DO_HYPERDRIVE"
+  }
+]
+```
 
 Configure os secrets no Worker:
 

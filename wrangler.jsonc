@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "sipat-cummins-2026",
+  "name": "projeto-sipat",
   "main": "server/worker.ts",
   "compatibility_date": "2026-10-14",
   "compatibility_flags": ["nodejs_compat"],
@@ -10,11 +10,6 @@
   },
   "observability": {
     "enabled": true
-  },
-  "hyperdrive": [
-    {
-      "binding": "HYPERDRIVE",
-      "id": "REPLACE_WITH_HYPERDRIVE_ID"
-    }
-  ]
+  }
+  // O binding HYPERDRIVE deve ser adicionado somente com um UUID real.
 }

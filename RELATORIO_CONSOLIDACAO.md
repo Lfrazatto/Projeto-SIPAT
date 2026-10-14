@@ -459,3 +459,8 @@ A primeira dobra da Home recebeu uma identificação institucional mais visível
 ## Atualização — Equipe Principal com Quatro Criadores (13/10/2026)
 
 A seção centralizada de criadores da página Nosso Projeto foi atualizada para incluir **Kauã Gonçalves**, com o e-mail **kauagc20@gmail.com**. Também foi adicionado ao card de **Matheus Felipe** o link direto para seu perfil do LinkedIn. O texto institucional passou a informar quatro principais criadores e o grid foi ajustado para exibir os quatro cards lado a lado em telas grandes, mantendo duas colunas em telas médias e leitura vertical em celular. TypeScript, 48 testes e build de produção aprovados.
+
+
+## Correção do deploy Cloudflare Workers — 14/10/2026
+
+O log de deploy revelou duas causas objetivas: o `wrangler.jsonc` continha `REPLACE_WITH_HYPERDRIVE_ID`, texto rejeitado pela Cloudflare por não ser um UUID, e o nome configurado do Worker divergia do nome usado pelo build (`projeto-sipat`). O placeholder foi removido, o nome foi alinhado e o Hyperdrive passou a ser opcional até existir um ID real. O `build:worker` agora conclui com `No bindings found` em dry-run, sem erro de API. TypeScript e 48 testes permanecem aprovados.
