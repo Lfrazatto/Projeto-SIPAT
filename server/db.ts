@@ -35,19 +35,32 @@ import {
 } from "./seedData";
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let workerDatabaseConfig: {
+  databaseUrl?: string;
+  hyperdrive?: { host: string; user: string; password: string; database: string; port: number };
+} | null = null;
+
+export function configureWorkerDatabase(runtime: {
+  DATABASE_URL?: string;
+  HYPERDRIVE?: { host: string; user: string; password: string; database: string; port: number };
+}) {
+  workerDatabaseConfig = {
+    databaseUrl: runtime.DATABASE_URL,
+    hyperdrive: runtime.HYPERDRIVE,
+  };
+}
 
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  const databaseUrl = workerDatabaseConfig?.databaseUrl ?? process.env.DATABASE_URL;
+  const hyperdrive = workerDatabaseConfig?.hyperdrive;
+  if (!_db && (databaseUrl || hyperdrive)) {
     try {
       const configuredLimit = Number(process.env.DB_CONNECTION_LIMIT ?? 20);
       const connectionLimit = Number.isFinite(configuredLimit) ? Math.min(50, Math.max(5, Math.floor(configuredLimit))) : 20;
       _db = drizzle({
-        connection: {
-          uri: process.env.DATABASE_URL,
-          connectionLimit,
-          waitForConnections: true,
-          queueLimit: 0,
-        },
+        connection: hyperdrive
+          ? { ...hyperdrive, connectionLimit }
+          : { uri: databaseUrl, connectionLimit, waitForConnections: true, queueLimit: 0 },
       });
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
