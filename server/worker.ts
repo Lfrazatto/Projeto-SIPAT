@@ -53,7 +53,9 @@ export default {
     if (env.ASSET_BUCKET && url.pathname.startsWith("/assets/")) {
       const key = url.pathname.slice("/assets/".length);
       const object = await env.ASSET_BUCKET.get(key);
-      if (!object) return new Response("Not Found", { status: 404 });
+      // O pacote estático do Worker é o fallback oficial: assim o site continua
+      // funcionando mesmo durante a migração ou se um objeto ainda não estiver no R2.
+      if (!object) return serveAssets(request, env.ASSETS);
       const headers = new Headers();
       object.writeHttpMetadata(headers as any);
       headers.set("etag", object.httpEtag);
