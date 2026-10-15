@@ -8,7 +8,6 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { CDBS_SPOT_ERROR_SCENARIOS } from "./seedData";
-import { storagePut } from "./storage";
 import { ENV } from "./_core/env";
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { parse as parseCookieHeader } from "cookie";
@@ -63,8 +62,8 @@ function participantSessionId(req: { headers?: { cookie?: string } }) {
 }
 
 const scenarioImageUrlSchema = z.string().refine(
-  (value) => value.startsWith("/manus-storage/") || /^https?:\/\//i.test(value),
-  "Informe uma URL HTTPS ou uma imagem enviada ao armazenamento seguro."
+  (value) => value.startsWith("/assets/") || /^https?:\/\//i.test(value),
+  "Informe uma URL HTTPS ou uma imagem enviada ao R2."
 );
 
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
@@ -665,8 +664,10 @@ export const appRouter = router({
         const match = input.dataUrl.match(/^data:(image\/(?:png|jpeg|webp));base64,(.+)$/);
         if (!match) throw new TRPCError({ code: "BAD_REQUEST", message: "Envie uma imagem PNG, JPG ou WebP válida." });
         const extension = match[1] === "image/jpeg" ? "jpg" : match[1].split("/")[1];
-        const uploaded = await storagePut(`sipat-scenarios/${input.scenarioKey}-${input.kind}.${extension}`, Buffer.from(match[2], "base64"), match[1]);
-        return { url: uploaded.url };
+        if (!ctx.r2) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Bucket R2 não configurado." });
+        const key = `sipat-scenarios/${input.scenarioKey}-${input.kind}.${extension}`;
+        await ctx.r2.put(key, Buffer.from(match[2], "base64"), { httpMetadata: { contentType: match[1], cacheControl: "public, max-age=31536000, immutable" } });
+        return { url: `/assets/${key}` };
       }),
 
     deleteScenarioImage: publicProcedure

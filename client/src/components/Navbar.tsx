@@ -190,7 +190,7 @@ export function Navbar({ onOpenIdentify }: NavbarProps) {
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-white p-1.5 shadow-md ring-1 ring-red-400/40">
               <img
-                src="/manus-storage/cummins-logo_33ff0756.svg"
+                src="/assets/cummins-logo_33ff0756.svg"
                 alt="Logo oficial da Cummins"
                 className="h-full w-full object-contain"
               />

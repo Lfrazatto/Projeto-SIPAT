@@ -18,14 +18,27 @@ npx wrangler deploy
 # Aplica as migrações no banco D1 remoto.
 npx wrangler d1 migrations apply sipat-cummins-db --remote
 
-# Migra as imagens locais para o bucket R2.
-npx wrangler r2 object put sipat-cummins-assets/cummins-osasco-linha-producao.jpg --file cloudflare/migration-assets/cummins-osasco-linha-producao.jpg --content-type image/jpeg
-npx wrangler r2 object put sipat-cummins-assets/cummins-meritor-osasco-montagem.jpg --file cloudflare/migration-assets/cummins-meritor-osasco-montagem.jpg --content-type image/jpeg
-npx wrangler r2 object put sipat-cummins-assets/eixo-ms18x-cummins-studio.jpg --file cloudflare/migration-assets/eixo-ms18x-cummins-studio.jpg --content-type image/jpeg
-npx wrangler r2 object put sipat-cummins-assets/equipe-cummins-sipat-osasco.jpg --file cloudflare/migration-assets/equipe-cummins-sipat-osasco.jpg --content-type image/jpeg
+# Migra todos os assets locais para o bucket R2 usando exatamente os nomes
+# referenciados pelo código (/assets/<nome>). O lote inclui fotos, logo e
+# imagens dos cinco cenários do jogo Ache o Erro.
+ASSET_DIR="cloudflare/migration-assets/all"
+find "$ASSET_DIR" -maxdepth 1 -type f -print0 | while IFS= read -r -d '' asset; do
+  key="${asset#"$ASSET_DIR/"}"
+  case "$key" in
+    *.svg) content_type="image/svg+xml" ;;
+    *.jpg|*.jpeg) content_type="image/jpeg" ;;
+    *.png) content_type="image/png" ;;
+    *.webp) content_type="image/webp" ;;
+    *.glb) content_type="model/gltf-binary" ;;
+    *.json) content_type="application/json" ;;
+    *) content_type="application/octet-stream" ;;
+  esac
+  echo "Uploading R2 asset: $key"
+  npx wrangler r2 object put "sipat-cummins-assets/$key" --file "$asset" --content-type "$content_type"
+done
 
-# Troca as URLs da Manus pelas rotas R2 e publica novamente.
-node scripts/switch-to-r2-assets.mjs
+# Public URLs already point to /assets/, so this deploy only needs to publish
+# the final Worker after the R2 upload.
 pnpm build:worker
 npx wrangler deploy
 

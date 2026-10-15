@@ -1,5 +1,4 @@
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
-import { sdk } from "./sdk";
 import type { TrpcContext } from "./context";
 
 function requestHeaders(request: Request): Record<string, string> {
@@ -52,19 +51,14 @@ function createResponseShim(resHeaders: { append(name: string, value: string): v
   };
 }
 
-export async function createWorkerContext({ req, resHeaders }: FetchCreateContextFnOptions): Promise<TrpcContext> {
+export async function createWorkerContext({ req, resHeaders, r2 }: Pick<FetchCreateContextFnOptions, "req" | "resHeaders"> & { r2?: TrpcContext["r2"] }): Promise<TrpcContext> {
   const requestShim = createRequestShim(req);
   let user: TrpcContext["user"] = null;
-
-  try {
-    user = await sdk.authenticateRequest(requestShim as never);
-  } catch {
-    user = null;
-  }
 
   return {
     req: requestShim as never,
     res: createResponseShim(resHeaders) as never,
     user,
+    r2,
   };
 }

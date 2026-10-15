@@ -176,11 +176,11 @@ export const INITIAL_GAME_SETTINGS = [
 
 
 export const CDBS_SPOT_ERROR_SCENARIOS = [
-  { key: "cdbs-v4-montagem-2026", label: "Fase 1 • Montagem de Motores • Cummins CDBS", image: "/manus-storage/cenario-1-montagem-errors_aa8b276c.png", safeImage: "/manus-storage/cenario-1-montagem-safe-matched_6faf6a51.png" },
-  { key: "cdbs-v4-logistica-2026", label: "Fase 2 • Logística e Armazenagem • Cummins CDBS", image: "/manus-storage/cenario-2-logistica-errors_f8938a35.png", safeImage: "/manus-storage/cenario-2-logistica-safe-matched_695956e6.png" },
-  { key: "cdbs-v4-manutencao-2026", label: "Fase 3 • Manutenção Industrial e LOTO • Cummins CDBS", image: "/manus-storage/cenario-3-manutencao-errors_c745d3d2.png", safeImage: "/manus-storage/cenario-3-manutencao-safe-matched_61c7691f.png" },
-  { key: "cdbs-v4-usinagem-2026", label: "Fase 4 • Usinagem e Metalurgia • Cummins CDBS", image: "/manus-storage/cenario-4-usinagem-errors_e732a0b0.png", safeImage: "/manus-storage/cenario-4-usinagem-safe-matched_26b27f44.png" },
-  { key: "cdbs-v4-producao-2026", label: "Fase 5 • Linha de Produção Automatizada • Cummins CDBS", image: "/manus-storage/cenario-5-producao-errors-clean_1ac8716e.png", safeImage: "/manus-storage/cenario-5-producao-safe-matched_a1c3bc6b.png" },
+  { key: "cdbs-v4-montagem-2026", label: "Fase 1 • Montagem de Motores • Cummins CDBS", image: "/assets/cenario-1-montagem-errors_aa8b276c.webp", safeImage: "/assets/cenario-1-montagem-safe-matched_6faf6a51.webp" },
+  { key: "cdbs-v4-logistica-2026", label: "Fase 2 • Logística e Armazenagem • Cummins CDBS", image: "/assets/cenario-2-logistica-errors_f8938a35.webp", safeImage: "/assets/cenario-2-logistica-safe-matched_695956e6.webp" },
+  { key: "cdbs-v4-manutencao-2026", label: "Fase 3 • Manutenção Industrial e LOTO • Cummins CDBS", image: "/assets/cenario-3-manutencao-errors_c745d3d2.webp", safeImage: "/assets/cenario-3-manutencao-safe-matched_61c7691f.webp" },
+  { key: "cdbs-v4-usinagem-2026", label: "Fase 4 • Usinagem e Metalurgia • Cummins CDBS", image: "/assets/cenario-4-usinagem-errors_e732a0b0.webp", safeImage: "/assets/cenario-4-usinagem-safe-matched_26b27f44.webp" },
+  { key: "cdbs-v4-producao-2026", label: "Fase 5 • Linha de Produção Automatizada • Cummins CDBS", image: "/assets/cenario-5-producao-errors-clean_1ac8716e.webp", safeImage: "/assets/cenario-5-producao-safe-matched_a1c3bc6b.webp" },
 ] as const;
 
 export const V4_CDBS_SPOT_ERROR_HOTSPOTS = [

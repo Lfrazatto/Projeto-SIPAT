@@ -22,7 +22,7 @@ describe("admin scenario catalog", () => {
       adminKey: ENV.adminAccessKey || "missing-configured-secret",
       scenarioKey: "cdbs-real-2026",
       label: "Posto real de montagem",
-      imageUrl: "/manus-storage/cdbs-real-errors.webp",
+      imageUrl: "/assets/cdbs-real-errors.webp",
     });
     await expect(attempt).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
@@ -34,8 +34,8 @@ describe("admin scenario catalog", () => {
       adminKey: ENV.adminAccessKey || "missing-configured-secret",
       scenarioKey: "cdbs-real-2026",
       label: "Posto real de montagem",
-      imageUrl: "/manus-storage/cdbs-real-errors.webp",
-      safeImageUrl: "/manus-storage/cdbs-real-safe.webp",
+      imageUrl: "/assets/cdbs-real-errors.webp",
+      safeImageUrl: "/assets/cdbs-real-safe.webp",
       difficulty: "medio",
       timeSeconds: 120,
       hintCount: 2,
