@@ -8,6 +8,23 @@
     "directory": "./dist/public",
     "not_found_handling": "single-page-application"
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sipat-cummins-db",
+      "database_id": "63248b2a-1a3d-4c53-b122-872de924fd85",
+      "migrations_dir": "cloudflare/d1-migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "ASSET_BUCKET",
+      "bucket_name": "sipat-cummins-assets"
+    }
+  ],
+  "vars": {
+    "BACKEND_ORIGIN": "https://sipat.manus.space"
+  },
   "observability": {
     "enabled": true
   }

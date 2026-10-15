@@ -1,16 +1,16 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import type { D1Database, R2Bucket } from "@cloudflare/workers-types";
 import { appRouter } from "./routers";
 import { createWorkerContext } from "./_core/workerContext";
 import { configureWorkerDatabase, ensureInitialSeeds } from "./db";
 import { configureRuntimeEnv } from "./_core/env";
-import { sdk } from "./_core/sdk";
-import { upsertUser } from "./db";
-import { COOKIE_NAME, ONE_YEAR_MS, OAUTH_STATE_COOKIE, decodeOAuthState } from "@shared/const";
-import { parse as parseCookieHeader } from "cookie";
 
 export interface WorkerEnv {
   ASSETS: { fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> };
+  DB?: D1Database;
+  ASSET_BUCKET?: R2Bucket;
   HYPERDRIVE?: { host: string; user: string; password: string; database: string; port: number };
+  BACKEND_ORIGIN?: string;
   DATABASE_URL?: string;
   JWT_SECRET?: string;
   ADMIN_ACCESS_KEY?: string;
@@ -21,11 +21,31 @@ export interface WorkerEnv {
   BUILT_IN_FORGE_API_KEY?: string;
 }
 
-function isTrpcRequest(request: Request) {
-  return new URL(request.url).pathname.startsWith("/api/trpc");
+let seedsStarted = false;
+
+function isBackendRequest(pathname: string) {
+  return pathname.startsWith("/api/") || pathname.startsWith("/manus-storage/");
 }
 
-let seedsStarted = false;
+async function proxyToBackend(request: Request, origin: string) {
+  const incoming = new URL(request.url);
+  const target = new URL(`${incoming.pathname}${incoming.search}`, origin.replace(/\/+$/, "/"));
+  const headers = new Headers(request.headers);
+  headers.set("x-forwarded-host", incoming.host);
+  headers.set("x-forwarded-proto", incoming.protocol.replace(":", ""));
+  headers.delete("host");
+
+  const proxiedRequest = new Request(target, {
+    method: request.method,
+    headers,
+    body: request.method === "GET" || request.method === "HEAD" ? undefined : request.body,
+    redirect: "manual",
+  });
+  const response = await fetch(proxiedRequest);
+  const responseHeaders = new Headers(response.headers);
+  responseHeaders.delete("content-length");
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers: responseHeaders });
+}
 
 function withCors(response: Response) {
   const headers = new Headers(response.headers);
@@ -34,78 +54,47 @@ function withCors(response: Response) {
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
-function serializeCookie(name: string, value: string, options: { maxAge?: number; expires?: Date; httpOnly?: boolean; path?: string; sameSite?: string; secure?: boolean }) {
-  const parts = [`${name}=${encodeURIComponent(value)}`];
-  if (options.maxAge !== undefined) parts.push(`Max-Age=${Math.floor(options.maxAge)}`);
-  if (options.expires) parts.push(`Expires=${options.expires.toUTCString()}`);
-  if (options.path) parts.push(`Path=${options.path}`);
-  if (options.httpOnly) parts.push("HttpOnly");
-  if (options.secure) parts.push("Secure");
-  if (options.sameSite) parts.push(`SameSite=${options.sameSite}`);
-  return parts.join("; ");
-}
-
-async function handleStorage(request: Request, env: WorkerEnv) {
-  const key = new URL(request.url).pathname.replace(/^\/manus-storage\//, "");
-  if (!key || !env.BUILT_IN_FORGE_API_URL || !env.BUILT_IN_FORGE_API_KEY) return new Response("Storage backend not configured", { status: 503 });
-  const url = new URL("v1/storage/presign/get", env.BUILT_IN_FORGE_API_URL.replace(/\/+$/, "") + "/");
-  url.searchParams.set("path", key);
-  const response = await fetch(url, { headers: { Authorization: `Bearer ${env.BUILT_IN_FORGE_API_KEY}` } });
-  if (!response.ok) return new Response("Storage backend error", { status: 502 });
-  const payload = (await response.json()) as { url?: string };
-  return payload.url ? Response.redirect(payload.url, 307) : new Response("Storage URL missing", { status: 502 });
-}
-
-async function handleOAuthCallback(request: Request) {
+async function serveAssets(request: Request, assets: WorkerEnv["ASSETS"]) {
   const url = new URL(request.url);
-  const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state");
-  if (!code || !state) return Response.json({ error: "code and state are required" }, { status: 400 });
-  const { nonce } = decodeOAuthState(state);
-  const expectedNonce = parseCookieHeader(request.headers.get("cookie") ?? "")[OAUTH_STATE_COOKIE];
-  if (!nonce || nonce !== expectedNonce) return Response.json({ error: "invalid oauth state" }, { status: 403 });
-  try {
-    const tokenResponse = await sdk.exchangeCodeForToken(code, state);
-    const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
-    if (!userInfo.openId) return Response.json({ error: "openId missing from user info" }, { status: 400 });
-    await upsertUser({ openId: userInfo.openId, name: userInfo.name || null, email: userInfo.email ?? null, loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null, lastSignedIn: new Date() });
-    const sessionToken = await sdk.createSessionToken(userInfo.openId, { name: userInfo.name || "", expiresInMs: ONE_YEAR_MS });
-    const headers = new Headers({ Location: "/" });
-    headers.append("set-cookie", serializeCookie(OAUTH_STATE_COOKIE, "", { expires: new Date(0), maxAge: 0, path: "/", secure: true, sameSite: "None" }));
-    headers.append("set-cookie", serializeCookie(COOKIE_NAME, sessionToken, { maxAge: ONE_YEAR_MS / 1000, path: "/", httpOnly: true, secure: true, sameSite: "None" }));
-    return new Response(null, { status: 302, headers });
-  } catch (error) {
-    console.error("[Worker] OAuth callback failed", error);
-    return Response.json({ error: "OAuth callback failed" }, { status: 500 });
+  const isExtensionlessRoute = !url.pathname.includes(".");
+  if (isExtensionlessRoute && url.pathname !== "/") {
+    return assets.fetch(new Request(new URL("/index.html", request.url), { method: "GET", headers: request.headers }) as never);
   }
+  try {
+    const response = await assets.fetch(request as never);
+    if (response.status !== 404) return response;
+  } catch {
+    // Some temporary Workers asset bindings throw 1101 for extensionless SPA routes.
+  }
+  const fallback = new URL("/index.html", request.url);
+  return assets.fetch(new Request(fallback, { headers: request.headers }) as never);
 }
 
 export default {
   async fetch(request: Request, env: WorkerEnv): Promise<Response> {
     configureRuntimeEnv(env);
     configureWorkerDatabase(env);
-    if (!seedsStarted) {
+    if (!seedsStarted && !env.BACKEND_ORIGIN) {
       seedsStarted = true;
       void ensureInitialSeeds().catch((error) => console.error("[Worker] seed failed", error));
     }
 
-    if (request.method === "OPTIONS" && isTrpcRequest(request)) {
-      return new Response(null, {
-        status: 204,
-        headers: {
-          "access-control-allow-origin": request.headers.get("origin") ?? "*",
-          "access-control-allow-credentials": "true",
-          "access-control-allow-headers": "content-type, authorization",
-          "access-control-allow-methods": "GET, POST, OPTIONS",
-        },
-      });
+    const url = new URL(request.url);
+    if (env.ASSET_BUCKET && url.pathname.startsWith("/assets/")) {
+      const key = url.pathname.slice("/assets/".length);
+      const object = await env.ASSET_BUCKET.get(key);
+      if (!object) return new Response("Not Found", { status: 404 });
+      const headers = new Headers();
+      object.writeHttpMetadata(headers as any);
+      headers.set("etag", object.httpEtag);
+      headers.set("cache-control", "public, max-age=31536000, immutable");
+      return new Response(object.body as unknown as BodyInit, { headers });
+    }
+    if (env.BACKEND_ORIGIN && isBackendRequest(url.pathname)) {
+      return proxyToBackend(request, env.BACKEND_ORIGIN);
     }
 
-    const pathname = new URL(request.url).pathname;
-    if (pathname.startsWith("/manus-storage/")) return handleStorage(request, env);
-    if (pathname === "/api/oauth/callback") return handleOAuthCallback(request);
-
-    if (isTrpcRequest(request)) {
+    if (url.pathname.startsWith("/api/trpc")) {
       const response = await fetchRequestHandler({
         endpoint: "/api/trpc",
         req: request,
@@ -118,6 +107,6 @@ export default {
       return withCors(response);
     }
 
-    return env.ASSETS.fetch(request as never);
+    return serveAssets(request, env.ASSETS);
   },
 } satisfies { fetch(request: Request, env: WorkerEnv): Promise<Response> };
