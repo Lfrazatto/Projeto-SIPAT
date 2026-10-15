@@ -15,6 +15,9 @@ pnpm install
 pnpm build:worker
 npx wrangler deploy
 
+# Aplica as migrações no banco D1 remoto.
+npx wrangler d1 migrations apply sipat-cummins-db --remote
+
 # Migra as imagens locais para o bucket R2.
 npx wrangler r2 object put sipat-cummins-assets/cummins-osasco-linha-producao.jpg --file cloudflare/migration-assets/cummins-osasco-linha-producao.jpg --content-type image/jpeg
 npx wrangler r2 object put sipat-cummins-assets/cummins-meritor-osasco-montagem.jpg --file cloudflare/migration-assets/cummins-meritor-osasco-montagem.jpg --content-type image/jpeg

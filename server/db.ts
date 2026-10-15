@@ -1,5 +1,6 @@
 import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle as drizzleD1 } from "drizzle-orm/d1";
 import {
   GameResult,
   GameSetting,
@@ -39,19 +40,30 @@ let _db: ReturnType<typeof drizzle> | null = null;
 let workerDatabaseConfig: {
   databaseUrl?: string;
   hyperdrive?: { host: string; user: string; password: string; database: string; port: number };
+  d1?: unknown;
 } | null = null;
 
 export function configureWorkerDatabase(runtime: {
   DATABASE_URL?: string;
   HYPERDRIVE?: { host: string; user: string; password: string; database: string; port: number };
+  DB?: unknown;
 }) {
   workerDatabaseConfig = {
     databaseUrl: runtime.DATABASE_URL,
     hyperdrive: runtime.HYPERDRIVE,
+    d1: runtime.DB,
   };
 }
 
 export async function getDb() {
+  if (!_db && workerDatabaseConfig?.d1) {
+    try {
+      _db = drizzleD1(workerDatabaseConfig.d1 as any) as any;
+    } catch (error) {
+      console.warn("[Database] Failed to initialize D1:", error);
+      _db = null;
+    }
+  }
   const databaseUrl = workerDatabaseConfig?.databaseUrl ?? process.env.DATABASE_URL;
   const hyperdrive = workerDatabaseConfig?.hyperdrive;
   if (!_db && (databaseUrl || hyperdrive)) {
@@ -115,9 +127,15 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     updateSet.lastSignedIn = new Date();
   }
 
-  await db.insert(users).values(values).onDuplicateKeyUpdate({
-    set: updateSet,
-  });
+  if (workerDatabaseConfig?.d1) {
+    const insert = db.insert(users).values(values) as any;
+    await insert.onConflictDoUpdate({
+      target: users.openId,
+      set: updateSet,
+    });
+  } else {
+    await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+  }
 }
 
 export async function getUserByOpenId(openId: string) {
@@ -985,7 +1003,12 @@ export async function evaluateAndUnlockAchievements(participantId: number): Prom
 
   for (const item of candidates) {
     if (item.condition && !existingKeys.has(item.key)) {
-      await db.insert(participantAchievements).values({ participantId, achievementKey: item.key }).onDuplicateKeyUpdate({ set: { achievementKey: item.key } });
+      if (workerDatabaseConfig?.d1) {
+        const insert = db.insert(participantAchievements).values({ participantId, achievementKey: item.key }) as any;
+        await insert.onConflictDoNothing();
+      } else {
+        await db.insert(participantAchievements).values({ participantId, achievementKey: item.key }).onDuplicateKeyUpdate({ set: { achievementKey: item.key } });
+      }
       newUnlocked.push(item.key);
     }
   }

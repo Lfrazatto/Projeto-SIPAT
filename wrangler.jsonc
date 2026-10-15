@@ -22,9 +22,6 @@
       "bucket_name": "sipat-cummins-assets"
     }
   ],
-  "vars": {
-    "BACKEND_ORIGIN": "https://sipat.manus.space"
-  },
   "observability": {
     "enabled": true
   }
