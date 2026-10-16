@@ -182,27 +182,19 @@ export function Navbar({ onOpenIdentify }: NavbarProps) {
             scrolled ? "min-h-14 py-1.5" : "min-h-16 py-2"
           }`}
         >
-          {/* Logo e identificação */}
+            {/* Identidade combinada oficial Cummins + SIPAT */}
           <Link
             href="/"
             aria-label="SIPAT Cummins — página inicial"
             className="flex min-w-0 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-white p-1.5 shadow-md ring-1 ring-red-400/40">
-              <img
-                src="/assets/cummins-logo_33ff0756.svg"
-                alt="Logo oficial da Cummins"
-                className="h-full w-full object-contain"
-              />
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate font-industrial text-base font-extrabold tracking-wider text-white sm:text-lg">
-                CUMMINS <span className="text-[#ff5548]">SIPAT</span>
-              </span>
-              <span className="block truncate font-mono text-[10px] uppercase tracking-widest text-slate-300">
-                Desafio 2026
-              </span>
-            </span>
+            <img
+              src="/assets/cummins-sipat-lockup.svg"
+              alt="Cummins SIPAT — Desafio 2026"
+              width="215"
+              height="45"
+              className="h-10 w-auto max-w-[215px] object-contain sm:h-11 sm:max-w-[250px]"
+            />
           </Link>
 
           {/* Navegação Desktop */}
