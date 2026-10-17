@@ -1,11 +1,12 @@
 import React, { useId, useState } from "react";
-import { AlertTriangle, ArrowRight, BadgeCheck, Building2, ShieldCheck, Ticket, UserRound } from "lucide-react";
+import { AlertTriangle, ArrowRight, BadgeCheck, Building2, Ticket, UserRound } from "lucide-react";
 import { useParticipant } from "@/contexts/ParticipantContext";
 import { trpc } from "@/lib/trpc";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CumminsLogoBadge } from "@/components/CumminsLogoBadge";
 import { toast } from "sonner";
 
 interface IdentifyModalProps {
@@ -39,7 +40,14 @@ export function IdentifyModal({ open, onOpenChange, onSuccess, title = "Identifi
       onOpenChange(false);
       onSuccess?.();
     },
-    onError: (error) => setErrorMsg(error.message || "Não foi possível validar a identificação."),
+    onError: (error) => {
+      const technicalFailure = /failed query|insert into|participants|constraint|sqlite|d1/i.test(error.message);
+      setErrorMsg(
+        technicalFailure
+          ? "Não foi possível concluir sua identificação agora. Confira os dados e tente novamente em alguns segundos."
+          : error.message || "Não foi possível validar a identificação.",
+      );
+    },
   });
 
   const selectProfile = (type: ParticipantType) => {
@@ -65,7 +73,7 @@ export function IdentifyModal({ open, onOpenChange, onSuccess, title = "Identifi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[calc(100dvh-1rem)] overflow-y-auto border border-white/15 bg-[#11151d] p-4 text-slate-100 shadow-2xl sm:max-h-[90vh] sm:p-6 sm:max-w-2xl">
         <DialogHeader>
-          <div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-lg border border-red-400/40 bg-red-950/50"><ShieldCheck className="h-6 w-6 text-red-300" aria-hidden="true" /></span><span className="v2-kicker">Etapa 1 de 2</span></div>
+          <div className="flex items-center gap-3 border-b border-white/10 pb-3"><CumminsLogoBadge className="h-12 w-12" /><span className="v2-kicker">Etapa 1 de 2 • Identificação segura</span></div>
           <DialogTitle className="font-industrial text-xl font-bold uppercase tracking-wide text-white">{title}</DialogTitle>
           <DialogDescription className="text-sm leading-relaxed text-slate-300">Escolha seu perfil. A identificação serve apenas para salvar e recuperar o progresso; nenhuma senha pessoal é solicitada.</DialogDescription>
         </DialogHeader>

@@ -10,19 +10,20 @@ import {
   InsertUser,
   Participant,
   QuizQuestion,
-  gameResults,
-  gameSettings,
-  participants,
-  quizQuestions,
-  scenarioImages,
-  spotErrorHotspots,
-  muralMessages,
+  gameResults as mysqlGameResults,
+  gameSettings as mysqlGameSettings,
+  participants as mysqlParticipants,
+  quizQuestions as mysqlQuizQuestions,
+  scenarioImages as mysqlScenarioImages,
+  spotErrorHotspots as mysqlSpotErrorHotspots,
+  muralMessages as mysqlMuralMessages,
   MuralMessage,
   InsertMuralMessage,
-  users,
-  participantAchievements,
+  users as mysqlUsers,
+  participantAchievements as mysqlParticipantAchievements,
   ParticipantAchievement,
 } from "../drizzle/schema";
+import * as d1Schema from "../drizzle/d1Schema";
 
 import { ACHIEVEMENT_DEFINITIONS } from "../shared/achievements";
 import { ENV } from "./_core/env";
@@ -42,17 +43,59 @@ let workerDatabaseConfig: {
   hyperdrive?: { host: string; user: string; password: string; database: string; port: number };
   d1?: unknown;
 } | null = null;
+let configuredDatabaseMode: "d1" | "mysql" | null = null;
+
+// O Worker usa o schema SQLite real do D1. O fallback MySQL continua disponível
+// para o servidor local, mas não deve ser passado ao driver D1.
+let users: typeof mysqlUsers = mysqlUsers;
+let participants: typeof mysqlParticipants = mysqlParticipants;
+let gameResults: typeof mysqlGameResults = mysqlGameResults;
+let gameSettings: typeof mysqlGameSettings = mysqlGameSettings;
+let quizQuestions: typeof mysqlQuizQuestions = mysqlQuizQuestions;
+let scenarioImages: typeof mysqlScenarioImages = mysqlScenarioImages;
+let spotErrorHotspots: typeof mysqlSpotErrorHotspots = mysqlSpotErrorHotspots;
+let muralMessages: typeof mysqlMuralMessages = mysqlMuralMessages;
+let participantAchievements: typeof mysqlParticipantAchievements = mysqlParticipantAchievements;
+
+function dbTimestamp() {
+  return (workerDatabaseConfig?.d1 ? new Date().toISOString() : new Date()) as any;
+}
+
+function dbDate(value: Date | null) {
+  return (workerDatabaseConfig?.d1 ? (value ? value.toISOString() : null) : value) as any;
+}
+
+function toDateOrNull(value: unknown): Date | null {
+  if (!value) return null;
+  const parsed = value instanceof Date ? value : new Date(value as string | number);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
 
 export function configureWorkerDatabase(runtime: {
   DATABASE_URL?: string;
   HYPERDRIVE?: { host: string; user: string; password: string; database: string; port: number };
   DB?: unknown;
 }) {
+  const nextMode = runtime.DB ? "d1" : "mysql";
+  if (configuredDatabaseMode !== nextMode) {
+    _db = null;
+    configuredDatabaseMode = nextMode;
+  }
   workerDatabaseConfig = {
     databaseUrl: runtime.DATABASE_URL,
     hyperdrive: runtime.HYPERDRIVE,
     d1: runtime.DB,
   };
+  const schema = nextMode === "d1" ? d1Schema : null;
+  users = (schema?.users ?? mysqlUsers) as typeof mysqlUsers;
+  participants = (schema?.participants ?? mysqlParticipants) as typeof mysqlParticipants;
+  gameResults = (schema?.gameResults ?? mysqlGameResults) as typeof mysqlGameResults;
+  gameSettings = (schema?.gameSettings ?? mysqlGameSettings) as typeof mysqlGameSettings;
+  quizQuestions = (schema?.quizQuestions ?? mysqlQuizQuestions) as typeof mysqlQuizQuestions;
+  scenarioImages = (schema?.scenarioImages ?? mysqlScenarioImages) as typeof mysqlScenarioImages;
+  spotErrorHotspots = (schema?.spotErrorHotspots ?? mysqlSpotErrorHotspots) as typeof mysqlSpotErrorHotspots;
+  muralMessages = (schema?.muralMessages ?? mysqlMuralMessages) as typeof mysqlMuralMessages;
+  participantAchievements = (schema?.participantAchievements ?? mysqlParticipantAchievements) as typeof mysqlParticipantAchievements;
 }
 
 export async function getDb() {
@@ -118,10 +161,10 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 
   if (!values.lastSignedIn) {
-    values.lastSignedIn = new Date();
+    values.lastSignedIn = dbTimestamp();
   }
   if (Object.keys(updateSet).length === 0) {
-    updateSet.lastSignedIn = new Date();
+    updateSet.lastSignedIn = dbTimestamp();
   }
 
   if (workerDatabaseConfig?.d1) {
@@ -150,7 +193,7 @@ export async function ensureInitialSeeds(): Promise<void> {
   const settingsByKey = new Map(existingSettings.map((setting) => [setting.gameKey, setting]));
   for (const setting of INITIAL_GAME_SETTINGS) {
     if (settingsByKey.has(setting.gameKey)) {
-      await db.update(gameSettings).set({ title: setting.title, description: setting.description, updatedAt: new Date() }).where(eq(gameSettings.gameKey, setting.gameKey));
+      await db.update(gameSettings).set({ title: setting.title, description: setting.description, updatedAt: dbTimestamp() }).where(eq(gameSettings.gameKey, setting.gameKey));
     } else {
       await db.insert(gameSettings).values(setting);
     }
@@ -212,7 +255,7 @@ export async function ensureInitialSeeds(): Promise<void> {
   const existingImages = await db.select({ scenarioKey: scenarioImages.scenarioKey }).from(scenarioImages);
   const existingImageKeys = new Set(existingImages.map((row) => row.scenarioKey));
   for (const scenario of CDBS_SPOT_ERROR_SCENARIOS) {
-    const imageData = { label: scenario.label, imageUrl: scenario.image, safeImageUrl: scenario.safeImage, description: "Par correspondente da mesma cena: imagem segura e imagem com condições inseguras. Ilustração criada com IA para treinamento SIPAT CDBS; não é fotografia real da fábrica.", updatedAt: new Date() };
+    const imageData = { label: scenario.label, imageUrl: scenario.image, safeImageUrl: scenario.safeImage, description: "Par correspondente da mesma cena: imagem segura e imagem com condições inseguras. Ilustração criada com IA para treinamento SIPAT CDBS; não é fotografia real da fábrica.", updatedAt: dbTimestamp() };
     if (existingImageKeys.has(scenario.key)) await db.update(scenarioImages).set(imageData).where(eq(scenarioImages.scenarioKey, scenario.key));
     else await db.insert(scenarioImages).values({ scenarioKey: scenario.key, ...imageData });
   }
@@ -254,7 +297,7 @@ export async function createScenarioImage(data: ScenarioImageData) {
 export async function updateScenarioImage(scenarioKey: string, data: Omit<ScenarioImageData, "scenarioKey">) {
   const db = await getDb();
   if (!db) return;
-  await db.update(scenarioImages).set({ ...data, updatedAt: new Date() }).where(eq(scenarioImages.scenarioKey, scenarioKey));
+  await db.update(scenarioImages).set({ ...data, updatedAt: dbTimestamp() }).where(eq(scenarioImages.scenarioKey, scenarioKey));
   invalidateCachePrefix("scenario-images:");
 }
 
@@ -296,7 +339,7 @@ export async function createSpotErrorHotspot(data: { scenarioKey: string; title:
 export async function updateSpotErrorHotspot(id: number, data: Partial<{ scenarioKey: string; title: string; description: string; hint: string; category: string; x: number; y: number; width: number; height: number; tolerance: number; shape: "retangulo" | "circulo" | "poligono"; points: string; active: boolean }>) {
   const db = await getDb();
   if (!db) return;
-  await db.update(spotErrorHotspots).set({ ...data, updatedAt: new Date() }).where(eq(spotErrorHotspots.id, id));
+  await db.update(spotErrorHotspots).set({ ...data, updatedAt: dbTimestamp() }).where(eq(spotErrorHotspots.id, id));
   invalidateCachePrefix("spot-hotspots:");
 }
 
@@ -326,7 +369,7 @@ export async function findOrCreateParticipant(name: string, chapa: string, wwid:
     if (cleanName !== current.name || cleanChapa !== current.chapa || cleanWwid !== current.wwid || (participantType && current.participantType !== participantType)) {
       await db
         .update(participants)
-        .set({ name: cleanName || current.name, ...(participantType ? { participantType } : {}), chapa: cleanChapa, wwid: cleanWwid, updatedAt: new Date() })
+        .set({ name: cleanName || current.name, ...(participantType ? { participantType } : {}), chapa: cleanChapa, wwid: cleanWwid, updatedAt: dbTimestamp() })
         .where(eq(participants.id, current.id));
       invalidateCachePrefix("ranking:");
       return { ...current, name: cleanName || current.name, participantType: participantType || current.participantType, chapa: cleanChapa, wwid: cleanWwid };
@@ -457,7 +500,7 @@ export async function calculateParticipantStats(participantId: number): Promise<
       totalCorrectAnswers: totalCorrect,
       totalWrongAnswers: totalWrong,
       highestDifficulty: highestDiffLabel,
-      updatedAt: new Date(),
+      updatedAt: dbTimestamp(),
     })
     .where(eq(participants.id, participantId));
 }
@@ -640,7 +683,13 @@ export async function getGameSettings() {
   return getCached("game-settings", 15_000, async () => {
     const db = await getDb();
     if (!db) return [];
-    return db.select().from(gameSettings);
+    const rows = await db.select().from(gameSettings);
+    return rows.map((setting) => ({
+      ...setting,
+      accessStartAt: toDateOrNull(setting.accessStartAt),
+      accessEndAt: toDateOrNull(setting.accessEndAt),
+      updatedAt: toDateOrNull(setting.updatedAt) ?? new Date(0),
+    }));
   });
 }
 
@@ -649,7 +698,7 @@ export async function updateGameStatus(gameKey: string, active: boolean) {
   if (!db) return;
   await db
     .update(gameSettings)
-    .set({ active, updatedAt: new Date() })
+    .set({ active, updatedAt: dbTimestamp() })
     .where(eq(gameSettings.gameKey, gameKey));
   invalidateCachePrefix("game-settings");
 }
@@ -659,7 +708,7 @@ export async function updateGameAccess(gameKey: string, data: { active: boolean;
   if (!db) return;
   await db
     .update(gameSettings)
-    .set({ ...data, updatedAt: new Date() })
+    .set({ ...data, accessStartAt: dbDate(data.accessStartAt), accessEndAt: dbDate(data.accessEndAt), updatedAt: dbTimestamp() })
     .where(eq(gameSettings.gameKey, gameKey));
   invalidateCachePrefix("game-settings");
 }
@@ -723,7 +772,7 @@ export async function updateParticipantData(
 ) {
   const db = await getDb();
   if (!db) return;
-  const updateObj: Record<string, unknown> = { updatedAt: new Date() };
+  const updateObj: Record<string, unknown> = { updatedAt: dbTimestamp() };
   if (data.name) updateObj.name = data.name.trim();
   if (data.chapa) updateObj.chapa = data.chapa.trim().toUpperCase();
   if (data.wwid) updateObj.wwid = data.wwid.trim().toUpperCase();
@@ -763,7 +812,7 @@ export async function updateQuizQuestion(id: number, data: Partial<InsertQuizQue
   if (!db) return;
   await db
     .update(quizQuestions)
-    .set({ ...data, updatedAt: new Date() })
+    .set({ ...data, updatedAt: dbTimestamp() })
     .where(eq(quizQuestions.id, id));
   invalidateCachePrefix("quiz-questions:");
 }
@@ -923,9 +972,9 @@ export async function moderateMuralMessage(id: number, action: "aprovar" | "reje
   if (!db) throw new Error("Database offline");
 
   const updateObj: Record<string, unknown> = {
-    moderatedAt: new Date(),
+    moderatedAt: dbTimestamp(),
     moderatedBy: moderator,
-    updatedAt: new Date(),
+    updatedAt: dbTimestamp(),
   };
   if (note !== undefined) updateObj.moderationNote = note;
 
@@ -957,7 +1006,7 @@ export async function updateMuralMessageText(id: number, message: string, modera
     .set({
       message: message.trim(),
       moderatedBy: moderator,
-      updatedAt: new Date(),
+      updatedAt: dbTimestamp(),
     })
     .where(eq(muralMessages.id, id));
   invalidateCachePrefix("mural-");

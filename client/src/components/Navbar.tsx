@@ -186,9 +186,9 @@ export function Navbar({ onOpenIdentify }: NavbarProps) {
           <Link
             href="/"
             aria-label="SIPAT Cummins — página inicial"
-            className="flex min-w-0 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+            className="group flex min-w-0 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-white p-1 shadow-md ring-1 ring-red-400/40 sm:h-11 sm:w-11">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-white p-1 shadow-md ring-1 ring-red-400/40 transition-[box-shadow,transform] duration-200 ease-out group-hover:scale-[1.04] group-hover:shadow-[0_0_0_1px_rgba(255,199,44,.7),0_0_18px_rgba(255,199,44,.32)] group-focus-visible:shadow-[0_0_0_2px_rgba(255,199,44,.9),0_0_18px_rgba(255,199,44,.32)] sm:h-11 sm:w-11">
               <img
                 src="/assets/cummins-original-black.webp"
                 alt="Logo oficial da Cummins, versão preta"

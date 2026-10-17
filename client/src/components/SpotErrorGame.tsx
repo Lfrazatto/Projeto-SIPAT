@@ -43,6 +43,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { useParticipant } from "@/contexts/ParticipantContext";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
+import { CumminsLogoBadge } from "@/components/CumminsLogoBadge";
 
 /* ==========================================================================
  * 1. TIPOS
@@ -2161,6 +2162,7 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
                   : "bg-[radial-gradient(circle_at_50%_0%,rgba(218,41,28,.24),transparent_60%)]"
               }`}
             >
+              <CumminsLogoBadge className="mx-auto mb-4 h-14 w-14" />
               {perfect ? (
                 <Trophy className="mx-auto h-11 w-11 text-amber-300" />
               ) : (

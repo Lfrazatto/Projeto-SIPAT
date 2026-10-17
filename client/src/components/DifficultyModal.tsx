@@ -1,7 +1,7 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Zap, ShieldCheck, Flame, ArrowRight } from "lucide-react";
+import { Zap, ArrowRight } from "lucide-react";
+import { CumminsLogoBadge } from "@/components/CumminsLogoBadge";
 
 export type DifficultyLevel = "facil" | "medio" | "dificil" | "muito_dificil";
 
@@ -24,9 +24,12 @@ export const DifficultyModal: React.FC<DifficultyModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg bg-[#161a24] border border-white/15 text-slate-100 shadow-2xl">
         <DialogHeader className="space-y-2">
-          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#da291c] uppercase">
-            <Zap className="w-4 h-4" />
-            Configuração de Desafio
+          <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+            <CumminsLogoBadge className="h-12 w-12" />
+            <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#da291c] uppercase">
+              <Zap className="w-4 h-4" />
+              Configuração de Desafio
+            </div>
           </div>
           <DialogTitle className="text-xl sm:text-2xl font-black font-industrial uppercase tracking-wide text-white">
             Nível de Dificuldade

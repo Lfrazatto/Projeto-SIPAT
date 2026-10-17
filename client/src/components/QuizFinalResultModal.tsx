@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { CumminsLogoBadge } from "@/components/CumminsLogoBadge";
 import { 
   Trophy, 
   RotateCcw, 
@@ -66,6 +67,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[calc(100dvh-1rem)] overflow-y-auto bg-[#151923] border border-white/15 p-4 text-slate-100 shadow-2xl sm:max-h-[90vh] sm:max-w-xl sm:p-8">
         <DialogHeader className="text-center space-y-2">
+          <CumminsLogoBadge className="mx-auto h-14 w-14" />
           <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-tr from-[#da291c] to-amber-500 flex items-center justify-center shadow-lg shadow-red-900/50 mb-1 border-2 border-amber-300">
             <Trophy className="w-8 h-8 text-white" />
           </div>
