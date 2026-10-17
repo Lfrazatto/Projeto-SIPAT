@@ -442,7 +442,7 @@ export async function getDailyAttemptsCount(participantId: number, gameType: str
       and(
         eq(gameResults.participantId, participantId),
         eq(gameResults.gameType, gameType as any),
-        sql`${gameResults.createdAt} >= ${startOfDay}`
+        sql`${gameResults.createdAt} >= ${dbDate(startOfDay)}`
       )
     );
   return Number(rows[0]?.count ?? 0);
