@@ -43,14 +43,13 @@ function MainCreatorsSection() {
           {creators.map((creator, index) => (
             <article key={creator.name} className="group relative overflow-hidden rounded-2xl border border-[#da291c]/35 bg-gradient-to-br from-[#21171c] via-[#171b24] to-[#12151d] p-6 shadow-xl shadow-black/20 transition duration-200 hover:-translate-y-1 hover:border-[#da291c] hover:shadow-red-950/30">
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#da291c] via-amber-300 to-transparent" aria-hidden="true" />
-              <div className="-mx-6 -mt-5 mb-5 aspect-[4/5] overflow-hidden border-b border-white/10 bg-black/30">
-                <img src={creator.photo} alt={creator.photoAlt} width="720" height="900" loading={index < 2 ? "eager" : "lazy"} decoding="async" className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-[1.03]" />
-              </div>
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-red-300/30 bg-red-950/60 text-[#ff6b5f] shadow-lg shadow-red-950/30"><Users className="h-5 w-5" aria-hidden="true" /></div>
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-[#da291c] bg-black/30 shadow-lg shadow-red-950/40 ring-4 ring-amber-200/10 transition duration-200 group-hover:scale-105 group-hover:ring-amber-200/25 sm:h-24 sm:w-24">
+                  <img src={creator.photo} alt={creator.photoAlt} width="720" height="900" loading={index < 2 ? "eager" : "lazy"} decoding="async" className="h-full w-full object-cover object-center" />
+                </div>
                 <span className="rounded-full border border-amber-300/30 bg-amber-950/30 px-2.5 py-1 font-mono text-[10px] font-bold tracking-widest text-amber-200">CRIADOR 0{index + 1}</span>
               </div>
-              <p className="mt-6 text-[10px] font-black uppercase tracking-[.2em] text-amber-300">Núcleo principal</p>
+              <div className="flex items-center gap-2 text-amber-300"><Users className="h-4 w-4" aria-hidden="true" /><p className="text-[10px] font-black uppercase tracking-[.2em]">Núcleo principal</p></div>
               <h3 className="mt-2 font-industrial text-2xl uppercase leading-tight text-white sm:text-3xl">{creator.name}</h3>
               <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-200">{creator.role}</p>
               <div className="mt-5 border-t border-white/10 pt-4">
