@@ -18,11 +18,94 @@ import {
   SlidersHorizontal,
   Flame,
   Medal,
-  Award
+  Award,
+  LockKeyhole
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+
+function GameMedal({
+  title,
+  subtitle,
+  score,
+  icon: Icon,
+  tone,
+}: {
+  title: string;
+  subtitle: string;
+  score: number;
+  icon: React.ElementType;
+  tone: "red" | "emerald" | "amber" | "cyan";
+}) {
+  const unlocked = score > 0;
+  const toneClasses = {
+    red: {
+      icon: "border-red-300/60 bg-red-400/15 text-red-200",
+      glow: "border-red-400/55 bg-red-950/30",
+      score: "text-red-200",
+    },
+    emerald: {
+      icon: "border-emerald-300/60 bg-emerald-400/15 text-emerald-200",
+      glow: "border-emerald-400/55 bg-emerald-950/30",
+      score: "text-emerald-200",
+    },
+    amber: {
+      icon: "border-amber-300/60 bg-amber-400/15 text-amber-200",
+      glow: "border-amber-400/55 bg-amber-950/30",
+      score: "text-amber-200",
+    },
+    cyan: {
+      icon: "border-cyan-300/60 bg-cyan-400/15 text-cyan-200",
+      glow: "border-cyan-400/55 bg-cyan-950/30",
+      score: "text-cyan-200",
+    },
+  }[tone];
+
+  return (
+    <article
+      className={`relative overflow-hidden rounded-2xl border p-4 transition-all sm:p-5 ${
+        unlocked
+          ? `${toneClasses.glow} shadow-lg shadow-black/20`
+          : "border-white/10 bg-black/25 opacity-80"
+      }`}
+      aria-label={`${title}: ${unlocked ? "medalha conquistada" : "medalha ainda não conquistada"}`}
+    >
+      {unlocked && <span className="progress-medal-shine" aria-hidden="true" />}
+      <div className="relative flex items-start gap-3">
+        <span
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 ${
+            unlocked ? `${toneClasses.icon} progress-medal-earned` : "border-white/15 bg-white/5 text-slate-500"
+          }`}
+          aria-hidden="true"
+        >
+          {unlocked ? <Medal className="h-8 w-8" /> : <LockKeyhole className="h-6 w-6" />}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="flex items-center gap-1.5 font-industrial text-sm font-black uppercase text-white">
+              <Icon className="h-4 w-4 shrink-0 text-slate-300" aria-hidden="true" />
+              {title}
+            </h4>
+            <span
+              className={`rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-wide ${
+                unlocked
+                  ? "border-emerald-300/40 bg-emerald-950/50 text-emerald-200"
+                  : "border-white/15 bg-white/5 text-slate-400"
+              }`}
+            >
+              {unlocked ? "Conquistada" : "Bloqueada"}
+            </span>
+          </div>
+          <p className="mt-1 text-xs leading-relaxed text-slate-400">{subtitle}</p>
+          <p className={`mt-3 font-mono text-xs font-bold uppercase ${unlocked ? toneClasses.score : "text-slate-500"}`}>
+            {unlocked ? `Melhor resultado: ${score} pts` : "Jogue para conquistar esta medalha"}
+          </p>
+        </div>
+      </div>
+    </article>
+  );
+}
 
 export default function MeuProgresso() {
   const { participant } = useParticipant();
@@ -227,6 +310,28 @@ export default function MeuProgresso() {
                 </div>
               </div>
             </div>
+
+            {/* Medalhas reais: cada cartão é desbloqueado somente após uma pontuação salva no respectivo jogo. */}
+            <section className="space-y-4" aria-labelledby="game-medals-heading">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h3 id="game-medals-heading" className="flex items-center gap-2 text-lg font-black font-industrial uppercase text-white">
+                    <Medal className="h-5 w-5 text-amber-300" aria-hidden="true" />
+                    Medalhas dos desafios
+                  </h3>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-400">Conquistas visuais por jogo, liberadas automaticamente quando seu resultado é salvo.</p>
+                </div>
+                <span className="w-fit rounded-full border border-amber-400/30 bg-amber-950/30 px-3 py-1.5 font-mono text-[10px] font-bold uppercase text-amber-200">
+                  {completedCount} de 4 conquistadas
+                </span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <GameMedal title="Quiz de Segurança" subtitle="Prevenção, cuidado e Red Flag" score={pData.bestSecurityScore || 0} icon={ShieldAlert} tone="red" />
+                <GameMedal title="Desafio Fábrica Eficiente" subtitle="Lean, qualidade e melhoria contínua" score={pData.bestEnvironmentScore || 0} icon={Leaf} tone="emerald" />
+                <GameMedal title="Ache o Erro" subtitle="Inspeção visual e identificação de riscos" score={pData.bestSpotErrorScore || 0} icon={Eye} tone="amber" />
+                <GameMedal title="Organize a Fábrica" subtitle="5S, organização visual e fluxo Lean" score={pData.bestOrganizeScore || 0} icon={SlidersHorizontal} tone="cyan" />
+              </div>
+            </section>
 
             {/* Performance per individual challenge */}
             <div className="space-y-4">
