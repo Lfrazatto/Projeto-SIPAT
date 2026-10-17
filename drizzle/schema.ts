@@ -69,10 +69,12 @@ export const quizQuestions = mysqlTable("quiz_questions", {
   theme: varchar("theme", { length: 128 }).notNull(),
   difficulty: mysqlEnum("difficulty", ["facil", "medio", "dificil"]).default("facil").notNull(),
   active: boolean("active").default(true).notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   activeDifficultyIdx: index("quiz_questions_active_difficulty_idx").on(table.gameType, table.active, table.difficulty),
+  orderIdx: index("quiz_questions_order_idx").on(table.gameType, table.active, table.sortOrder, table.id),
 }));
 
 export const gameSettings = mysqlTable("game_settings", {

@@ -11,12 +11,12 @@ command -v pnpm >/dev/null || { echo "pnpm não encontrado. Instale com: npm ins
 npx wrangler whoami
 pnpm install
 
-# Primeiro deploy: garante que o Worker e os bindings D1/R2 estejam publicados.
+# Aplica as migrações no banco D1 remoto antes do código novo entrar em produção.
+npx wrangler d1 migrations apply sipat-cummins-db --remote
+
+# Publica o Worker já compatível com o schema atualizado e os bindings D1/R2.
 pnpm build:worker
 npx wrangler deploy
-
-# Aplica as migrações no banco D1 remoto.
-npx wrangler d1 migrations apply sipat-cummins-db --remote
 
 # Migra todos os assets locais para o bucket R2 usando exatamente os nomes
 # referenciados pelo código (/assets/<nome>). O lote inclui fotos, logo e

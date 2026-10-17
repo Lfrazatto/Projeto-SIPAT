@@ -59,6 +59,15 @@ export const EDUCATION_POINTS: EducationPoint[] = [
     targetComponentId: "left_axle_tube",
   },
   {
+    id: "five-s",
+    title: "Organização 5S",
+    category: "Organização",
+    description: "Materiais organizados e identificados facilitam o trabalho, reduzem riscos e preservam o fluxo da operação.",
+    action: "Jogar Organize a Fábrica",
+    href: "/jogos?game=organize_a_fabrica",
+    targetComponentId: "housing_cover",
+  },
+  {
     id: "ergonomics",
     title: "Ergonomia",
     category: "Saúde",

@@ -166,6 +166,12 @@ export const INITIAL_GAME_SETTINGS = [
     description: "Inspecione cenários de oficina, montagem, fábrica e apoio administrativo para encontrar atos inseguros.",
     active: true,
   },
+  {
+    gameKey: "organize_a_fabrica",
+    title: "SIPAT CDBS • Organize a Fábrica",
+    description: "Aplique 5S e organização visual para deixar o ambiente Cummins Osasco mais seguro e eficiente.",
+    active: true,
+  },
 ];
 
 

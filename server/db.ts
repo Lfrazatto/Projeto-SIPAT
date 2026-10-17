@@ -1,4 +1,4 @@
-import { and, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { drizzle as drizzleD1 } from "drizzle-orm/d1";
 import {
@@ -202,7 +202,8 @@ export async function ensureInitialSeeds(): Promise<void> {
   const existingQuestions = await db.select({ count: sql<number>`count(*)` }).from(quizQuestions);
   if (Number(existingQuestions[0]?.count ?? 0) < 36) {
     const { OFFICIAL_QUIZ_QUESTIONS } = await import("./quizQuestionsCatalog");
-    for (const question of OFFICIAL_QUIZ_QUESTIONS) {
+    for (let sortOrder = 0; sortOrder < OFFICIAL_QUIZ_QUESTIONS.length; sortOrder += 1) {
+      const question = OFFICIAL_QUIZ_QUESTIONS[sortOrder];
       const [found] = await db
         .select({ id: quizQuestions.id })
         .from(quizQuestions)
@@ -221,6 +222,7 @@ export async function ensureInitialSeeds(): Promise<void> {
           correctOption: question.correctOption,
           explanation: question.explanation,
           active: true,
+          sortOrder,
         });
       }
     }
@@ -477,12 +479,11 @@ export async function calculateParticipantStats(participantId: number): Promise<
   const completedCount =
     (bestSecurity > 0 ? 1 : 0) +
     (bestEnvironment > 0 ? 1 : 0) +
-    (bestSpot > 0 ? 1 : 0);
+    (bestSpot > 0 ? 1 : 0) +
+    (bestOrganize > 0 ? 1 : 0);
 
-  const totalScore = bestSecurity + bestEnvironment + bestSpot;
-  const accumulatedScore = results
-    .filter((r) => r.gameType !== "organize_a_fabrica")
-    .reduce((acc, r) => acc + (Number(r.score) || 0), 0);
+  const totalScore = bestSecurity + bestEnvironment + bestSpot + bestOrganize;
+  const accumulatedScore = results.reduce((acc, r) => acc + (Number(r.score) || 0), 0);
   const effectiveTotal = accumulatedScore > 0 ? accumulatedScore : totalScore;
 
   let highestDiffLabel = "Fácil";
@@ -676,7 +677,8 @@ export async function getQuizQuestions(gameType: "quiz_seguranca" | "quiz_ergono
     return db
       .select()
       .from(quizQuestions)
-      .where(and(eq(quizQuestions.gameType, gameType), eq(quizQuestions.active, true)));
+      .where(and(eq(quizQuestions.gameType, gameType), eq(quizQuestions.active, true)))
+      .orderBy(asc(quizQuestions.sortOrder), asc(quizQuestions.id));
   });
 }
 
@@ -737,11 +739,11 @@ export async function getDashboardStats() {
   const [gameRow] = await db
     .select({ count: sql<number>`count(*)` })
     .from(gameResults)
-    .where(eq(gameResults.gameType, "ache_o_erro"));
+    .where(or(eq(gameResults.gameType, "ache_o_erro"), eq(gameResults.gameType, "organize_a_fabrica")));
   const [completedRow] = await db
     .select({ count: sql<number>`count(*)` })
     .from(participants)
-    .where(eq(participants.completedGamesCount, 3));
+    .where(eq(participants.completedGamesCount, 4));
 
   const [leader] = await db
     .select()
@@ -804,7 +806,12 @@ export async function clearParticipantResults(participantId: number) {
 export async function createQuizQuestion(data: InsertQuizQuestion) {
   const db = await getDb();
   if (!db) return;
-  await db.insert(quizQuestions).values(data);
+  const sameGameQuestions = await db
+    .select({ sortOrder: quizQuestions.sortOrder })
+    .from(quizQuestions)
+    .where(eq(quizQuestions.gameType, data.gameType));
+  const nextSortOrder = sameGameQuestions.reduce((max, row) => Math.max(max, Number(row.sortOrder) || 0), -1) + 1;
+  await db.insert(quizQuestions).values({ ...data, sortOrder: data.sortOrder ?? nextSortOrder });
   invalidateCachePrefix("quiz-questions:");
 }
 
@@ -818,6 +825,35 @@ export async function updateQuizQuestion(id: number, data: Partial<InsertQuizQue
   invalidateCachePrefix("quiz-questions:");
 }
 
+export async function reorderQuizQuestion(id: number, direction: "up" | "down") {
+  const db = await getDb();
+  if (!db) return false;
+
+  const [question] = await db.select().from(quizQuestions).where(eq(quizQuestions.id, id)).limit(1);
+  if (!question) return false;
+
+  const questions = await db
+    .select()
+    .from(quizQuestions)
+    .where(eq(quizQuestions.gameType, question.gameType))
+    .orderBy(asc(quizQuestions.sortOrder), asc(quizQuestions.id));
+  const currentIndex = questions.findIndex((item) => item.id === id);
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+  if (currentIndex < 0 || targetIndex < 0 || targetIndex >= questions.length) return false;
+
+  const reordered = [...questions];
+  const [moved] = reordered.splice(currentIndex, 1);
+  reordered.splice(targetIndex, 0, moved);
+  for (let index = 0; index < reordered.length; index += 1) {
+    await db
+      .update(quizQuestions)
+      .set({ sortOrder: index, updatedAt: dbTimestamp() })
+      .where(eq(quizQuestions.id, reordered[index].id));
+  }
+  invalidateCachePrefix("quiz-questions:");
+  return true;
+}
+
 export async function deleteQuizQuestion(id: number) {
   const db = await getDb();
   if (!db) return;
@@ -828,7 +864,7 @@ export async function deleteQuizQuestion(id: number) {
 export async function listAllQuestions() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(quizQuestions).orderBy(desc(quizQuestions.id));
+  return db.select().from(quizQuestions).orderBy(asc(quizQuestions.gameType), asc(quizQuestions.sortOrder), asc(quizQuestions.id));
 }
 
 export async function listAllParticipants(search?: string, participantType?: "terceiro" | "cummins" | "visitante") {
@@ -1045,7 +1081,7 @@ export async function evaluateAndUnlockAchievements(participantId: number): Prom
     { key: "olho_de_aguia", condition: completedGames.has("ache_o_erro") },
     { key: "velocidade", condition: hasQuick },
     { key: "perfeito", condition: hasFlawless },
-    { key: "jogador_completo", condition: (["quiz_seguranca", "quiz_ergonomia", "ache_o_erro"] as const).every((game) => completedGames.has(game)) },
+    { key: "jogador_completo", condition: completedGames.size >= 4 },
   ];
 
   for (const item of candidates) {

@@ -263,13 +263,18 @@ export const appRouter = router({
             filtered = exact;
           }
         }
-        // Embaralha e seleciona até 12 perguntas estruturadas para a partida
-        const shuffled = [...filtered].sort(() => Math.random() - 0.5).slice(0, 12);
+        // A ordem é controlada pelo administrador no painel. A partida mantém
+        // as primeiras 12 perguntas ativas nessa ordem, sem sorteio automático.
+        const ordered = [...filtered].sort((a, b) => {
+          const orderDifference = Number(a.sortOrder ?? 0) - Number(b.sortOrder ?? 0);
+          return orderDifference || a.id - b.id;
+        });
+        const selected = ordered.slice(0, 12);
         const sessionId = participantSessionId(ctx.req);
         if (sessionId) {
-          quizAttempts.set(sessionId, { gameType: input.gameType, questionIds: new Set(shuffled.map((q) => q.id)), answered: new Set(), score: 0, correctCount: 0, wrongCount: 0 });
+          quizAttempts.set(sessionId, { gameType: input.gameType, questionIds: new Set(selected.map((q) => q.id)), answered: new Set(), score: 0, correctCount: 0, wrongCount: 0 });
         }
-        return shuffled.map((q) => ({
+        return selected.map((q) => ({
           id: q.id,
           gameType: q.gameType,
           question: q.question,
@@ -552,6 +557,16 @@ export const appRouter = router({
         const { adminKey, id, ...data } = input;
         await db.updateQuizQuestion(id, data);
         return { success: true };
+      }),
+
+    reorderQuestion: publicProcedure
+      .input(z.object({ adminKey: z.string().optional(), id: z.number(), direction: z.enum(["up", "down"]) }))
+      .mutation(async ({ input, ctx }) => {
+        if (!isValidAdminRequest(input.adminKey, ctx.req)) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
+        }
+        const moved = await db.reorderQuizQuestion(input.id, input.direction);
+        return { success: moved };
       }),
 
     deleteQuestion: publicProcedure

@@ -4,24 +4,26 @@ import { IdentifyModal } from "@/components/IdentifyModal";
 import { DifficultyModal, DifficultyLevel } from "@/components/DifficultyModal";
 import { QuizGamePlayer } from "@/components/QuizGamePlayer";
 import { SpotErrorGame } from "@/components/SpotErrorGame";
+import { OrganizeFactoryGame } from "@/components/OrganizeFactoryGame";
 import { GameCreatorCredit } from "@/components/GameCreatorCredit";
 import { useParticipant } from "@/contexts/ParticipantContext";
 import { trpc } from "@/lib/trpc";
-import { 
-  ShieldAlert, 
+import {
+  ShieldAlert,
   HeartPulse,
-  Eye, 
-  Play, 
-  Trophy, 
-  CheckCircle2, 
-  Lock, 
+  Eye,
+  SlidersHorizontal,
+  Play,
+  Trophy,
+  CheckCircle2,
+  Lock,
   Sparkles,
   Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-type ActiveGameMode = null | "quiz_seguranca" | "quiz_ergonomia" | "ache_o_erro";
+type ActiveGameMode = null | "quiz_seguranca" | "quiz_ergonomia" | "ache_o_erro" | "organize_a_fabrica";
 
 export default function Jogos() {
   const { participant } = useParticipant();
@@ -49,7 +51,7 @@ export default function Jogos() {
       return;
     }
     if (!target) return;
-    if (target === "quiz_seguranca" || target === "quiz_ergonomia" || target === "ache_o_erro") {
+    if (target === "quiz_seguranca" || target === "quiz_ergonomia" || target === "ache_o_erro" || target === "organize_a_fabrica") {
       setSelectedGameForLaunch(target);
       if (!participant) {
         setIdentifyModalOpen(true);
@@ -87,6 +89,8 @@ export default function Jogos() {
         return "Desafio Fábrica Eficiente";
       case "ache_o_erro":
         return "Ache o Erro";
+      case "organize_a_fabrica":
+        return "Organize a Fábrica";
       default:
         return "";
     }
@@ -120,6 +124,19 @@ export default function Jogos() {
     );
   }
 
+  if (activeRunningGame === "organize_a_fabrica") {
+    return (
+      <div className="min-h-screen bg-[#0d0f13] text-slate-100 flex flex-col selection:bg-[#da291c] selection:text-white">
+        <Navbar />
+        <GameCreatorCredit />
+        <OrganizeFactoryGame
+          difficulty={selectedDifficulty}
+          onBackToGames={() => setActiveRunningGame(null)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0d0f13] text-slate-100 flex flex-col selection:bg-[#da291c] selection:text-white">
       <Navbar />
@@ -131,7 +148,7 @@ export default function Jogos() {
             <div>
               <div className="v2-kicker inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-950/80 px-3 py-1">
                 <ShieldAlert className="w-4 h-4 text-[#da291c]" />
-                <span>V4.0 • CENTRAL DE DESAFIOS • 3 EXPERIÊNCIAS</span>
+                <span>V4.0 • CENTRAL DE DESAFIOS • 4 EXPERIÊNCIAS</span>
               </div>
               <h1 className="text-3xl sm:text-5xl font-black font-industrial uppercase tracking-tight text-white mt-2">
                 ESCOLHA SEU <span className="text-[#da291c]">DESAFIO</span>
@@ -169,7 +186,7 @@ export default function Jogos() {
         </div>
       </section>
 
-      {/* Os três desafios oficiais da versão SIPAT publicada anteriormente */}
+      {/* Exactly 4 main games cards grid as required */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* JOGO 1: QUIZ DE SEGURANÇA */}
@@ -307,6 +324,50 @@ export default function Jogos() {
             </div>
           </div>
 
+          {/* JOGO 4: ORGANIZE A FÁBRICA */}
+          <div className="game-card p-6 sm:p-8 rounded-2xl bg-[#141822] border border-white/10 hover:border-cyan-500/70 transition-all duration-200 flex flex-col justify-between shadow-xl relative overflow-hidden group">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-cyan-400 group-hover:scale-110 transition-transform">
+                  <SlidersHorizontal className="w-8 h-8" />
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase">JOGO 4</span>
+                  {pData && pData.bestOrganizeScore > 0 && (
+                    <div className="text-xs font-mono text-emerald-400 font-bold flex items-center gap-1 justify-end">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Recorde: {pData.bestOrganizeScore} pts
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-black font-industrial text-white uppercase tracking-wide">
+                  ORGANIZE A FÁBRICA
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                  “Use seus conhecimentos de organização, 5S e melhoria contínua para deixar a fábrica mais segura e eficiente.”
+                </p>
+              </div>
+
+              <div className="pt-2 flex flex-wrap gap-2 text-[11px] text-slate-400 font-mono">
+                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">6 a 12 Encaixes</span>
+                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">Toque, arraste ou teclado</span>
+                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">Sequência 5S / Lean</span>
+              </div>
+            </div>
+
+            <div className="pt-6">
+              <Button
+                onClick={() => handleLaunchGameClick("organize_a_fabrica")}
+                className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold uppercase tracking-wider text-sm py-6 rounded-xl shadow-lg shadow-cyan-950/60 flex items-center justify-center gap-2"
+              >
+                <Play className="w-4 h-4 fill-current" />
+                <span>JOGAR AGORA</span>
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 

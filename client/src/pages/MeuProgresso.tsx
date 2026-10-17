@@ -15,6 +15,7 @@ import {
   ShieldAlert,
   Leaf,
   Eye,
+  SlidersHorizontal,
   Flame,
   Medal,
   Award
@@ -300,6 +301,27 @@ export default function MeuProgresso() {
                   </div>
                 </div>
 
+                {/* 4. Organize a Fábrica */}
+                <div className="p-5 rounded-xl bg-[#141822] border border-white/10 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-lg bg-cyan-950/80 text-cyan-400">
+                      <SlidersHorizontal className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm text-white uppercase font-industrial">
+                        Organize a Fábrica
+                      </div>
+                      <div className="text-xs text-slate-400">
+                        {pData.bestOrganizeScore > 0 ? "Concluído" : "Pendente"}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xl font-black font-industrial text-cyan-400">
+                      {pData.bestOrganizeScore} pts
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

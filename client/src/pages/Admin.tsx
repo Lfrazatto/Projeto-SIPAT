@@ -28,6 +28,8 @@ import {
   Save,
   Upload,
   Link2,
+  ArrowUp,
+  ArrowDown,
   Eye,
   HeartHandshake,
   Check,
@@ -278,6 +280,17 @@ export default function Admin() {
       setQuestionModalOpen(false);
       utils.admin.listQuestions.invalidate();
     },
+  });
+
+  const reorderQuestionMutation = trpc.admin.reorderQuestion.useMutation({
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success("Ordem das perguntas atualizada.");
+        utils.admin.listQuestions.invalidate();
+        utils.games.getQuestions.invalidate();
+      }
+    },
+    onError: (error) => toast.error(error.message || "Não foi possível alterar a ordem."),
   });
 
   const deleteQuestionMutation = trpc.admin.deleteQuestion.useMutation({
@@ -950,9 +963,14 @@ export default function Admin() {
           {/* TAB 3: GERENCIAR PERGUNTAS */}
           <TabsContent value="perguntas" className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-mono text-slate-400">
-                Banco de Perguntas Ativas: {(questionsQuery.data || []).length} cadastradas
-              </span>
+              <div>
+                <span className="text-xs font-mono text-slate-400">
+                  Banco de Perguntas: {(questionsQuery.data || []).length} cadastradas
+                </span>
+                <p className="mt-1 max-w-2xl text-[11px] leading-relaxed text-slate-500">
+                  A ordem abaixo é a ordem apresentada no jogo. Use as setas para organizar manualmente; as perguntas não são sorteadas.
+                </p>
+              </div>
               <Button
                 onClick={openNewQuestionModal}
                 className="bg-[#da291c] hover:bg-[#b01e12] text-white text-xs font-bold uppercase flex items-center gap-1.5"
@@ -962,10 +980,18 @@ export default function Admin() {
             </div>
 
             <div className="space-y-3">
-              {(questionsQuery.data || []).map((q) => (
+              {(questionsQuery.data || []).map((q) => {
+                const sameGameQuestions = (questionsQuery.data || []).filter((item) => item.gameType === q.gameType);
+                const questionIndex = sameGameQuestions.findIndex((item) => item.id === q.id);
+                const isFirstQuestion = questionIndex <= 0;
+                const isLastQuestion = questionIndex === sameGameQuestions.length - 1;
+                return (
                 <div key={q.id} className="p-4 rounded-xl bg-[#141822] border border-white/10 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
+                      <span className="flex h-7 min-w-7 items-center justify-center rounded bg-amber-500/15 px-2 text-xs font-black text-amber-300" aria-label={`Pergunta ${questionIndex + 1} do desafio`}>
+                        {questionIndex + 1}
+                      </span>
                       <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-white/5 border border-white/10 text-amber-400 uppercase">
                         {q.gameType === "quiz_seguranca" ? "Segurança" : "Fábrica Eficiente"}
                       </span>
@@ -974,6 +1000,30 @@ export default function Admin() {
                     </div>
 
                     <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1" aria-label="Alterar ordem da pergunta">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          title="Mover pergunta para cima"
+                          aria-label={`Mover pergunta ${questionIndex + 1} para cima`}
+                          disabled={isFirstQuestion || reorderQuestionMutation.isPending}
+                          onClick={() => reorderQuestionMutation.mutate({ id: q.id, direction: "up" })}
+                          className="h-7 w-7 border-white/20"
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          title="Mover pergunta para baixo"
+                          aria-label={`Mover pergunta ${questionIndex + 1} para baixo`}
+                          disabled={isLastQuestion || reorderQuestionMutation.isPending}
+                          onClick={() => reorderQuestionMutation.mutate({ id: q.id, direction: "down" })}
+                          className="h-7 w-7 border-white/20"
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                       <Button
                         size="sm"
                         variant="outline"
@@ -1014,7 +1064,8 @@ export default function Admin() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </TabsContent>
 
