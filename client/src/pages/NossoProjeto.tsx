@@ -17,7 +17,7 @@ const creators = [
   { name: "Ryan Neiva", role: "Idealização e desenvolvimento", email: "ryanneiva80@gmail.com", linkedin: "https://www.linkedin.com/in/ryan-neiva" },
   { name: "Leonardo Frazatto", role: "Idealização e desenvolvimento", email: "lmpfrazatto@gmail.com", linkedin: "https://www.linkedin.com/in/leonardo-machado-pereira-fraza" },
   { name: "Matheus Felipe", role: "Idealização e desenvolvimento", email: "matheusfelipedasferreira@gmail.com", linkedin: "https://www.linkedin.com/in/matheus-felipe-da-silva-ferreira-165465439" },
-  { name: "Kauã Gonçalves", role: "Idealização e desenvolvimento", email: "kauagc20@gmail.com" },
+  { name: "Kauã Gonçalves", role: "Idealização e desenvolvimento", email: "kauagc20@gmail.com", linkedin: "https://www.linkedin.com/in/kaua-gonçalves-136ba0440?utm_source=share_via&utm_content=profile&utm_medium=member_ios" },
 ];
 
 const process = [
