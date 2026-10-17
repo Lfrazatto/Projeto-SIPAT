@@ -477,11 +477,12 @@ export async function calculateParticipantStats(participantId: number): Promise<
   const completedCount =
     (bestSecurity > 0 ? 1 : 0) +
     (bestEnvironment > 0 ? 1 : 0) +
-    (bestSpot > 0 ? 1 : 0) +
-    (bestOrganize > 0 ? 1 : 0);
+    (bestSpot > 0 ? 1 : 0);
 
-  const totalScore = bestSecurity + bestEnvironment + bestSpot + bestOrganize;
-  const accumulatedScore = results.reduce((acc, r) => acc + (Number(r.score) || 0), 0);
+  const totalScore = bestSecurity + bestEnvironment + bestSpot;
+  const accumulatedScore = results
+    .filter((r) => r.gameType !== "organize_a_fabrica")
+    .reduce((acc, r) => acc + (Number(r.score) || 0), 0);
   const effectiveTotal = accumulatedScore > 0 ? accumulatedScore : totalScore;
 
   let highestDiffLabel = "Fácil";
@@ -736,11 +737,11 @@ export async function getDashboardStats() {
   const [gameRow] = await db
     .select({ count: sql<number>`count(*)` })
     .from(gameResults)
-    .where(or(eq(gameResults.gameType, "ache_o_erro"), eq(gameResults.gameType, "organize_a_fabrica")));
+    .where(eq(gameResults.gameType, "ache_o_erro"));
   const [completedRow] = await db
     .select({ count: sql<number>`count(*)` })
     .from(participants)
-    .where(eq(participants.completedGamesCount, 4));
+    .where(eq(participants.completedGamesCount, 3));
 
   const [leader] = await db
     .select()
@@ -1044,7 +1045,7 @@ export async function evaluateAndUnlockAchievements(participantId: number): Prom
     { key: "olho_de_aguia", condition: completedGames.has("ache_o_erro") },
     { key: "velocidade", condition: hasQuick },
     { key: "perfeito", condition: hasFlawless },
-    { key: "jogador_completo", condition: completedGames.size >= 4 },
+    { key: "jogador_completo", condition: (["quiz_seguranca", "quiz_ergonomia", "ache_o_erro"] as const).every((game) => completedGames.has(game)) },
   ];
 
   for (const item of candidates) {

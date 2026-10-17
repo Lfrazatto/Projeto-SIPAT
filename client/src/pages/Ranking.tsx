@@ -13,7 +13,6 @@ import {
   ShieldAlert,
   Leaf,
   Eye,
-  SlidersHorizontal,
   Flame,
   UserCheck
 } from "lucide-react";
@@ -25,7 +24,7 @@ import { AnimatedNumber } from "@/components/AnimatedNumber";
 export default function Ranking() {
   const { participant } = useParticipant();
   const [searchTerm, setSearchTerm] = useState("");
-  const [gameFilter, setGameFilter] = useState<"geral" | "quiz_seguranca" | "quiz_ergonomia" | "ache_o_erro" | "organize_a_fabrica">("geral");
+  const [gameFilter, setGameFilter] = useState<"geral" | "quiz_seguranca" | "quiz_ergonomia" | "ache_o_erro">("geral");
   const [sortBy, setSortBy] = useState<"highest" | "lowest" | "recent">("highest");
   const [participantType, setParticipantType] = useState<"todos" | "cummins" | "terceiro" | "visitante">("todos");
 
@@ -210,7 +209,7 @@ export default function Ranking() {
               </div>
 
               {/* Per-game breakdown as required by section 20 */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/10 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-white/10 text-xs">
                 <div className="p-2 rounded bg-black/40 border border-white/10">
                   <div className="text-[10px] text-slate-400">Quiz Segurança</div>
                   <div className="font-bold text-white">{searchResult.bestSecurityScore} pts</div>
@@ -222,10 +221,6 @@ export default function Ranking() {
                 <div className="p-2 rounded bg-black/40 border border-white/10">
                   <div className="text-[10px] text-slate-400">Ache o Erro</div>
                   <div className="font-bold text-white">{searchResult.bestSpotErrorScore} pts</div>
-                </div>
-                <div className="p-2 rounded bg-black/40 border border-white/10">
-                  <div className="text-[10px] text-slate-400">Organize a Fábrica</div>
-                  <div className="font-bold text-white">{searchResult.bestOrganizeScore} pts</div>
                 </div>
               </div>
             </div>
@@ -242,7 +237,6 @@ export default function Ranking() {
               { id: "quiz_seguranca", label: "Quiz Segurança" },
               { id: "quiz_ergonomia", label: "Desafio Fábrica Eficiente" },
               { id: "ache_o_erro", label: "Ache o Erro" },
-              { id: "organize_a_fabrica", label: "Organize a Fábrica" },
             ].map((f) => (
               <button
                 key={f.id}

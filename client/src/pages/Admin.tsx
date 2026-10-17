@@ -910,7 +910,7 @@ export default function Admin() {
                       <td className="py-3 px-4 font-black font-industrial text-[#da291c] text-sm">
                         {p.totalScore} pts
                       </td>
-                      <td className="py-3 px-4 text-center">{p.completedGamesCount}/4</td>
+                      <td className="py-3 px-4 text-center">{Math.min(p.completedGamesCount, 3)}/3</td>
                       <td className="py-3 px-4 text-right space-x-2">
                         <Button
                           size="sm"
