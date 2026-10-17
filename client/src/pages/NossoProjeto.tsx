@@ -14,10 +14,10 @@ const pillars = [
 ];
 
 const creators = [
-  { name: "Ryan Neiva", role: "Idealização e desenvolvimento", email: "ryanneiva80@gmail.com", linkedin: "https://www.linkedin.com/in/ryan-neiva" },
-  { name: "Leonardo Frazatto", role: "Idealização e desenvolvimento", email: "lmpfrazatto@gmail.com", linkedin: "https://www.linkedin.com/in/leonardo-machado-pereira-fraza" },
-  { name: "Matheus Felipe", role: "Idealização e desenvolvimento", email: "matheusfelipedasferreira@gmail.com", linkedin: "https://www.linkedin.com/in/matheus-felipe-da-silva-ferreira-165465439" },
-  { name: "Kauã Gonçalves", role: "Idealização e desenvolvimento", email: "kauagc20@gmail.com", linkedin: "https://www.linkedin.com/in/kaua-gonçalves-136ba0440?utm_source=share_via&utm_content=profile&utm_medium=member_ios" },
+  { name: "Ryan Neiva", role: "Idealização e desenvolvimento", email: "ryanneiva80@gmail.com", linkedin: "https://www.linkedin.com/in/ryan-neiva", photo: "/assets/creators/creator-ryan.webp", photoAlt: "Foto de perfil de Ryan Neiva" },
+  { name: "Leonardo Frazatto", role: "Idealização e desenvolvimento", email: "lmpfrazatto@gmail.com", linkedin: "https://www.linkedin.com/in/leonardo-machado-pereira-fraza", photo: "/assets/creators/creator-leonardo.webp", photoAlt: "Foto de perfil de Leonardo Frazatto usando camisa polo azul-marinho" },
+  { name: "Matheus Felipe", role: "Idealização e desenvolvimento", email: "matheusfelipedasferreira@gmail.com", linkedin: "https://www.linkedin.com/in/matheus-felipe-da-silva-ferreira-165465439", photo: "/assets/creators/creator-matheus.webp", photoAlt: "Foto de perfil de Matheus Felipe" },
+  { name: "Kauã Gonçalves", role: "Idealização e desenvolvimento", email: "kauagc20@gmail.com", linkedin: "https://www.linkedin.com/in/kaua-gonçalves-136ba0440?utm_source=share_via&utm_content=profile&utm_medium=member_ios", photo: "/assets/creators/creator-kaua.webp", photoAlt: "Foto de perfil de Kauã Gonçalves" },
 ];
 
 const process = [
@@ -43,8 +43,11 @@ function MainCreatorsSection() {
           {creators.map((creator, index) => (
             <article key={creator.name} className="group relative overflow-hidden rounded-2xl border border-[#da291c]/35 bg-gradient-to-br from-[#21171c] via-[#171b24] to-[#12151d] p-6 shadow-xl shadow-black/20 transition duration-200 hover:-translate-y-1 hover:border-[#da291c] hover:shadow-red-950/30">
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#da291c] via-amber-300 to-transparent" aria-hidden="true" />
+              <div className="-mx-6 -mt-5 mb-5 aspect-[4/5] overflow-hidden border-b border-white/10 bg-black/30">
+                <img src={creator.photo} alt={creator.photoAlt} width="720" height="900" loading={index < 2 ? "eager" : "lazy"} decoding="async" className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-[1.03]" />
+              </div>
               <div className="flex items-start justify-between gap-3">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-red-300/30 bg-red-950/60 text-[#ff6b5f] shadow-lg shadow-red-950/30"><Users className="h-7 w-7" aria-hidden="true" /></div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-red-300/30 bg-red-950/60 text-[#ff6b5f] shadow-lg shadow-red-950/30"><Users className="h-5 w-5" aria-hidden="true" /></div>
                 <span className="rounded-full border border-amber-300/30 bg-amber-950/30 px-2.5 py-1 font-mono text-[10px] font-bold tracking-widest text-amber-200">CRIADOR 0{index + 1}</span>
               </div>
               <p className="mt-6 text-[10px] font-black uppercase tracking-[.2em] text-amber-300">Núcleo principal</p>
