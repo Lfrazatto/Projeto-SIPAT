@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CumminsLogoBadge } from "@/components/CumminsLogoBadge";
+import { ScoreSaveStatus, type ScoreSaveState } from "@/components/ScoreSaveStatus";
 import { 
   Trophy, 
   RotateCcw, 
@@ -33,6 +34,7 @@ interface QuizFinalResultModalProps {
   difficulty: "facil" | "medio" | "dificil" | "muito_dificil";
   currentRank: number;
   isNewBest?: boolean;
+  saveState?: ScoreSaveState;
   resultHeading?: string;
   onPlayAgain: () => void;
   onOtherChallenge: () => void;
@@ -54,6 +56,7 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
   difficulty,
   currentRank,
   isNewBest,
+  saveState = "idle",
   resultHeading = "QUIZ FINALIZADO!",
   onPlayAgain,
   onOtherChallenge,
@@ -79,6 +82,8 @@ export const QuizFinalResultModal: React.FC<QuizFinalResultModalProps> = ({
             {gameTitle} — Parabéns pelo seu empenho e atitude de segurança!
           </DialogDescription>
         </DialogHeader>
+
+        <ScoreSaveStatus state={saveState} />
 
         {isNewBest && (
           <div className="p-2.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold text-center flex items-center justify-center gap-1.5 animate-pulse">

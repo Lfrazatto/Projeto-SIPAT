@@ -251,6 +251,38 @@ button, a, input, select, textarea { touch-action: manipulation; }
   @keyframes podium-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 }
 
+.ranking-game-podium { box-shadow: 0 18px 48px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.04); }
+.ranking-game-podium-card { transition: transform .2s cubic-bezier(.23,1,.32,1), border-color .2s ease, background-color .2s ease; }
+.ranking-game-podium-card:hover, .ranking-game-podium-card:focus-within { transform: translateY(-3px); border-color: rgba(255,199,44,.65); }
+.ranking-medal-badge { will-change: transform; }
+.score-save-status { background: linear-gradient(110deg, rgba(8,35,48,.92), rgba(15,23,42,.94)); border-color: rgba(103,232,249,.35); box-shadow: 0 12px 28px rgba(8,145,178,.12); }
+.score-save-success { background: linear-gradient(110deg, rgba(6,78,59,.92), rgba(20,83,45,.76) 55%, rgba(120,53,15,.58)); border-color: rgba(110,231,183,.72); box-shadow: 0 14px 34px rgba(16,185,129,.2); }
+.score-save-error { background: linear-gradient(110deg, rgba(69,26,3,.9), rgba(31,24,12,.95)); border-color: rgba(252,211,77,.55); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ranking-game-podium { animation: game-podium-in .42s cubic-bezier(.23,1,.32,1) both; }
+  .ranking-game-podium:nth-child(2) { animation-delay: .06s; }
+  .ranking-game-podium:nth-child(3) { animation-delay: .12s; }
+  .ranking-game-podium:nth-child(4) { animation-delay: .18s; }
+  .ranking-medal-badge { animation: medal-float 2.8s ease-in-out infinite; }
+  .ranking-game-podium-card:nth-child(2) .ranking-medal-badge { animation-delay: .25s; }
+  .ranking-game-podium-card:nth-child(3) .ranking-medal-badge { animation-delay: .5s; }
+  .score-save-status { animation: save-status-in .28s cubic-bezier(.23,1,.32,1) both; }
+  .score-save-success { animation: save-success-glow 1.8s ease-in-out .12s 1 both; }
+  .score-save-icon { animation: save-icon-pop .5s cubic-bezier(.23,1,.32,1) both; }
+  .score-save-sparkle { animation: save-sparkle 1.35s ease-in-out infinite; }
+  @keyframes game-podium-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes medal-float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-4px) rotate(2deg); } }
+  @keyframes save-status-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes save-success-glow { 0%, 100% { box-shadow: 0 14px 34px rgba(16,185,129,.2); } 50% { box-shadow: 0 14px 42px rgba(16,185,129,.46), 0 0 0 4px rgba(110,231,183,.1); } }
+  @keyframes save-icon-pop { 0% { opacity: 0; transform: scale(.7) rotate(-10deg); } 70% { transform: scale(1.14) rotate(4deg); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
+  @keyframes save-sparkle { 0%, 100% { opacity: .55; transform: translateY(1px) rotate(0); } 50% { opacity: 1; transform: translateY(-3px) rotate(12deg); } }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ranking-game-podium, .ranking-game-podium-card, .ranking-medal-badge, .score-save-status, .score-save-icon, .score-save-sparkle { animation: none !important; transition: none !important; }
+}
+
 
 .game-center-hero { background-image: radial-gradient(circle at 85% 20%, rgba(218,41,28,.18), transparent 22rem), linear-gradient(135deg, #161a24, #0d1016 70%); }
 .game-center-hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .25; background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px); background-size: 40px 40px; mask-image: linear-gradient(90deg, transparent, black 40%, transparent); }

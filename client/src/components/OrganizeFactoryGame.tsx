@@ -4,6 +4,7 @@ import { useParticipant } from "@/contexts/ParticipantContext";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { Button } from "@/components/ui/button";
 import { QuizFinalResultModal } from "@/components/QuizFinalResultModal";
+import { type ScoreSaveState } from "@/components/ScoreSaveStatus";
 import {
   ArrowRight,
   Box,
@@ -148,6 +149,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
   const [isFinished, setIsFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [finalSubmitData, setFinalSubmitData] = useState<{ rank: number; isNewBest: boolean } | null>(null);
+  const [saveState, setSaveState] = useState<ScoreSaveState>("idle");
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const submittedRef = useRef(false);
@@ -206,6 +208,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
     const timeSpent = totalAllowedTime - remainingTimeRef.current;
 
     if (participant) {
+      setSaveState("saving");
       submitMutation.mutate(
         {
           gameType: "organize_a_fabrica",
@@ -216,8 +219,14 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
           timeSpentSeconds: Math.max(1, timeSpent),
         },
         {
-          onSuccess: (data) => setFinalSubmitData({ rank: data.rank, isNewBest: data.isNewBest }),
-          onError: () => setFeedback({ text: "Resultado concluído, mas não foi possível sincronizar o ranking.", isCorrect: false }),
+          onSuccess: (data) => {
+            setSaveState("saved");
+            setFinalSubmitData({ rank: data.rank, isNewBest: data.isNewBest });
+          },
+          onError: () => {
+            setSaveState("error");
+            setFeedback({ text: "Resultado concluído, mas não foi possível sincronizar o ranking.", isCorrect: false });
+          },
         },
       );
     }
@@ -314,6 +323,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
     setIsPaused(false);
     submittedRef.current = false;
     setFinalSubmitData(null);
+    setSaveState("idle");
   };
 
   const groupedSlots = WORKSTATION_SLOTS.filter((slot) => activeSlotIds.has(slot.id)).reduce<Record<string, WorkstationSlot[]>>((groups, slot) => {
@@ -524,7 +534,7 @@ export const OrganizeFactoryGame: React.FC<OrganizeFactoryProps> = ({ difficulty
         </div>
       )}
 
-      <QuizFinalResultModal open={isFinished} onOpenChange={setIsFinished} playerName={participant?.name || "Colaborador"} playerWwid={participant?.wwid || "WWID"} gameTitle="Organize a Fábrica (5S & Lean)" score={score} maxScore={maxPossibleScore} correctCount={completedTasksRef.current} wrongCount={wrongDrops} totalQuestions={totalTaskCount} unitLabel="tarefas" resultHeading="DESAFIO CONCLUÍDO!" totalTimeSeconds={totalAllowedTime - remainingTime} difficulty={difficulty} currentRank={finalSubmitData?.rank || 1} isNewBest={finalSubmitData?.isNewBest} onPlayAgain={resetGame} onOtherChallenge={onBackToGames} />
+      <QuizFinalResultModal open={isFinished} onOpenChange={setIsFinished} playerName={participant?.name || "Colaborador"} playerWwid={participant?.wwid || "WWID"} gameTitle="Organize a Fábrica (5S & Lean)" score={score} maxScore={maxPossibleScore} correctCount={completedTasksRef.current} wrongCount={wrongDrops} totalQuestions={totalTaskCount} unitLabel="tarefas" resultHeading="DESAFIO CONCLUÍDO!" totalTimeSeconds={totalAllowedTime - remainingTime} difficulty={difficulty} currentRank={finalSubmitData?.rank || 1} isNewBest={finalSubmitData?.isNewBest} saveState={saveState} onPlayAgain={resetGame} onOtherChallenge={onBackToGames} />
     </div>
   );
 };

@@ -22,6 +22,61 @@ import { Button } from "@/components/ui/button";
 import { useParticipant } from "@/contexts/ParticipantContext";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 
+type PodiumRow = {
+  id: number;
+  rank: number;
+  name: string;
+  identifier: string;
+  specificScore: number;
+};
+
+const PODIUM_MEDALS = [
+  { label: "1º lugar", iconClass: "text-amber-200", badgeClass: "border-amber-300 bg-amber-300/20 shadow-amber-500/30", cardClass: "border-amber-300/70 bg-gradient-to-b from-amber-500/20 to-amber-950/20" },
+  { label: "2º lugar", iconClass: "text-slate-200", badgeClass: "border-slate-200 bg-slate-200/15 shadow-slate-300/20", cardClass: "border-slate-300/45 bg-slate-300/5" },
+  { label: "3º lugar", iconClass: "text-orange-200", badgeClass: "border-orange-300 bg-orange-300/15 shadow-orange-500/20", cardClass: "border-orange-300/45 bg-orange-950/15" },
+] as const;
+
+function GamePodium({ title, subtitle, rows, icon: Icon }: { title: string; subtitle: string; rows: PodiumRow[]; icon: React.ElementType }) {
+  return (
+    <article className="ranking-game-podium rounded-2xl border border-white/10 bg-[#141822] p-4 shadow-xl sm:p-5" aria-label={`Pódio de ${title}`}>
+      <div className="mb-4 flex items-start gap-3 border-b border-white/10 pb-4">
+        <span className="rounded-xl border border-red-400/30 bg-red-950/50 p-2.5 text-red-300" aria-hidden="true">
+          <Icon className="h-5 w-5" />
+        </span>
+        <div className="min-w-0">
+          <h3 className="font-industrial text-base font-black uppercase tracking-wide text-white">{title}</h3>
+          <p className="mt-1 text-[11px] leading-relaxed text-slate-400">{subtitle}</p>
+        </div>
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-3">
+        {PODIUM_MEDALS.map((medal, index) => {
+          const row = rows[index];
+          return (
+            <div key={medal.label} className={`ranking-game-podium-card rounded-xl border p-3 ${medal.cardClass}`}>
+              <div className="flex items-center gap-2">
+                <span className={`ranking-medal-badge flex h-10 w-10 shrink-0 items-center justify-center rounded-full border shadow-lg ${medal.badgeClass}`} aria-hidden="true">
+                  <Medal className={`ranking-medal-icon h-5 w-5 ${medal.iconClass}`} />
+                </span>
+                <span className={`text-[10px] font-black uppercase tracking-wide ${medal.iconClass}`}>{medal.label}</span>
+              </div>
+              {row ? (
+                <>
+                  <p className="mt-3 truncate text-sm font-black text-white" title={row.name}>{row.name}</p>
+                  <p className="mt-0.5 truncate font-mono text-[10px] text-slate-400" title={row.identifier}>{row.identifier}</p>
+                  <p className="mt-2 font-industrial text-lg font-black text-white"><AnimatedNumber value={row.specificScore} suffix=" pts" /></p>
+                </>
+              ) : (
+                <p className="mt-4 text-xs text-slate-500">Aguardando participante</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </article>
+  );
+}
+
 export default function Ranking() {
   const { participant } = useParticipant();
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,6 +90,16 @@ export default function Ranking() {
     participantType,
   });
 
+  const globalPodiumQuery = trpc.ranking.list.useQuery({
+    gameFilter: "geral",
+    sortBy: "highest",
+    participantType: "todos",
+  });
+  const securityPodiumQuery = trpc.ranking.list.useQuery({ gameFilter: "quiz_seguranca", sortBy: "highest", participantType: "todos" });
+  const efficiencyPodiumQuery = trpc.ranking.list.useQuery({ gameFilter: "quiz_ergonomia", sortBy: "highest", participantType: "todos" });
+  const spotPodiumQuery = trpc.ranking.list.useQuery({ gameFilter: "ache_o_erro", sortBy: "highest", participantType: "todos" });
+  const organizePodiumQuery = trpc.ranking.list.useQuery({ gameFilter: "organize_a_fabrica", sortBy: "highest", participantType: "todos" });
+
   const participantProgressQuery = trpc.participant.getProgress.useQuery(
     {},
     { enabled: Boolean(participant?.wwid), refetchInterval: 30_000 }
@@ -46,9 +111,10 @@ export default function Ranking() {
   );
 
   const list = rankingQuery.data || [];
-  const top1 = list[0];
-  const top2 = list[1];
-  const top3 = list[2];
+  const globalList = globalPodiumQuery.data || [];
+  const top1 = globalList[0];
+  const top2 = globalList[1];
+  const top3 = globalList[2];
 
   const searchResult = searchQuery.data;
   const participantProgress = participantProgressQuery.data;
@@ -158,6 +224,29 @@ export default function Ranking() {
                 <AnimatedNumber value={top3?.totalScore || 0} suffix=" pts" />
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TOP 3 POR DESAFIO: consulta independente por jogo, sem misturar pontuações. */}
+      <section className="border-b border-white/10 bg-[#0f1218] px-4 py-10 sm:px-6 lg:px-8" aria-labelledby="game-podiums-heading">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="v2-kicker">Pódios oficiais por desafio</p>
+              <h2 id="game-podiums-heading" className="mt-1 flex items-center gap-2 font-industrial text-xl font-black uppercase text-white sm:text-2xl">
+                <Medal className="h-6 w-6 text-amber-300" aria-hidden="true" />
+                Quem está liderando cada jogo?
+              </h2>
+            </div>
+            <p className="max-w-md text-xs leading-relaxed text-slate-400">As medalhas mostram o melhor resultado registrado em cada desafio, com atualização independente do ranking geral.</p>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <GamePodium title="Quiz de Segurança" subtitle="Prevenção, cuidado e Red Flag" icon={ShieldAlert} rows={(securityPodiumQuery.data || []).slice(0, 3)} />
+            <GamePodium title="Desafio Fábrica Eficiente" subtitle="Lean, qualidade e melhoria contínua" icon={Leaf} rows={(efficiencyPodiumQuery.data || []).slice(0, 3)} />
+            <GamePodium title="Ache o Erro" subtitle="Inspeção visual e identificação de riscos" icon={Eye} rows={(spotPodiumQuery.data || []).slice(0, 3)} />
+            <GamePodium title="Organize a Fábrica" subtitle="5S, organização visual e fluxo Lean" icon={SlidersHorizontal} rows={(organizePodiumQuery.data || []).slice(0, 3)} />
           </div>
         </div>
       </section>
