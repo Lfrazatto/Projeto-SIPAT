@@ -206,6 +206,31 @@ export default function MeuProgresso() {
           </div>
         )}
 
+        {!participant && (
+          <section className="mt-8 space-y-4" aria-labelledby="catalog-medals-heading">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h3 id="catalog-medals-heading" className="flex items-center gap-2 text-lg font-black font-industrial uppercase text-white">
+                  <Medal className="h-5 w-5 text-amber-300" aria-hidden="true" />
+                  Medalhas disponíveis na SIPAT
+                </h3>
+                <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                  Conheça as medalhas de honra que você desbloqueia ao concluir cada jogo e pontuar no evento.
+                </p>
+              </div>
+              <span className="w-fit rounded-full border border-white/15 bg-white/5 px-3 py-1.5 font-mono text-[10px] font-bold uppercase text-slate-400">
+                0 de 4 desbloqueadas nesta prévia
+              </span>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <GameMedal title="Quiz de Segurança" subtitle="Prevenção, cuidado e Red Flag" score={0} icon={ShieldAlert} tone="red" />
+              <GameMedal title="Desafio Fábrica Eficiente" subtitle="Lean, qualidade e melhoria contínua" score={0} icon={Leaf} tone="emerald" />
+              <GameMedal title="Ache o Erro" subtitle="Inspeção visual e identificação de riscos" score={0} icon={Eye} tone="amber" />
+              <GameMedal title="Organize a Fábrica" subtitle="5S, organização visual e fluxo Lean" score={0} icon={SlidersHorizontal} tone="cyan" />
+            </div>
+          </section>
+        )}
+
         {/* Detailed Participant Statistics (Sections 16 & 30) */}
         {pData && (
           <div className="mt-8 space-y-8 animate-fadeIn">
