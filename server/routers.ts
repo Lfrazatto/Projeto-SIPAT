@@ -263,13 +263,9 @@ export const appRouter = router({
             filtered = exact;
           }
         }
-        // A ordem é controlada pelo administrador no painel. A partida mantém
-        // as primeiras 12 perguntas ativas nessa ordem, sem sorteio automático.
-        const ordered = [...filtered].sort((a, b) => {
-          const orderDifference = Number(a.sortOrder ?? 0) - Number(b.sortOrder ?? 0);
-          return orderDifference || a.id - b.id;
-        });
-        const selected = ordered.slice(0, 12);
+        // Compatibilidade com a última versão dos jogos antes da migração:
+        // cada partida recebe 12 perguntas selecionadas do catálogo e em ordem embaralhada.
+        const selected = [...filtered].sort(() => Math.random() - 0.5).slice(0, 12);
         const sessionId = participantSessionId(ctx.req);
         if (sessionId) {
           quizAttempts.set(sessionId, { gameType: input.gameType, questionIds: new Set(selected.map((q) => q.id)), answered: new Set(), score: 0, correctCount: 0, wrongCount: 0 });

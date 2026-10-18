@@ -43,8 +43,6 @@ import {
 import { trpc } from "@/lib/trpc";
 import { useParticipant } from "@/contexts/ParticipantContext";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
-import { CumminsLogoBadge } from "@/components/CumminsLogoBadge";
-import { ScoreSaveStatus, type ScoreSaveState } from "@/components/ScoreSaveStatus";
 
 /* ==========================================================================
  * 1. TIPOS
@@ -974,7 +972,6 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
   const [submitted, setSubmitted] = useState<{ rank: number; isNewBest: boolean } | null>(
     null
   );
-  const [saveState, setSaveState] = useState<ScoreSaveState>("idle");
 
   const stageSizeRef = useRef({ width: 0, height: 0 });
   const floaterId = useRef(0);
@@ -1136,7 +1133,6 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
     else audio.lose();
 
     if (!previewOnly && required > 0) {
-      setSaveState("saving");
       submit.mutate(
         {
           scenarioKey,
@@ -1149,15 +1145,10 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
           timeSpentSeconds: Math.max(1, stageTime - secondsLeft),
         },
         {
-          onSuccess: (data) => {
-            setSaveState("saved");
-            setSubmitted({ rank: data.rank, isNewBest: data.isNewBest });
-          },
-          onError: () => setSaveState("error"),
+          onSuccess: (data) =>
+            setSubmitted({ rank: data.rank, isNewBest: data.isNewBest }),
         }
       );
-    } else if (previewOnly) {
-      setSaveState("preview");
     }
   });
 
@@ -1388,7 +1379,6 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
     setFeedback(null);
     setFloaters([]);
     setSubmitted(null);
-    setSaveState("idle");
     setZoom(1);
     setPan({ x: 0, y: 0 });
     setMobileTab("errors");
@@ -2171,7 +2161,6 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
                   : "bg-[radial-gradient(circle_at_50%_0%,rgba(218,41,28,.24),transparent_60%)]"
               }`}
             >
-              <CumminsLogoBadge className="mx-auto mb-4 h-14 w-14" />
               {perfect ? (
                 <Trophy className="mx-auto h-11 w-11 text-amber-300" />
               ) : (
@@ -2197,10 +2186,6 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
                 {found.length} de {required} riscos identificados em{" "}
                 {formatTime(stageTime - remaining)}.
               </p>
-
-              <div className="mx-auto mt-5 max-w-md text-left">
-                <ScoreSaveStatus state={saveState} />
-              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 px-6 sm:grid-cols-4 sm:px-10">
@@ -2221,9 +2206,7 @@ export const SpotErrorGame: React.FC<SpotErrorGameProps> = ({
                     ? "Novo recorde pessoal registrado."
                     : submitted
                       ? "Resultado registrado no ranking do evento."
-                      : saveState === "error"
-                        ? "O resultado ficou pronto, mas a sincronização precisa ser tentada novamente."
-                        : "Registrando seu resultado…"}
+                      : "Registrando seu resultado…"}
               </p>
 
               {!perfect && (

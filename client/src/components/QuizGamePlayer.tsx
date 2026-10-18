@@ -5,7 +5,6 @@ import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { QuizFinalResultModal } from "@/components/QuizFinalResultModal";
-import { ScoreSaveStatus, type ScoreSaveState } from "@/components/ScoreSaveStatus";
 import { 
   Clock, 
   CheckCircle2, 
@@ -57,7 +56,6 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
     rank: number;
     isNewBest: boolean;
   } | null>(null);
-  const [saveState, setSaveState] = useState<ScoreSaveState>("idle");
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const submittedRef = useRef(false);
@@ -199,7 +197,6 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
     const timeSpentSeconds = Math.max(1, Math.round((Date.now() - gameStartTime) / 1000));
 
     if (participant) {
-      setSaveState("saving");
       submitResultMutation.mutate(
         {
           gameType,
@@ -211,16 +208,12 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
         },
         {
           onSuccess: (res) => {
-            setSaveState("saved");
             setFinalSubmitData({
               rank: res.rank,
               isNewBest: res.isNewBest,
             });
           },
-          onError: (error) => {
-            setSaveState("error");
-            toast.error(error.message || "O quiz terminou, mas não foi possível salvar o resultado.");
-          },
+          onError: (error) => toast.error(error.message || "O quiz terminou, mas não foi possível salvar o resultado."),
         }
       );
     }
@@ -240,7 +233,6 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
     setGameStartTime(Date.now());
     submittedRef.current = false;
     setFinalSubmitData(null);
-    setSaveState("idle");
   };
 
   if (questionsQuery.isLoading) {
@@ -473,7 +465,6 @@ export const QuizGamePlayer: React.FC<QuizGamePlayerProps> = ({
         difficulty={difficulty}
         currentRank={finalSubmitData?.rank || 1}
         isNewBest={finalSubmitData?.isNewBest}
-        saveState={saveState}
         onPlayAgain={resetGame}
         onOtherChallenge={onBackToGames}
       />
