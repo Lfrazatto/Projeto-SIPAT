@@ -15,7 +15,7 @@ export interface WorkerEnv {
   ADMIN_ACCESS_KEY?: string;
 }
 
-let seedsStarted = false;
+let seedPromise: Promise<void> | null = null;
 
 function withCors(response: Response) {
   const headers = new Headers(response.headers);
@@ -44,10 +44,15 @@ export default {
   async fetch(request: Request, env: WorkerEnv): Promise<Response> {
     configureRuntimeEnv(env);
     configureWorkerDatabase(env);
-    if (!seedsStarted) {
-      seedsStarted = true;
-      void ensureInitialSeeds().catch((error) => console.error("[Worker] seed failed", error));
+    if (!seedPromise) {
+      seedPromise = ensureInitialSeeds().catch((error) => {
+        console.error("[Worker] seed failed", error);
+      });
     }
+    // O catálogo e os hotspots precisam existir antes da primeira resposta.
+    // Antes o seed era disparado em background e o primeiro acesso podia receber
+    // um catálogo vazio, deixando o Ache o Erro e o editor Admin sem cenários.
+    await seedPromise;
 
     const url = new URL(request.url);
     if (env.ASSET_BUCKET && url.pathname.startsWith("/assets/")) {

@@ -192,7 +192,7 @@ export default function Admin() {
   );
 
   useEffect(() => {
-    setEditorHotspots((hotspotsQuery.data || []).slice(0, 15).map((hotspot) => ({
+    setEditorHotspots((hotspotsQuery.data || []).map((hotspot) => ({
       id: hotspot.id,
       title: hotspot.title,
       description: hotspot.description,

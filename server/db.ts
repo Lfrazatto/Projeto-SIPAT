@@ -228,23 +228,6 @@ export async function ensureInitialSeeds(): Promise<void> {
     }
   }
 
-  const countHotspots = await db.select({ count: sql<number>`count(*)` }).from(spotErrorHotspots);
-  const cdbsHotspots = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(spotErrorHotspots)
-    .where(eq(spotErrorHotspots.scenarioKey, "cdbs-oficina-2026"));
-  if (Number(countHotspots[0]?.count ?? 0) === 0) {
-    await db.insert(spotErrorHotspots).values([
-      { title: "Óleo no chão sem sinalização", description: "Poça de óleo sem cone ou isolamento na circulação.", category: "Químico", x: 28, y: 70 },
-      { title: "Mangueira cruzando a faixa", description: "Mangueira de ar comprimido atravessando a rota amarela.", category: "Organização", x: 49, y: 59 },
-      { title: "Ferramentas jogadas no piso", description: "Chaves e peças espalhadas na área de passagem.", category: "Organização", x: 13, y: 84 },
-      { title: "Caixas empilhadas de forma instável", description: "Pilha inclinada com risco de queda sobre a rota.", category: "Armazenagem", x: 37, y: 23 },
-      { title: "Paleteira bloqueando o corredor", description: "Equipamento móvel deixado no corredor de pedestres.", category: "Organização", x: 55, y: 37 },
-      { title: "Painel elétrico aberto", description: "Quadro elétrico aberto sem bloqueio e sinalização.", category: "Elétrica", x: 95, y: 22 },
-      { title: "Recipiente químico sem rótulo", description: "Galão sem identificação visível sobre a bancada.", category: "Químico", x: 91, y: 59 },
-      { title: "Proteção de máquina aberta", description: "Portão da célula aberto durante a operação.", category: "Máquinas", x: 75, y: 31 },
-    ]);
-  }
   const existingHotspots = await db
     .select({ scenarioKey: spotErrorHotspots.scenarioKey, title: spotErrorHotspots.title })
     .from(spotErrorHotspots);
@@ -334,14 +317,27 @@ export async function listSpotErrorHotspots(activeOnly = true, scenarioKey?: str
 export async function createSpotErrorHotspot(data: { scenarioKey: string; title: string; description: string; hint?: string; category: string; x: number; y: number; width?: number; height?: number; tolerance?: number; shape?: "retangulo" | "circulo" | "poligono"; points?: string }) {
   const db = await getDb();
   if (!db) return;
-  await db.insert(spotErrorHotspots).values({ ...data, x: Number(data.x.toFixed(3)), y: Number(data.y.toFixed(3)), width: Number((data.width ?? 14).toFixed(3)), height: Number((data.height ?? 13).toFixed(3)), tolerance: Number((data.tolerance ?? 1).toFixed(3)) });
+  await db.insert(spotErrorHotspots).values({
+    ...data,
+    x: Number(Math.min(100, Math.max(0, data.x)).toFixed(3)),
+    y: Number(Math.min(100, Math.max(0, data.y)).toFixed(3)),
+    width: Number(Math.min(100, Math.max(0.1, data.width ?? 14)).toFixed(3)),
+    height: Number(Math.min(100, Math.max(0.1, data.height ?? 13)).toFixed(3)),
+    tolerance: Number(Math.min(2, Math.max(0, data.tolerance ?? 1)).toFixed(3)),
+  });
   invalidateCachePrefix("spot-hotspots:");
 }
 
 export async function updateSpotErrorHotspot(id: number, data: Partial<{ scenarioKey: string; title: string; description: string; hint: string; category: string; x: number; y: number; width: number; height: number; tolerance: number; shape: "retangulo" | "circulo" | "poligono"; points: string; active: boolean }>) {
   const db = await getDb();
   if (!db) return;
-  await db.update(spotErrorHotspots).set({ ...data, updatedAt: dbTimestamp() }).where(eq(spotErrorHotspots.id, id));
+  const normalized = { ...data };
+  if (normalized.x !== undefined) normalized.x = Number(Math.min(100, Math.max(0, normalized.x)).toFixed(3));
+  if (normalized.y !== undefined) normalized.y = Number(Math.min(100, Math.max(0, normalized.y)).toFixed(3));
+  if (normalized.width !== undefined) normalized.width = Number(Math.min(100, Math.max(0.1, normalized.width)).toFixed(3));
+  if (normalized.height !== undefined) normalized.height = Number(Math.min(100, Math.max(0.1, normalized.height)).toFixed(3));
+  if (normalized.tolerance !== undefined) normalized.tolerance = Number(Math.min(2, Math.max(0, normalized.tolerance)).toFixed(3));
+  await db.update(spotErrorHotspots).set({ ...normalized, updatedAt: dbTimestamp() }).where(eq(spotErrorHotspots.id, id));
   invalidateCachePrefix("spot-hotspots:");
 }
 

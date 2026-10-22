@@ -66,6 +66,19 @@ const scenarioImageUrlSchema = z.string().refine(
   "Informe uma URL HTTPS ou uma imagem enviada ao R2."
 );
 
+const hotspotPointsSchema = z.string().max(4000).refine((value) => {
+  try {
+    const points = JSON.parse(value) as Array<{ x?: number; y?: number }>;
+    return Array.isArray(points) && points.length >= 3 && points.every((point) =>
+      Number.isFinite(point?.x) && Number.isFinite(point?.y) &&
+      Number(point.x) >= 0 && Number(point.x) <= 100 &&
+      Number(point.y) >= 0 && Number(point.y) <= 100
+    );
+  } catch {
+    return false;
+  }
+}, "Informe ao menos três pontos JSON válidos entre 0 e 100.");
+
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 const quizAttempts = new Map<number, { gameType: "quiz_seguranca" | "quiz_ergonomia"; questionIds: Set<number>; answered: Set<number>; score: number; correctCount: number; wrongCount: number }>();
 
@@ -588,7 +601,7 @@ export const appRouter = router({
       }),
 
     createSpotErrorHotspot: publicProcedure
-      .input(z.object({ adminKey: z.string().optional(), scenarioKey: z.string().min(2), title: z.string().min(3), description: z.string().min(3), hint: z.string().optional(), category: z.string().min(2), x: z.number().min(0).max(100), y: z.number().min(0).max(100), width: z.number().min(0.1).max(100).optional(), height: z.number().min(0.1).max(100).optional(), tolerance: z.number().min(0).max(2).optional(), shape: z.enum(["retangulo", "circulo", "poligono"]).optional(), points: z.string().optional() }))
+      .input(z.object({ adminKey: z.string().optional(), scenarioKey: z.string().min(2), title: z.string().trim().min(3).max(160), description: z.string().trim().min(3).max(2000), hint: z.string().trim().max(500).optional(), category: z.string().trim().min(2).max(80), x: z.number().min(0).max(100), y: z.number().min(0).max(100), width: z.number().min(0.1).max(100).optional(), height: z.number().min(0.1).max(100).optional(), tolerance: z.number().min(0).max(2).optional(), shape: z.enum(["retangulo", "circulo", "poligono"]).optional(), points: hotspotPointsSchema.optional() }))
       .mutation(async ({ input, ctx }) => {
         if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         const { adminKey, ...data } = input;
@@ -597,7 +610,7 @@ export const appRouter = router({
       }),
 
     updateSpotErrorHotspot: publicProcedure
-      .input(z.object({ adminKey: z.string().optional(), id: z.number(), scenarioKey: z.string().min(2).optional(), title: z.string().min(3).optional(), description: z.string().min(3).optional(), hint: z.string().optional(), category: z.string().min(2).optional(), x: z.number().min(0).max(100).optional(), y: z.number().min(0).max(100).optional(), width: z.number().min(0.1).max(100).optional(), height: z.number().min(0.1).max(100).optional(), tolerance: z.number().min(0).max(2).optional(), shape: z.enum(["retangulo", "circulo", "poligono"]).optional(), points: z.string().optional(), active: z.boolean().optional() }))
+      .input(z.object({ adminKey: z.string().optional(), id: z.number().int().positive(), scenarioKey: z.string().min(2).optional(), title: z.string().trim().min(3).max(160).optional(), description: z.string().trim().min(3).max(2000).optional(), hint: z.string().trim().max(500).optional(), category: z.string().trim().min(2).max(80).optional(), x: z.number().min(0).max(100).optional(), y: z.number().min(0).max(100).optional(), width: z.number().min(0.1).max(100).optional(), height: z.number().min(0.1).max(100).optional(), tolerance: z.number().min(0).max(2).optional(), shape: z.enum(["retangulo", "circulo", "poligono"]).optional(), points: hotspotPointsSchema.optional(), active: z.boolean().optional() }))
       .mutation(async ({ input, ctx }) => {
         if (!isValidAdminRequest(input.adminKey, ctx.req)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Acesso administrativo negado." });
         const { adminKey, id, ...data } = input;
