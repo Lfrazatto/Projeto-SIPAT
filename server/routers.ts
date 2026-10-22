@@ -321,7 +321,9 @@ export const appRouter = router({
         z.object({
           questionId: z.number(),
           selectedOption: z.enum(["A", "B", "C", "D"]),
-          remainingSeconds: z.number().min(0).max(60),
+          // O modo de acessibilidade pode oferecer 120 segundos por questão.
+          // O limite anterior de 60 fazia a resposta falhar com erro de validação.
+          remainingSeconds: z.number().min(0).max(120),
           difficulty: z.enum(["facil", "medio", "dificil"]),
         })
       )
@@ -363,7 +365,9 @@ export const appRouter = router({
 
         let earnedPoints = 0;
         if (isCorrect && input.remainingSeconds > 0) {
-          earnedPoints = Math.round(basePoints * (input.remainingSeconds / 60));
+          // O tempo extra facilita o acesso, mas não pode gerar mais que a
+          // pontuação-base da questão.
+          earnedPoints = Math.round(basePoints * (Math.min(input.remainingSeconds, 60) / 60));
         }
         const acceptedCorrect = isCorrect && input.remainingSeconds > 0;
         if (attempt) {

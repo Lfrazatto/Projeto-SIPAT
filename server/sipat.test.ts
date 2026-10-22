@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
 import { ensureInitialSeeds, getDb } from "./db";
-import { gameResults, participants } from "../drizzle/schema";
-import { like, or } from "drizzle-orm";
+import { gameResults, participants, quizQuestions } from "../drizzle/schema";
+import { eq, like, or } from "drizzle-orm";
 import { ENV } from "./_core/env";
 
 function createMockContext() {
@@ -52,6 +52,17 @@ describe("Cummins SIPAT Backend Logic", () => {
     const timeout = await caller.games.verifyAnswer({ questionId: questions[0].id, selectedOption: "A", remainingSeconds: 0, difficulty: "facil" });
     expect(timeout.isCorrect).toBe(false);
     expect(timeout.earnedPoints).toBe(0);
+  });
+
+  it("accepts extended accessibility time without exceeding base score", async () => {
+    const caller = appRouter.createCaller(createMockContext());
+    const questions = await caller.games.getQuestions({ gameType: "quiz_seguranca" });
+    const question = questions[0];
+    const db = await getDb();
+    const stored = await db!.select({ correctOption: quizQuestions.correctOption }).from(quizQuestions).where(eq(quizQuestions.id, question.id)).limit(1);
+    const result = await caller.games.verifyAnswer({ questionId: question.id, selectedOption: stored[0].correctOption as "A" | "B" | "C" | "D", remainingSeconds: 120, difficulty: "facil" });
+    expect(result.isCorrect).toBe(true);
+    expect(result.earnedPoints).toBe(100);
   });
 
   it("exposes the CDBS scenario catalog and scoped safety hotspots", async () => {
