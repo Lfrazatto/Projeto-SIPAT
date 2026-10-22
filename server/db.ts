@@ -958,6 +958,7 @@ export async function createMuralSubmission(data: {
   participantId?: number | null;
   flagged: boolean;
   flagReasons?: string | null;
+  status?: "pendente" | "aprovada";
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database offline");
@@ -970,7 +971,7 @@ export async function createMuralSubmission(data: {
     isAnonymous: data.isAnonymous,
     consent: data.consent,
     participantId: data.participantId || null,
-    status: "pendente",
+    status: data.status ?? (data.flagged ? "pendente" : "aprovada"),
     isFeatured: false,
     flagged: data.flagged,
     flagReasons: data.flagReasons || null,

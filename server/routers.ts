@@ -895,12 +895,15 @@ export const appRouter = router({
           participantId: input.participantId ?? null,
           flagged: safety.flagged,
           flagReasons: safety.reasons.length ? safety.reasons.join("; ") : null,
+          status: safety.flagged ? "pendente" : "aprovada",
         });
 
         return {
           success: true,
-          status: "pendente" as const,
-          message: "Obrigado por compartilhar seu motivo. Sua mensagem será revisada pela moderação antes de aparecer no mural.",
+          status: safety.flagged ? ("pendente" as const) : ("aprovada" as const),
+          message: safety.flagged
+            ? "Mensagem recebida. Ela ficará aguardando a revisão da moderação antes de aparecer no mural."
+            : "Mensagem validada e publicada no mural. Obrigado por compartilhar seu motivo.",
         };
       }),
   }),

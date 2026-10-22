@@ -74,6 +74,20 @@ describe("Mural Voltar Seguro para Casa - Testes de Regra e Moderação", () => 
     ).rejects.toThrow();
   });
 
+  it("aprova automaticamente uma resposta segura do mural", async () => {
+    const caller = appRouter.createCaller(createMockContext(false));
+    const result = await caller.mural.submitMessage({
+      promptKey: "eu_me_cuido",
+      message: "Eu me cuido porque quero voltar para casa com saúde.",
+      isAnonymous: true,
+      consent: true,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.status).toBe("aprovada");
+    expect(result.message).toContain("publicada");
+  });
+
   it("retorna apenas mensagens aprovadas na consulta pública do mural", async () => {
     const caller = appRouter.createCaller(createMockContext(false));
     const approved = await caller.mural.listApproved();

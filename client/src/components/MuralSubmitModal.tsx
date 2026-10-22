@@ -111,7 +111,7 @@ export function MuralSubmitModal({ open, onOpenChange, onSubmitted }: MuralSubmi
               Obrigado por compartilhar!
             </h3>
             <p className="mx-auto max-w-md text-sm text-slate-300 leading-relaxed">
-              Sua mensagem foi enviada com sucesso para a moderação da equipe EHS da Cummins. Assim que aprovada, ela ficará visível publicamente no mural.
+              A mensagem segura é publicada imediatamente. Se o filtro identificar um possível dado pessoal ou conteúdo inadequado, ela ficará aguardando a revisão da equipe EHS antes de aparecer publicamente.
             </p>
             <div className="pt-2">
               <Button
