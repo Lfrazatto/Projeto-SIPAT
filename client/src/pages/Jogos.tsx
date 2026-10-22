@@ -55,6 +55,9 @@ export default function Jogos() {
       setSelectedGameForLaunch(target);
       if (!participant) {
         setIdentifyModalOpen(true);
+      } else if (target === "ache_o_erro") {
+        setSelectedDifficulty("medio");
+        setActiveRunningGame("ache_o_erro");
       } else {
         setDifficultyModalOpen(true);
       }
@@ -70,6 +73,11 @@ export default function Jogos() {
     setSelectedGameForLaunch(gameKey);
     if (!participant) {
       setIdentifyModalOpen(true);
+    } else if (gameKey === "ache_o_erro") {
+      // O Ache o Erro é uma inspeção única: sempre exibe os sete riscos da
+      // fase, sem escolha de dificuldade nem corte de hotspots.
+      setSelectedDifficulty("medio");
+      setActiveRunningGame("ache_o_erro");
     } else {
       setDifficultyModalOpen(true);
     }
@@ -307,7 +315,7 @@ export default function Jogos() {
               </div>
 
               <div className="pt-2 flex flex-wrap gap-2 text-[11px] text-slate-400 font-mono">
-                <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">5 a 15 Erros</span>
+        <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">7 Erros</span>
                 <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">Comparação Visual</span>
                 <span className="px-2.5 py-1 rounded bg-black/40 border border-white/10">CDBS Osasco</span>
               </div>
@@ -375,7 +383,14 @@ export default function Jogos() {
       <IdentifyModal
         open={identifyModalOpen}
         onOpenChange={setIdentifyModalOpen}
-        onSuccess={() => setDifficultyModalOpen(true)}
+        onSuccess={() => {
+          if (selectedGameForLaunch === "ache_o_erro") {
+            setSelectedDifficulty("medio");
+            setActiveRunningGame("ache_o_erro");
+            return;
+          }
+          setDifficultyModalOpen(true);
+        }}
       />
 
       {/* Difficulty Modal */}
