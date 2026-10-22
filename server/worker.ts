@@ -49,10 +49,10 @@ export default {
         console.error("[Worker] seed failed", error);
       });
     }
-    // O catálogo e os hotspots precisam existir antes da primeira resposta.
-    // Antes o seed era disparado em background e o primeiro acesso podia receber
-    // um catálogo vazio, deixando o Ache o Erro e o editor Admin sem cenários.
-    await seedPromise;
+    // O seed não pode bloquear o primeiro acesso: ele faz várias gravações
+    // sequenciais no D1 e podia deixar o participante esperando dezenas de
+    // segundos antes de abrir um quiz. O catálogo oficial já possui fallback
+    // estático e o D1 continua sendo preenchido em segundo plano.
 
     const url = new URL(request.url);
     if (env.ASSET_BUCKET && url.pathname.startsWith("/assets/")) {
