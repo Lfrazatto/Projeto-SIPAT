@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import * as THREE from "three";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import {
   RotateCcw,
   Layers,
@@ -261,6 +262,8 @@ export function AxleAssemblyViewer({
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.localClippingEnabled = true;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
     rendererRef.current = renderer;
 
     // Scene
@@ -269,6 +272,13 @@ export function AxleAssemblyViewer({
     scene.background = null;
     renderer.setClearColor(0x0e1117, 0);
     sceneRef.current = scene;
+    // Reflexos neutros de oficina, calculados uma vez e sem downloads externos.
+    const environmentRoom = new RoomEnvironment();
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const environmentTarget = pmrem.fromScene(environmentRoom, 0.04);
+    scene.environment = environmentTarget.texture;
+    environmentRoom.dispose();
+    pmrem.dispose();
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
@@ -284,7 +294,7 @@ export function AxleAssemblyViewer({
     clippingPlaneRef.current = clipPlane;
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.55);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
     scene.add(ambientLight);
 
     const hemiLight = new THREE.HemisphereLight(0xdcecff, 0x20262c, 1.1);
@@ -297,7 +307,7 @@ export function AxleAssemblyViewer({
     dirLight1.shadow.mapSize.height = 1024;
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0xff3322, 0.7);
+    const dirLight2 = new THREE.DirectionalLight(0xe2e8ed, 0.7);
     dirLight2.position.set(-12, 4, -10);
     scene.add(dirLight2);
 
@@ -305,7 +315,7 @@ export function AxleAssemblyViewer({
     fillLight.position.set(0, -10, 8);
     scene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xff6655, 1.15);
+    const rimLight = new THREE.DirectionalLight(0xf5e8d5, 1.15);
     rimLight.position.set(-8, 6, -14);
     scene.add(rimLight);
 
@@ -364,7 +374,7 @@ export function AxleAssemblyViewer({
       return m;
     };
 
-    const castIronMat = createMat(0x657481, 0.68, 0.42);
+    const castIronMat = createMat(0x454b50, 0.35, 0.68);
     const innerIronMat = createMat(0x8796a3, 0.72, 0.32);
     const machinedSteelMat = createMat(0xd8e0e6, 0.94, 0.16);
     const darkSteelMat = createMat(0x77838f, 0.88, 0.28);
@@ -376,6 +386,24 @@ export function AxleAssemblyViewer({
     const brakeLiningMat = createMat(0xb6754e, 0.44, 0.62);
     const rubberMat = createMat(0x22272b, 0.08, 0.88);
     materialsRef.current = materials;
+
+    // Microrelevo sutil de fundição: textura pequena, determinística e reutilizada.
+    const grain = new Uint8Array(128 * 128 * 4);
+    let seed = 120;
+    for (let i = 0; i < grain.length; i += 4) {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+      const value = 112 + (seed >>> 27);
+      grain[i] = grain[i + 1] = grain[i + 2] = value;
+      grain[i + 3] = 255;
+    }
+    const castingTexture = new THREE.DataTexture(grain, 128, 128);
+    castingTexture.wrapS = castingTexture.wrapT = THREE.RepeatWrapping;
+    castingTexture.repeat.set(8, 8);
+    castingTexture.needsUpdate = true;
+    castIronMat.bumpMap = castingTexture;
+    castIronMat.bumpScale = 0.018;
+    brakeMat.bumpMap = castingTexture;
+    brakeMat.bumpScale = 0.012;
 
     const beveledBox = (width: number, height: number, depth: number, bevel = 0.05) => {
       const shape = new THREE.Shape();
@@ -1647,6 +1675,8 @@ export function AxleAssemblyViewer({
         }
       });
       materials.forEach((material) => material.dispose());
+      castingTexture.dispose();
+      environmentTarget.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
     };
