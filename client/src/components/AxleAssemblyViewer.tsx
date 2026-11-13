@@ -385,6 +385,16 @@ export function AxleAssemblyViewer({
     const brakeMat = createMat(0x778693, 0.68, 0.38);
     const brakeLiningMat = createMat(0xb6754e, 0.44, 0.62);
     const rubberMat = createMat(0x22272b, 0.08, 0.88);
+    // Paleta da referência: carcaça pintada, cubos usinados e freios claros.
+    const paintedHousingMat = new THREE.MeshPhysicalMaterial({
+      color: 0xa5092d, metalness: 0.25, roughness: 0.3,
+      clearcoat: 0.5, clearcoatRoughness: 0.28,
+      side: THREE.DoubleSide, clippingPlanes: [clipPlane],
+    });
+    materials.push(paintedHousingMat);
+    const creamBrakeMat = createMat(0xc8c2a5, 0.3, 0.44);
+    const silverHubMat = createMat(0xbfc3c4, 0.8, 0.26);
+    const gearFaceMat = createMat(0xa09b7c, 0.85, 0.3);
     materialsRef.current = materials;
 
     // Microrelevo sutil de fundição: textura pequena, determinística e reutilizada.
@@ -610,9 +620,23 @@ export function AxleAssemblyViewer({
         new THREE.Vector2(1.55, -0.2), new THREE.Vector2(1.62, 0.18), new THREE.Vector2(1.48, 0.58),
         new THREE.Vector2(1.08, 0.86), new THREE.Vector2(0.56, 1.02), new THREE.Vector2(0, 1.06),
       ];
-      const pumpkinGeom = new THREE.LatheGeometry(profile, 56);
+      const pumpkinGeom = new THREE.LatheGeometry(profile, 80);
       pumpkinGeom.rotateX(Math.PI / 2);
-      const pumpkinMesh = new THREE.Mesh(pumpkinGeom, castIronMat);
+      // Janela demonstrativa recortada na malha, sem imagem sobreposta.
+      const vertices = pumpkinGeom.getAttribute("position");
+      const indices = pumpkinGeom.index!;
+      const visibleFaces: number[] = [];
+      for (let i = 0; i < indices.count; i += 3) {
+        const a = indices.getX(i), b = indices.getX(i + 1), c = indices.getX(i + 2);
+        const x = (vertices.getX(a) + vertices.getX(b) + vertices.getX(c)) / 3;
+        const y = (vertices.getY(a) + vertices.getY(b) + vertices.getY(c)) / 3;
+        const z = (vertices.getZ(a) + vertices.getZ(b) + vertices.getZ(c)) / 3;
+        if (!(z > 0.22 && y > -0.18 && y < 1.28 && Math.abs(x) < 0.96)) {
+          visibleFaces.push(a, b, c);
+        }
+      }
+      pumpkinGeom.setIndex(visibleFaces);
+      const pumpkinMesh = new THREE.Mesh(pumpkinGeom, paintedHousingMat);
       pumpkinMesh.castShadow = true;
       pumpkinMesh.receiveShadow = true;
       grpMainHousing.add(pumpkinMesh);
@@ -624,13 +648,13 @@ export function AxleAssemblyViewer({
       grpMainHousing.add(rearFlange);
       for (let i = 0; i < 8; i += 1) {
         const a = (i / 8) * Math.PI * 2;
-        const rib = new THREE.Mesh(beveledBox(0.16, 2.7, 0.28, 0.06), darkSteelMat);
-        rib.position.set(Math.cos(a) * 0.44, Math.sin(a) * 1.12, 0.56);
+        const rib = new THREE.Mesh(beveledBox(0.15, 0.52, 0.22, 0.045), paintedHousingMat);
+        rib.position.set(Math.cos(a) * 1.22, Math.sin(a) * 1.22, 0.14);
         rib.rotation.z = a;
         grpMainHousing.add(rib);
       }
       [-1, 1].forEach((side) => {
-        const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.64, 0.98, 1.05, 40), castIronMat);
+        const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.64, 0.98, 1.05, 48), paintedHousingMat);
         neck.rotation.z = Math.PI / 2;
         neck.position.x = side * 1.44;
         grpMainHousing.add(neck);
@@ -649,7 +673,7 @@ export function AxleAssemblyViewer({
     const grpPinionNose = registerComp("pinion_nose_housing", new THREE.Vector3(0, 0, 0.95));
     {
       const noseGeom = new THREE.CylinderGeometry(0.76, 0.92, 1.35, 32);
-      const nose = new THREE.Mesh(noseGeom, castIronMat);
+      const nose = new THREE.Mesh(noseGeom, paintedHousingMat);
       nose.rotation.x = Math.PI / 2;
       grpPinionNose.add(nose);
 
@@ -664,7 +688,7 @@ export function AxleAssemblyViewer({
     const grpHousingCover = registerComp("housing_cover", new THREE.Vector3(0, 0, -0.85));
     {
       const coverDomeGeom = new THREE.SphereGeometry(1.48, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.45);
-      const coverDome = new THREE.Mesh(coverDomeGeom, castIronMat);
+      const coverDome = new THREE.Mesh(coverDomeGeom, paintedHousingMat);
       coverDome.rotation.x = -Math.PI / 2;
       grpHousingCover.add(coverDome);
 
@@ -672,7 +696,7 @@ export function AxleAssemblyViewer({
       const coverRing = new THREE.Mesh(coverRingGeom, machinedSteelMat);
       grpHousingCover.add(coverRing);
 
-      const coverRelief = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.84, 0.16, 32), castIronMat);
+      const coverRelief = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.84, 0.16, 48), paintedHousingMat);
       coverRelief.rotation.x = Math.PI / 2;
       coverRelief.position.z = -0.12;
       grpHousingCover.add(coverRelief);
@@ -744,7 +768,7 @@ export function AxleAssemblyViewer({
     const grpLeftTube = registerComp("left_axle_tube", new THREE.Vector3(-3.25, 0, 0));
     {
       const tubeGeom = new THREE.CylinderGeometry(0.68, 0.68, 3.2, 28);
-      const tube = new THREE.Mesh(tubeGeom, castIronMat);
+      const tube = new THREE.Mesh(tubeGeom, creamBrakeMat);
       tube.rotation.z = Math.PI / 2;
       grpLeftTube.add(tube);
 
@@ -773,7 +797,7 @@ export function AxleAssemblyViewer({
     const grpRightTube = registerComp("right_axle_tube", new THREE.Vector3(3.25, 0, 0));
     {
       const tubeGeom = new THREE.CylinderGeometry(0.68, 0.68, 3.2, 28);
-      const tube = new THREE.Mesh(tubeGeom, castIronMat);
+      const tube = new THREE.Mesh(tubeGeom, creamBrakeMat);
       tube.rotation.z = Math.PI / 2;
       grpRightTube.add(tube);
 
@@ -1103,11 +1127,15 @@ export function AxleAssemblyViewer({
       addSplinePack(grpRightSplines, 1, 0.62, 20);
     }
 
+    compMap["ring_gear"]?.traverse((object) => {
+      if (object instanceof THREE.Mesh) object.material = gearFaceMat;
+    });
+
     // 28. CUBO DE RODA ESQUERDO    // 28. CUBO DE RODA ESQUERDO (Left Wheel Hub)
     const grpLeftHub = registerComp("left_wheel_hub", new THREE.Vector3(-5.35, 0, 0));
     {
       const hubGeom = new THREE.CylinderGeometry(0.85, 0.85, 0.95, 32);
-      const hub = new THREE.Mesh(hubGeom, castIronMat);
+      const hub = new THREE.Mesh(hubGeom, silverHubMat);
       hub.rotation.z = Math.PI / 2;
       grpLeftHub.add(hub);
 
@@ -1134,7 +1162,7 @@ export function AxleAssemblyViewer({
     const grpRightHub = registerComp("right_wheel_hub", new THREE.Vector3(5.35, 0, 0));
     {
       const hubGeom = new THREE.CylinderGeometry(0.85, 0.85, 0.95, 32);
-      const hub = new THREE.Mesh(hubGeom, castIronMat);
+      const hub = new THREE.Mesh(hubGeom, silverHubMat);
       hub.rotation.z = Math.PI / 2;
       grpRightHub.add(hub);
 
@@ -1156,6 +1184,28 @@ export function AxleAssemblyViewer({
       innerStep.position.x = 0.48;
       grpRightHub.add(innerStep);
     }
+
+    // Nervuras dos cubos, tampas e parafusos vinculados à peça original.
+    [[grpLeftHub, -1], [grpRightHub, 1]].forEach(([group, sign]) => {
+      const hubGroup = group as THREE.Group;
+      const side = sign as number;
+      for (let i = 0; i < 10; i++) {
+        const a = i * Math.PI / 5;
+        const rib = new THREE.Mesh(beveledBox(0.66, 0.58, 0.115, 0.035), silverHubMat);
+        rib.position.set(side * 0.28, Math.cos(a) * 1.02, Math.sin(a) * 1.02);
+        rib.rotation.x = a;
+        rib.castShadow = true;
+        hubGroup.add(rib);
+        const bolt = new THREE.Group();
+        bolt.position.set(side * 0.73, Math.cos(a) * 0.65, Math.sin(a) * 0.65);
+        addThreadedFastener(bolt, "x", 0.14, 0.045, 0, true);
+        hubGroup.add(bolt);
+      }
+      const cover = new THREE.Mesh(annularGeometry(0.76, 0.06, 0.07, 64), silverHubMat);
+      cover.rotation.y = Math.PI / 2;
+      cover.position.x = side * 0.7;
+      hubGroup.add(cover);
+    });
 
     const grpLeftHubBearings = registerComp("left_hub_bearings", new THREE.Vector3(-5.35, 0, 0));
     {
@@ -1211,12 +1261,12 @@ export function AxleAssemblyViewer({
     const grpLeftBrake = registerComp("left_brake_assembly", new THREE.Vector3(-4.65, 0, 0));
     {
       const drumGeom = new THREE.CylinderGeometry(1.68, 1.68, 0.85, 32, 1, true);
-      const drum = new THREE.Mesh(drumGeom, brakeMat);
+      const drum = new THREE.Mesh(drumGeom, creamBrakeMat);
       drum.rotation.z = Math.PI / 2;
       grpLeftBrake.add(drum);
 
       const plateGeom = new THREE.CylinderGeometry(1.62, 1.62, 0.12, 32);
-      const plate = new THREE.Mesh(plateGeom, castIronMat);
+      const plate = new THREE.Mesh(plateGeom, creamBrakeMat);
       plate.rotation.z = Math.PI / 2;
       plate.position.x = 0.42;
       grpLeftBrake.add(plate);
@@ -1230,12 +1280,12 @@ export function AxleAssemblyViewer({
     const grpRightBrake = registerComp("right_brake_assembly", new THREE.Vector3(4.65, 0, 0));
     {
       const drumGeom = new THREE.CylinderGeometry(1.68, 1.68, 0.85, 32, 1, true);
-      const drum = new THREE.Mesh(drumGeom, brakeMat);
+      const drum = new THREE.Mesh(drumGeom, creamBrakeMat);
       drum.rotation.z = Math.PI / 2;
       grpRightBrake.add(drum);
 
       const plateGeom = new THREE.CylinderGeometry(1.62, 1.62, 0.12, 32);
-      const plate = new THREE.Mesh(plateGeom, castIronMat);
+      const plate = new THREE.Mesh(plateGeom, creamBrakeMat);
       plate.rotation.z = Math.PI / 2;
       plate.position.x = -0.42;
       grpRightBrake.add(plate);
@@ -1249,7 +1299,7 @@ export function AxleAssemblyViewer({
     const grpLeftChamber = registerComp("left_brake_chamber", new THREE.Vector3(-4.4, -0.65, -0.85));
     {
       const chamberGeom = new THREE.CylinderGeometry(0.48, 0.48, 0.72, 24);
-      const chamber = new THREE.Mesh(chamberGeom, castIronMat);
+      const chamber = new THREE.Mesh(chamberGeom, creamBrakeMat);
       chamber.rotation.x = Math.PI / 2;
       grpLeftChamber.add(chamber);
 
@@ -1263,7 +1313,7 @@ export function AxleAssemblyViewer({
     const grpRightChamber = registerComp("right_brake_chamber", new THREE.Vector3(4.4, -0.65, -0.85));
     {
       const chamberGeom = new THREE.CylinderGeometry(0.48, 0.48, 0.72, 24);
-      const chamber = new THREE.Mesh(chamberGeom, castIronMat);
+      const chamber = new THREE.Mesh(chamberGeom, creamBrakeMat);
       chamber.rotation.x = Math.PI / 2;
       grpRightChamber.add(chamber);
 
@@ -1272,6 +1322,32 @@ export function AxleAssemblyViewer({
       rod.position.set(0, 0.35, 0.2);
       grpRightChamber.add(rod);
     }
+
+    [grpLeftChamber, grpRightChamber].forEach((group) => {
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.48, 32, 16), creamBrakeMat);
+      dome.scale.set(1, 1, 0.42);
+      dome.position.z = -0.36;
+      group.add(dome);
+      for (const z of [-0.3, 0, 0.3]) {
+        const seam = new THREE.Mesh(new THREE.TorusGeometry(0.485, 0.028, 8, 40), silverHubMat);
+        seam.position.z = z;
+        group.add(seam);
+      }
+      const port = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.18, 6), fastenerMat);
+      port.position.set(0.12, 0.47, -0.1);
+      group.add(port);
+      const bracket = new THREE.Mesh(beveledBox(0.65, 0.14, 0.5, 0.035), silverHubMat);
+      bracket.position.set(0, 0.3, 0.38);
+      group.add(bracket);
+    });
+    [grpLeftBrake, grpRightBrake].forEach((group) => {
+      for (const x of [-0.4, 0.4]) {
+        const lip = new THREE.Mesh(new THREE.TorusGeometry(1.67, 0.045, 8, 64), creamBrakeMat);
+        lip.rotation.y = Math.PI / 2;
+        lip.position.x = x;
+        group.add(lip);
+      }
+    });
 
     const grpLeftBrakeShoes = registerComp("left_brake_shoes", new THREE.Vector3(-4.65, 0, 0));
     {
