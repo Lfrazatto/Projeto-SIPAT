@@ -101,7 +101,7 @@ export const EDUCATION_POINTS: EducationPoint[] = [
     description: "Este ambiente faz parte de uma experiência criada por alunos do Formare, unindo tecnologia, criatividade e segurança.",
     action: "Conhecer o projeto",
     href: "/nosso-projeto",
-    targetComponentId: "differential_carrier",
+    targetComponentId: "welded_crown_carrier",
   },
 ];
 
@@ -254,7 +254,7 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
 
         <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-[#121620] p-3 text-xs sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <strong className="block font-industrial text-sm uppercase tracking-wide text-white">Eixo MS-120 em 3D</strong>
+            <strong className="block font-industrial text-sm uppercase tracking-wide text-white">Eixo MS-18X HD em 3D</strong>
             <span className="mt-0.5 block text-[11px] text-slate-400">Arraste para girar em 360° • Zoom com a roda do mouse ou pinça no celular</span>
           </div>
           <div className="flex items-center gap-2">
@@ -317,7 +317,7 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
             </p>
             <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-mono uppercase tracking-wide text-slate-300">
               <span className="rounded-full border border-emerald-400/30 bg-emerald-950/30 px-3 py-1.5 text-emerald-200">Exploração disponível</span>
-              <span className="rounded-full border border-white/15 bg-black/20 px-3 py-1.5">MS-120 / Osasco</span>
+              <span className="rounded-full border border-white/15 bg-black/20 px-3 py-1.5">MS-18X HD / Osasco</span>
               <span className="rounded-full border border-white/15 bg-black/20 px-3 py-1.5">Projeto Formare</span>
             </div>
           </div>
@@ -358,7 +358,7 @@ export function Sipat3DExperience({ fullPage = false, heroLayout = false }: Sipa
                   <div>
                     <div className="inline-flex items-center gap-2 rounded-full border border-red-400/30 bg-red-950/30 px-3 py-1.5 text-xs font-bold uppercase text-red-200"><Sparkles className="h-4 w-4" aria-hidden="true" /> Experiência interativa</div>
                     <h3 className="mt-4 font-industrial text-2xl uppercase text-white">Carregar experiência 3D</h3>
-                    <p className="mt-3 text-sm leading-relaxed text-slate-300">Veja o ambiente ligado ao projeto, explore os pontos de segurança e conheça os componentes do eixo MS-120.</p>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-300">Veja o ambiente ligado ao projeto, explore os pontos de segurança e conheça os componentes do eixo MS-18X HD.</p>
                     <Button type="button" onClick={() => setLoad3D(true)} className="mt-5 min-h-12 bg-[#da291c] text-xs font-black uppercase text-white hover:bg-[#b01e12]">Carregar experiência 3D <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Button>
                   </div>
                 </div>

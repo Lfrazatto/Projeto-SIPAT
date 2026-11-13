@@ -129,7 +129,7 @@ export default function Home() {
                 <Factory className="h-5 w-5 text-amber-300" aria-hidden="true" />
                 <div>
                   <span className="block font-industrial text-xs uppercase tracking-widest text-white">Projeto 3D Interativo</span>
-                  <span className="text-[11px] text-slate-400">Ambiente industrial SIPAT • Eixo MS-120</span>
+                  <span className="text-[11px] text-slate-400">Ambiente industrial SIPAT • Eixo MS-18X HD</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">

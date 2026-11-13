@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MS120_CATALOG, ComponentDefinition, getComponentById } from "@/data/ms120Catalog";
+import { type ComponentDefinition } from "@/data/ms120Catalog";
+import { MS18X_CATALOG as MS120_CATALOG, getMS18XComponentById as getComponentById } from "@/data/ms18xCatalog";
 import { REAL_PHOTOS } from "@/data/realPhotos";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 
@@ -26,8 +27,8 @@ const ROTATING_COMPONENTS = new Set([
   "front_pinion_bearing",
   "rear_pinion_bearing",
   "drive_pinion",
-  "ring_gear",
-  "differential_carrier",
+  "welded_crown_carrier",
+  "pinion_pilot_bearing",
   "spider_cross",
   "spider_pins",
   "spider_gears",
@@ -387,14 +388,14 @@ export function AxleAssemblyViewer({
     const rubberMat = createMat(0x22272b, 0.08, 0.88);
     // Paleta da referência: carcaça pintada, cubos usinados e freios claros.
     const paintedHousingMat = new THREE.MeshPhysicalMaterial({
-      color: 0xa5092d, metalness: 0.25, roughness: 0.3,
+      color: 0x8d9296, metalness: 0.72, roughness: 0.36,
       clearcoat: 0.5, clearcoatRoughness: 0.28,
       side: THREE.DoubleSide, clippingPlanes: [clipPlane],
     });
     materials.push(paintedHousingMat);
-    const creamBrakeMat = createMat(0xc8c2a5, 0.3, 0.44);
+    const creamBrakeMat = createMat(0xaeb2b3, 0.72, 0.38);
     const silverHubMat = createMat(0xbfc3c4, 0.8, 0.26);
-    const gearFaceMat = createMat(0xa09b7c, 0.85, 0.3);
+    const gearFaceMat = createMat(0x767c81, 0.9, 0.3);
     materialsRef.current = materials;
 
     // Microrelevo sutil de fundição: textura pequena, determinística e reutilizada.
@@ -626,6 +627,7 @@ export function AxleAssemblyViewer({
       const vertices = pumpkinGeom.getAttribute("position");
       const indices = pumpkinGeom.index!;
       const visibleFaces: number[] = [];
+      const panelFaces: number[] = [];
       for (let i = 0; i < indices.count; i += 3) {
         const a = indices.getX(i), b = indices.getX(i + 1), c = indices.getX(i + 2);
         const x = (vertices.getX(a) + vertices.getX(b) + vertices.getX(c)) / 3;
@@ -633,8 +635,12 @@ export function AxleAssemblyViewer({
         const z = (vertices.getZ(a) + vertices.getZ(b) + vertices.getZ(c)) / 3;
         if (!(z > 0.22 && y > -0.18 && y < 1.28 && Math.abs(x) < 0.96)) {
           visibleFaces.push(a, b, c);
-        }
+        } else { panelFaces.push(a, b, c); }
       }
+      const panelGeometry = pumpkinGeom.clone();
+      panelGeometry.setIndex(panelFaces);
+      const panelGroup = registerComp("inspection_panel", new THREE.Vector3());
+      panelGroup.add(new THREE.Mesh(panelGeometry, paintedHousingMat));
       pumpkinGeom.setIndex(visibleFaces);
       const pumpkinMesh = new THREE.Mesh(pumpkinGeom, paintedHousingMat);
       pumpkinMesh.castShadow = true;
@@ -952,13 +958,10 @@ export function AxleAssemblyViewer({
       hub.rotation.z = Math.PI / 2;
       hub.position.x = -0.34;
       grpRingGear.add(hub);
-      for (let i = 0; i < 12; i += 1) {
-        const a = (i / 12) * Math.PI * 2;
-        const fastener = new THREE.Group();
-        fastener.position.set(-0.48, Math.cos(a) * 0.92, Math.sin(a) * 0.92);
-        addThreadedFastener(fastener, "x", 0.24, 0.06, 3, true);
-        grpRingGear.add(fastener);
-      }
+      const laserSeam = new THREE.Mesh(new THREE.TorusGeometry(0.91, 0.018, 6, 64), darkSteelMat);
+      laserSeam.rotation.y = Math.PI / 2;
+      laserSeam.position.x = -0.48;
+      grpRingGear.add(laserSeam);
       addMachiningMarks(grpRingGear, 1.27, "x", gearHighlightMat, 3);
     }
 
@@ -1487,6 +1490,88 @@ export function AxleAssemblyViewer({
       });
     }
 
+
+    // Third cylindrical pilot bearing, documented in the 18X/18X HD manual.
+    const pilotBearing = registerComp("pinion_pilot_bearing", new THREE.Vector3(0, 0, -0.43));
+    const pilotOuter = new THREE.Mesh(annularGeometry(0.4, 0.31, 0.2, 48), machinedSteelMat);
+    pilotBearing.add(pilotOuter);
+    const pilotInner = new THREE.Mesh(annularGeometry(0.25, 0.18, 0.22, 40), darkSteelMat);
+    pilotBearing.add(pilotInner);
+    for (let i = 0; i < 14; i++) {
+      const a = i * Math.PI / 7;
+      const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.17, 10), machinedSteelMat);
+      roller.rotation.x = Math.PI / 2;
+      roller.position.set(Math.cos(a) * 0.28, Math.sin(a) * 0.28, 0.1);
+      pilotBearing.add(roller);
+    }
+
+    // Join crown and carrier into one indivisible component for CAD selection/explosion.
+    rootAssembly.updateMatrixWorld(true);
+    for (const mesh of [...grpRingGear.children]) grpCarrier.attach(mesh);
+    rootAssembly.remove(grpRingGear);
+    delete compMap["ring_gear"];
+    delete compMap["differential_carrier"];
+    grpCarrier.userData.id = "welded_crown_carrier";
+    compMap["welded_crown_carrier"] = grpCarrier;
+
+    // Forged/cast axle arms with slimmer envelope; visual proportions only.
+    grpLeftTube.scale.set(1, 0.82, 0.82);
+    grpRightTube.scale.set(1, 0.82, 0.82);
+
+    // Smooth, stepped pilot flanges and a dark pneumatic chamber finish.
+    const chamberFinish = createMat(0x292c30, 0.35, 0.6);
+    for (const group of [grpLeftChamber, grpRightChamber]) {
+      group.traverse(o => { if (o instanceof THREE.Mesh && o.material === creamBrakeMat) o.material = chamberFinish; });
+      const band = new THREE.Mesh(new THREE.TorusGeometry(0.495, 0.016, 8, 48), fastenerMat);
+      band.position.z = -0.15;
+      group.add(band);
+    }
+    for (const group of [grpLeftHub, grpRightHub]) {
+      for (const x of [-0.08, 0.08]) {
+        const faceRing = new THREE.Mesh(new THREE.TorusGeometry(1.19, 0.008, 6, 56), darkSteelMat);
+        faceRing.rotation.y = Math.PI / 2;
+        faceRing.position.x = x;
+        group.add(faceRing);
+      }
+    }
+
+    // Removable drum panels for a technical inspection view.
+    for (const [group, side] of [[grpLeftBrake, -1], [grpRightBrake, 1]] as const) {
+      const drumPanel = registerComp(side < 0 ? "left_drum_inspection_panel" : "right_drum_inspection_panel", group.position.clone());
+      for (const object of [...group.children]) {
+        if (!(object instanceof THREE.Mesh)) continue;
+        if (object.geometry instanceof THREE.CylinderGeometry && object.geometry.parameters.radiusTop > 1.6) {
+          const parentBefore = object.parent;
+          rootAssembly.updateMatrixWorld(true);
+          drumPanel.attach(object);
+        }
+      }
+      for (let i = 0; i < 12; i++) {
+        const a = i * Math.PI / 6;
+        const fastener = new THREE.Group();
+        fastener.position.set(side * 0.34, Math.cos(a) * 1.44, Math.sin(a) * 1.44);
+        addThreadedFastener(fastener, "x", 0.12, 0.04, 0, false);
+        group.add(fastener);
+      }
+    }
+
+    // Nameplate is blank: no invented Cummins serial or official part number.
+    const nameplate = registerComp("identification_plate_blank", new THREE.Vector3(0.55, 1.32, -0.2));
+    nameplate.add(new THREE.Mesh(beveledBox(0.48, 0.025, 0.2, 0.01), silverHubMat));
+
+    Object.values(compMap).forEach((group) => {
+      const clones = new Map<THREE.Material, THREE.Material>();
+      group.traverse(object => {
+        if (!(object instanceof THREE.Mesh)) return;
+        const base = object.material as THREE.Material;
+        if (!clones.has(base)) {
+          const cloned = base.clone();
+          clones.set(base, cloned);
+          materials.push(cloned);
+        }
+        object.material = clones.get(base)!;
+      });
+    });
     groupMapRef.current = compMap;
     Object.values(compMap).forEach((group) => {
       group.userData.componentDefinition = MS120_CATALOG.find((item) => item.id === group.userData.id);
@@ -1682,8 +1767,8 @@ export function AxleAssemblyViewer({
         if (compMap["rear_pinion_bearing"]) compMap["rear_pinion_bearing"].rotation.z = ang * 3.5;
 
         // Coroa e caixa do diferencial giram no eixo transversal perpendicular X
-        if (compMap["ring_gear"]) compMap["ring_gear"].rotation.x = ang;
-        if (compMap["differential_carrier"]) compMap["differential_carrier"].rotation.x = ang;
+        if (compMap["welded_crown_carrier"]) compMap["welded_crown_carrier"].rotation.x = ang;
+        if (compMap["pinion_pilot_bearing"]) compMap["pinion_pilot_bearing"].rotation.z = ang * 3.5;
         if (compMap["spider_cross"]) compMap["spider_cross"].rotation.x = ang;
         if (compMap["spider_pins"]) compMap["spider_pins"].rotation.x = ang;
         if (compMap["left_differential_bearing"]) compMap["left_differential_bearing"].rotation.x = ang;
@@ -1779,7 +1864,8 @@ export function AxleAssemblyViewer({
     const root = rootAssemblyRef.current;
     if (!root) return;
     const externalIds = new Set([
-      "main_axle_housing", "pinion_nose_housing", "housing_cover",
+      "main_axle_housing", "pinion_nose_housing", "housing_cover", "inspection_panel",
+      "left_drum_inspection_panel", "right_drum_inspection_panel",
       "left_axle_tube", "right_axle_tube", "left_wheel_hub", "right_wheel_hub",
       "left_brake_assembly", "right_brake_assembly", "left_brake_chamber", "right_brake_chamber"
     ]);
@@ -1873,7 +1959,7 @@ export function AxleAssemblyViewer({
   const handleMeasureToggle = () => {
     if (!measureModeActive) {
       setMeasureModeActive(true);
-      setMeasuredDistance("Bitola entre flanges dos cubos: 1,688 mm (referência didática do catálogo MS-120)");
+      setMeasuredDistance("Selecione pontos no modelo: medidas em unidades relativas, sem escala de fabricação validada.");
     } else {
       setMeasureModeActive(false);
       setMeasuredDistance(null);
@@ -2174,7 +2260,7 @@ export function AxleAssemblyViewer({
               ref={canvasRef}
               tabIndex={0}
               role="application"
-              aria-label="Visualizador 3D interativo do eixo traseiro Meritor Cummins MS-120. Use as setas para girar, mais e menos para zoom, R para resetar e M para medir."
+              aria-label="Visualizador 3D interativo do eixo traseiro Meritor Cummins MS-18X HD. Use as setas para girar, mais e menos para zoom, R para resetar e M para medir."
               onKeyDown={(event) => {
                 if (event.key === "r" || event.key === "R") { event.preventDefault(); handleReset(); return; }
                 if (event.key === "m" || event.key === "M") { event.preventDefault(); handleMeasureToggle(); return; }
